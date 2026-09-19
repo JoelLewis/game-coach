@@ -4,31 +4,41 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/copy-engine.mjs",
     "dev": "vite dev",
+    "prebuild": "node scripts/copy-engine.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "typecheck": "wrangler types ./src/worker-configuration.d.ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run --passWithNoTests",
+    "test:e2e": "playwright test",
     "deploy": "vite build && wrangler deploy",
-    "types": "wrangler types ./src/worker-configuration.d.ts"
+    "types": "wrangler types ./src/worker-configuration.d.ts",
+    "copy-engine": "node scripts/copy-engine.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@sveltejs/adapter-cloudflare": "^7.0.0",
     "@sveltejs/kit": "^2.63.0",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tailwindcss/vite": "^4.1.0",
+    "jsdom": "^26.1.0",
     "svelte": "^5.56.1",
     "svelte-check": "^4.6.0",
+    "tailwindcss": "^4.1.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
-    "@sveltejs/adapter-cloudflare": "^7.0.0",
-    "@tailwindcss/vite": "^4.1.0",
-    "tailwindcss": "^4.1.0",
     "vitest": "^3.2.0",
     "wrangler": "^4.134.0"
   },
   "license": "GPL-3.0-only",
   "dependencies": {
+    "@game-coach/chess-adapter": "workspace:*",
+    "@game-coach/chess-core": "workspace:*",
     "@game-coach/contracts": "workspace:*",
+    "@game-coach/ui-study": "workspace:*",
+    "stockfish": "19.0.0",
     "valibot": "^1.1.0"
   }
 }
