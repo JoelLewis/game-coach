@@ -15,6 +15,8 @@ export const ThresholdConfigSchema = v.object({
   interruptNoul: Probability,
   severityMass: Probability,
   // confidence_override above this cancels an interrupt (engine swing overstates the error).
+  // M0: this answer barely discriminates (blunders 0.45-0.66, a missed mate 0.70-0.74), so the
+  // default only vetoes on a strong signal until M1 calibrates it.
   overrideNoul: Probability,
   minPliesBetweenInterrupts: v.pipe(v.number(), v.integer(), v.minValue(0)),
   // Rule 2. Writing model only when teachable >= teachableNoul, capped per game.
@@ -33,7 +35,7 @@ export type ThresholdConfig = v.InferOutput<typeof ThresholdConfigSchema>;
 export const DEFAULT_THRESHOLDS: ThresholdConfig = {
   interruptNoul: 0.7,
   severityMass: 0.6,
-  overrideNoul: 0.7,
+  overrideNoul: 0.85,
   minPliesBetweenInterrupts: 6,
   teachableNoul: 0.8,
   maxWriterCallsPerGame: 3,

@@ -88,15 +88,24 @@ describe("decide() against recorded M0 fixtures (narrow.json)", () => {
       }
     });
 
-    it("interrupts whenever confidence_override clears overrideNoul, else queues via the override veto", () => {
+    // This case sits on two gates at once: interrupt_now straddles interruptNoul run to run
+    // (0.68-0.72) and confidence_override is high for a missed win (0.70-0.74).
+    it("interrupts exactly when both the interrupt_now and override gates clear, else queues", () => {
       for (const a of answers) {
         const decision = decide(a, DEFAULT_THRESHOLDS, liveContext);
-        if (a.confidence_override.noul < DEFAULT_THRESHOLDS.overrideNoul) {
-          expect(decision.action).toBe("interrupt");
-        } else {
-          expect(decision.action).toBe("queued");
-          expect(decision.reasons.some((reason) => reason.startsWith("override="))).toBe(true);
-        }
+        const clearsGates =
+          a.interrupt_now.noul >= DEFAULT_THRESHOLDS.interruptNoul &&
+          a.confidence_override.noul < DEFAULT_THRESHOLDS.overrideNoul;
+        expect(decision.action).toBe(clearsGates ? "interrupt" : "queued");
+      }
+    });
+
+    it("is vetoed by a strict override threshold, with the reason recorded", () => {
+      const strict = { ...DEFAULT_THRESHOLDS, interruptNoul: 0.5, overrideNoul: 0.6 };
+      for (const a of answers) {
+        const decision = decide(a, strict, liveContext);
+        expect(decision.action).toBe("queued");
+        expect(decision.reasons.some((reason) => reason.startsWith("override="))).toBe(true);
       }
     });
   });

@@ -24,6 +24,8 @@ Gate (p95 < 500 ms): **pass** for both. Cost uses TypeSafe list price ($0.042 / 
 7. Jev judged these correctly with placeholder (all-neutral) `features`, i.e. mostly from the engine swing. That is the PRD's "rubber-stamps the swing" risk; M1 must include cases where swing and practical severity disagree.
 8. Fixture data: teach-chess serializes mate evals as `{type: "mate", moves}`, not `{type, value}`.
 
+9. **`confidence_override` barely discriminates** (found while building `decide()`): blunders score 0.45-0.66, a missed Scholar's mate 0.70-0.74, and good moves 0.71-0.76 (where it is meaningless). A 0.7 veto sat inside that noise and silenced the missed mate, so `DEFAULT_THRESHOLDS.overrideNoul` is 0.85 until M1 sets it from labeled data. The missed-mate case is also borderline on `interrupt_now` (0.68-0.72 vs 0.7): "missed win" moments need explicit coverage in the calibration set.
+
 ## Changes carried into W0.3 contracts
 - `decide()` gates on **probability mass**, not rounded score or raw `confidence`: e.g. interrupt needs `P(severity ≥ mistake) ≥ t`. Low-confidence silence applies to the mass of the *decision*, so a mistake/blunder split does not mute the coach. Hysteresis is unnecessary if thresholds use mass.
 - **Pre-filter templates in code** to the (phase × praise/error) cell, ≤ 12–20 options, always including praise and neutral options. Halves cost, saves latency, and removes the weakest 100-way choice.
