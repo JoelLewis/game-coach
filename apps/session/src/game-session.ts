@@ -12,7 +12,7 @@ import {
   type ClientMessage,
   type ServerMessage,
 } from "@game-coach/contracts/ws-protocol";
-import type { GameConfig } from "@game-coach/contracts/session-rpc";
+import type { GameConfig, GameStateJudgment, GameStateMove } from "@game-coach/contracts/session-rpc";
 import type { ThresholdConfig, DecisionContext } from "@game-coach/contracts/decision";
 import { SEVERITY } from "@game-coach/contracts/taxonomy";
 import type { RatingBand } from "@game-coach/contracts/taxonomy";
@@ -34,6 +34,8 @@ const ACTIVE_SOCKET_TAG = "active";
 const FLUSH_EVERY_PLIES = 10;
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 const RECENT_EVENTS_LIMIT = 5;
+// Cap for `getGameState`'s `recentEvents`, per the GameStateSchema contract (<= 20).
+const GAME_STATE_RECENT_EVENTS_LIMIT = 20;
 
 const send = (ws: WebSocket, message: ServerMessage): void => {
   ws.send(JSON.stringify(message));
@@ -48,6 +50,17 @@ export type InitInput = {
   ratingBand: RatingBand;
   reservationChunkSize: number;
   minMsBetweenJevCalls: number;
+};
+
+// What `SessionEntrypoint.getGameState` needs from a live game; `summary`/`config` come from D1
+// there (they're identical either way — `config` never changes after `createGame`, and the D1
+// `games` row is kept current on the same cadence as everything else via `#flush`).
+export type GameSessionStateSnapshot = {
+  moves: GameStateMove[];
+  mode: GameConfig["mode"];
+  talkativeness: number;
+  recentEvents: ReturnType<typeof store.getRecentCoachEvents>;
+  judgments: GameStateJudgment[];
 };
 
 export class GameSession extends DurableObject<Env> {
@@ -76,6 +89,22 @@ export class GameSession extends DurableObject<Env> {
       minMsBetweenJevCalls: input.minMsBetweenJevCalls,
       now: Date.now(),
     });
+  }
+
+  // Called directly by `SessionEntrypoint.getGameState` over the DO RPC surface (a plain method
+  // call on the stub, same as `init` above). Returns `undefined` when this DO has never been
+  // initialised or its storage is gone, so the caller can fall back to D1.
+  async getState(): Promise<GameSessionStateSnapshot | undefined> {
+    const sql = this.ctx.storage.sql;
+    const meta = store.getMeta(sql);
+    if (meta === undefined) return undefined;
+    return {
+      moves: store.getAllMoves(sql),
+      mode: meta.mode,
+      talkativeness: meta.talkativeness,
+      recentEvents: store.getRecentCoachEvents(sql, GAME_STATE_RECENT_EVENTS_LIMIT),
+      judgments: store.getAllJudgments(sql),
+    };
   }
 
   override async fetch(request: Request): Promise<Response> {
@@ -204,6 +233,7 @@ export class GameSession extends DurableObject<Env> {
       mode: meta.mode,
       talkativeness: meta.talkativeness,
       recentEvents: store.getRecentCoachEvents(sql, RECENT_EVENTS_LIMIT),
+      gameOver: meta.status !== "live",
     });
   }
 
@@ -356,6 +386,18 @@ export class GameSession extends DurableObject<Env> {
     message: Extract<ClientMessage, { type: "game_end" }>,
     now: number,
   ): Promise<void> {
+    // Idempotent: the client's resend outbox (apps/web's game-socket.svelte.ts) keeps `game_end`
+    // queued until it sees a `game_over` close or `ready.gameOver`, so a reconnect racing the
+    // first close can legitimately resend it. Once the game is already finished/abandoned, just
+    // make sure the socket knows it's over instead of finishing (and flushing) it a second time.
+    const current = store.getMeta(sql) ?? meta;
+    if (current.status !== "live") {
+      for (const socket of this.ctx.getWebSockets(ACTIVE_SOCKET_TAG)) {
+        socket.close(WS_CLOSE.game_over, "game already ended");
+      }
+      return;
+    }
+
     const finish: FlushFinish = { status: "finished", result: message.result, endedAt: now };
     store.finishGame(sql, finish);
     await this.#flush(sql, meta, finish);

@@ -58,12 +58,13 @@ const facts = (ply: number): MoveFacts => ({
   clockMs: 1000,
 });
 
-const readyFrame = (serverPly: number) => ({
+const readyFrame = (serverPly: number, gameOver = false) => ({
   type: "ready" as const,
   serverPly,
   mode: "live" as const,
   talkativeness: 0.5,
   recentEvents: [],
+  gameOver,
 });
 
 describe("createGameSocket", () => {
@@ -133,6 +134,88 @@ describe("createGameSocket", () => {
     socket.connect();
     sockets[2]!.emitOpen();
     expect(sockets[2]!.sentTypes()).toEqual(["hello"]);
+  });
+
+  describe("game_end outbox", () => {
+    it("queues game_end and resends it on reconnect while the server hasn't recorded the game as over", () => {
+      const socket = makeSocket();
+      socket.connect();
+      sockets[0]!.emitOpen();
+      sockets[0]!.emitMessage(readyFrame(0));
+
+      socket.sendGameEnd("player_win", "final-fen");
+      expect(sockets[0]!.sentTypes()).toEqual(["hello", "game_end"]);
+
+      // Connection drops before the client ever sees an acknowledgement.
+      sockets[0]!.emitClose(1006);
+      socket.connect();
+      sockets[1]!.emitOpen();
+      expect(sockets[1]!.sentTypes()).toEqual(["hello"]);
+
+      // ready.gameOver is still false (the server never recorded it, e.g. it never received the
+      // first game_end) - the queued game_end must be resent.
+      sockets[1]!.emitMessage(readyFrame(0, false));
+      expect(sockets[1]!.sentTypes()).toEqual(["hello", "game_end"]);
+      expect(JSON.parse(sockets[1]!.sent[1]!)).toMatchObject({ type: "game_end", result: "player_win" });
+    });
+
+    it("drops the queued game_end once ready.gameOver confirms the server recorded it", () => {
+      const socket = makeSocket();
+      socket.connect();
+      sockets[0]!.emitOpen();
+      sockets[0]!.emitMessage(readyFrame(0));
+      socket.sendGameEnd("draw", "final-fen");
+
+      sockets[0]!.emitClose(1006);
+      socket.connect();
+      sockets[1]!.emitOpen();
+      // The server did record it (e.g. it landed just before the disconnect).
+      sockets[1]!.emitMessage(readyFrame(0, true));
+      expect(sockets[1]!.sentTypes()).toEqual(["hello"]);
+
+      // A further reconnect resends nothing stale.
+      sockets[1]!.emitClose(1006);
+      socket.connect();
+      sockets[2]!.emitOpen();
+      expect(sockets[2]!.sentTypes()).toEqual(["hello"]);
+    });
+
+    it("drops the queued game_end once the socket closes with the game_over code", () => {
+      vi.useFakeTimers();
+      const socket = makeSocket();
+      socket.connect();
+      sockets[0]!.emitOpen();
+      sockets[0]!.emitMessage(readyFrame(0));
+      socket.sendGameEnd("player_loss", "final-fen");
+
+      sockets[0]!.emitClose(WS_CLOSE.game_over);
+      expect(socket.status).toBe("closed");
+
+      // No reconnect happens after a terminal close, but the outbox must not hold a game_end
+      // forever either (asserted indirectly: nothing further is ever sent).
+      vi.advanceTimersByTime(60_000);
+      expect(sockets.length).toBe(1);
+      vi.useRealTimers();
+    });
+
+    it("replaces rather than duplicates a queued game_end if sent twice", () => {
+      const socket = makeSocket();
+      socket.connect();
+      sockets[0]!.emitOpen();
+      sockets[0]!.emitMessage(readyFrame(0));
+
+      socket.sendGameEnd("player_win", "fen-a");
+      socket.sendGameEnd("draw", "fen-b");
+
+      sockets[0]!.emitClose(1006);
+      socket.connect();
+      sockets[1]!.emitOpen();
+      sockets[1]!.emitMessage(readyFrame(0, false));
+
+      const gameEndFrames = sockets[1]!.sent.map((raw) => JSON.parse(raw) as { type: string }).filter((f) => f.type === "game_end");
+      expect(gameEndFrames).toHaveLength(1);
+      expect(gameEndFrames[0]).toMatchObject({ result: "draw", finalPosition: "fen-b" });
+    });
   });
 
   describe("backoff", () => {

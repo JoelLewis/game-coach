@@ -37,11 +37,28 @@ export type ControllerSocket = {
   sendGameEnd(result: GameResult, finalPosition: string): void;
 };
 
+// One historical move as needed to replay it through chess-core: `moveId` is the UCI string
+// `playMove` expects. Mirrors (a subset of) `@game-coach/contracts/session-rpc`'s
+// `GameStateMove`, kept structural here so this module doesn't need to depend on the contract
+// just for a shape it only reads.
+export type ResumeMove = { ply: number; moveId: string };
+
+export type ResumeFrom = {
+  // Ascending or not, doesn't matter: sorted by `ply` before replay.
+  moves: readonly ResumeMove[];
+  // Set for a finished/abandoned game: the board is rebuilt read-only, at its final position,
+  // without re-sending `game_end`.
+  finished?: { result: GameResult } | null;
+};
+
 export type GameControllerOptions = {
   playerSide: Side;
   opponentLevel: OpponentLevel;
   startPosition: string;
   socket: ControllerSocket;
+  // Rebuilds the board from a game's recorded history (a hard page reload) instead of starting
+  // a brand-new game.
+  resumeFrom?: ResumeFrom;
   loadChessCore?: () => Promise<ChessCoreApi>;
   loadEngineAdapter?: (chessCore: ChessCoreApi) => Promise<EngineAdapter>;
   now?: () => number;
@@ -134,9 +151,38 @@ export const createGameController = (options: GameControllerOptions): GameContro
     dests = chessCore && !ended && turnColor === playerSide ? chessCore.legalDests(fen) : new Map();
   };
 
+  // Replays recorded history through chess-core to rebuild the board after a hard reload,
+  // instead of asking the server to re-derive anything about the position (the three-layer
+  // rule: chess-core, not the server, owns position truth). Mutates the same closure state a
+  // live move would.
+  const applyResumeState = (core: ChessCoreApi, resume: ResumeFrom): void => {
+    const sortedMoves = [...resume.moves].sort((a, b) => a.ply - b.ply);
+    for (const move of sortedMoves) {
+      const played = core.playMove(fen, move.moveId);
+      plyCounter = move.ply;
+      sanHistory.push(played.san);
+      fen = played.fenAfter;
+      lastMove = [played.from, played.to];
+      isCheck = played.isCheck;
+      moves = [...moves, { ply: move.ply, san: played.san }];
+      const key = repetitionKey(played.fenAfter);
+      positionCounts.set(key, (positionCounts.get(key) ?? 0) + 1);
+    }
+    // The side to move after replay is derived from the resulting FEN, not assumed from
+    // `playerSide`/move count — correct regardless of who is on move when resuming.
+    turnColor = activeColorFromFen(fen);
+    if (resume.finished) {
+      ended = true;
+      result = resume.finished.result;
+    } else {
+      playerTurnStartedAt = now();
+    }
+  };
+
   const chessCorePromise = loadChessCore().then((core) => {
     chessCore = core;
-    status = "playing";
+    if (options.resumeFrom) applyResumeState(core, options.resumeFrom);
+    status = ended ? "ended" : "playing";
     refreshDests();
     return core;
   });
@@ -225,8 +271,10 @@ export const createGameController = (options: GameControllerOptions): GameContro
     await applyOpponentReply(input.positionAfter);
   };
 
-  // If the player is Black, the engine owns the opening move.
-  if (playerSide === "black") {
+  // If the player is Black, the engine owns the opening move — but only for a brand-new game;
+  // a resumed game with recorded history already has its opening move (or doesn't need one, if
+  // resuming from Black-to-move mid-game).
+  if (playerSide === "black" && (!options.resumeFrom || options.resumeFrom.moves.length === 0)) {
     workQueue = workQueue.then(() => applyOpponentReply(options.startPosition));
   }
 

@@ -4,7 +4,8 @@
 import type { CoachMode } from "@game-coach/contracts/decision";
 import type { ActionTaken, Decision, ThresholdConfig } from "@game-coach/contracts/decision";
 import { evalToCp, type GameKind, type MoveFacts } from "@game-coach/contracts/engine";
-import type { GameConfig } from "@game-coach/contracts/session-rpc";
+import type { GameConfig, GameStateJudgment, GameStateMove } from "@game-coach/contracts/session-rpc";
+import { SEVERITY } from "@game-coach/contracts/taxonomy";
 import type { RatingBand } from "@game-coach/contracts/taxonomy";
 import type { JevAnswers } from "@game-coach/contracts/jev";
 import type { CoachEvent, GameResult } from "@game-coach/contracts/ws-protocol";
@@ -492,6 +493,38 @@ export const addBackPendingUsage = (sql: SqlStorage, usage: PendingUsage): void 
     usage.jevCalls,
     usage.jevInputTokens,
   );
+};
+
+// Every move ever recorded for this game, in ply order (unlike `getUnflushed`, which returns
+// only what hasn't reached D1 yet). Used by `getGameState` to rebuild a live game's move list.
+export const getAllMoves = (sql: SqlStorage): GameStateMove[] => {
+  const rows = sql
+    .exec<{ ply: number; by_player: number; move_id: string; move_text: string }>(
+      "SELECT ply, by_player, move_id, move_text FROM moves ORDER BY ply",
+    )
+    .toArray();
+  return rows.map((row) => ({
+    ply: row.ply,
+    byPlayer: row.by_player === 1,
+    moveId: row.move_id,
+    moveText: row.move_text,
+  }));
+};
+
+// Every judgment ever recorded, in ply order. `noted` is recomputed from the stored `Decision`
+// with the same rule `game-session.ts` uses when it first sends the `judgment` frame (severity
+// above "fine", or an explicit praise) since it is not itself a stored column.
+export const getAllJudgments = (sql: SqlStorage): GameStateJudgment[] => {
+  const rows = sql
+    .exec<{ ply: number; decision_json: string; action_taken: string }>(
+      "SELECT ply, decision_json, action_taken FROM judgments ORDER BY ply",
+    )
+    .toArray();
+  return rows.map((row) => {
+    const decision = JSON.parse(row.decision_json) as Decision;
+    const noted = decision.severity !== SEVERITY.fine || row.action_taken === "praise";
+    return { ply: row.ply, severity: decision.severity, noted };
+  });
 };
 
 export type FinishGameInput = { status: "finished" | "abandoned"; result: GameResult | null; endedAt: number };

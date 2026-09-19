@@ -1,16 +1,25 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { untrack } from 'svelte';
 	import Chessboard from '@game-coach/ui-study/components/Chessboard.svelte';
 	import MoveList from '@game-coach/ui-study/components/MoveList.svelte';
 	import type { Severity } from '@game-coach/ui-study/components/severity.ts';
 	import type { CoachMode } from '@game-coach/contracts/decision';
 	import type { CoachEvent } from '@game-coach/contracts/ws-protocol';
 	import { createGameSocket } from '$lib/play/game-socket.svelte';
-	import { createGameController, toOpponentLevel, type Side } from '$lib/play/game-controller.svelte';
+	import {
+		createGameController,
+		toOpponentLevel,
+		type ResumeFrom,
+		type Side
+	} from '$lib/play/game-controller.svelte';
 	import QuietIndicator from '$lib/play/QuietIndicator.svelte';
 	import CoachCard from '$lib/play/CoachCard.svelte';
 	import CoachControls from '$lib/play/CoachControls.svelte';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
 
 	const gameIdParam = page.params.gameId;
 	if (!gameIdParam) {
@@ -18,31 +27,58 @@
 	}
 	const gameId = gameIdParam;
 
-	// The new-game form passes the config it already posted to /api/games along in the URL —
-	// there is no documented GET endpoint to read a GameConfig back, so a bare/reloaded link
-	// falls back to sensible defaults rather than erroring (see the final report's contract
-	// notes on page-reload rehydration).
+	// `+page.ts`'s load already fetched /api/games/[id]/state; `null` here means it couldn't (a
+	// game the endpoint can't yet find, a network hiccup, or a stale/expired session) rather than
+	// "this game has no history" — a brand-new game still round-trips through the state endpoint
+	// and comes back with an empty move list. Read once (`untrack`): the socket/controller this
+	// hydrates are themselves created once below, not rebuilt if `data` were ever to change.
+	const gameState = untrack(() => data.gameState);
+
+	// The new-game form passes the config it already posted to /api/games along in the URL. That
+	// remains the fallback for a game the state endpoint cannot (yet) find; whenever `gameState`
+	// is available, it — not the URL — is authoritative, since it reflects the game's actual
+	// config and current mode/talkativeness rather than what the form happened to post.
 	const params = page.url.searchParams;
-	const playerSide: Side = params.get('side') === 'black' ? 'black' : 'white';
-	const opponentLevel = toOpponentLevel(Number(params.get('level')) || 4);
-	const initialModeParam = params.get('mode');
-	const initialMode: CoachMode =
-		initialModeParam === 'off' || initialModeParam === 'review_only' || initialModeParam === 'live'
-			? initialModeParam
+	const fallbackSide: Side = params.get('side') === 'black' ? 'black' : 'white';
+	const fallbackLevel = toOpponentLevel(Number(params.get('level')) || 4);
+	const fallbackModeParam = params.get('mode');
+	const fallbackMode: CoachMode =
+		fallbackModeParam === 'off' || fallbackModeParam === 'review_only' || fallbackModeParam === 'live'
+			? fallbackModeParam
 			: 'live';
 
-	const gameSocket = createGameSocket({ gameId, initialLastPly: 0 });
+	const playerSide: Side = gameState?.config.playerSide ?? fallbackSide;
+	const opponentLevel = gameState ? toOpponentLevel(gameState.config.opponentLevel) : fallbackLevel;
+	const initialMode: CoachMode = gameState?.mode ?? fallbackMode;
+	const initialTalkativeness = gameState?.talkativeness ?? 0.5;
+
+	// A finished/abandoned game replays to its final position and opens read-only (see
+	// `controller.status === 'ended'`, used below for the board's `viewOnly`) — it never
+	// resends `game_end`, since hydration only replays history through chess-core.
+	const resumeFrom: ResumeFrom | undefined = gameState
+		? {
+				moves: gameState.moves.map((move) => ({ ply: move.ply, moveId: move.moveId })),
+				finished: gameState.summary.status !== 'live' ? { result: gameState.summary.result ?? 'draw' } : null
+			}
+		: undefined;
+
+	const gameSocket = createGameSocket({
+		gameId,
+		initialLastPly: gameState?.summary.lastPly ?? 0,
+		initialEvents: gameState?.recentEvents
+	});
 	gameSocket.connect();
 
 	const controller = createGameController({
 		playerSide,
 		opponentLevel,
 		startPosition: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-		socket: gameSocket
+		socket: gameSocket,
+		resumeFrom
 	});
 
 	let coachMode = $state<CoachMode>(initialMode);
-	let talkativeness = $state(0.5);
+	let talkativeness = $state(initialTalkativeness);
 	let syncedModeFromServer = false;
 
 	$effect(() => {
@@ -61,7 +97,10 @@
 
 	// The judgment stream only carries the latest ply; accumulate it here so the move list can
 	// show a severity chip per move without the socket having to keep a full history itself.
-	let judgmentByPly = $state<Map<number, Severity>>(new Map());
+	// Seeded from the hydrated state so a reload doesn't lose every chip except the next move's.
+	let judgmentByPly = $state<Map<number, Severity>>(
+		new Map(gameState?.judgments.map((judgment) => [judgment.ply, judgment.severity as Severity]))
+	);
 	$effect(() => {
 		const judgment = gameSocket.lastJudgment;
 		if (!judgment) return;
@@ -115,7 +154,11 @@
 <div class="game-page">
 	<header class="game-page__header">
 		<a class="game-page__new" href="/play">New game</a>
-		<QuietIndicator mode={coachMode} lastJudgment={gameSocket.lastJudgment} />
+		<QuietIndicator
+			mode={coachMode}
+			lastJudgment={gameSocket.lastJudgment}
+			unjudgedReason={gameSocket.unjudgedReason}
+		/>
 		<div class="game-page__resign">
 			{#if controller.status === 'playing'}
 				{#if confirmingResign}
@@ -233,19 +276,11 @@
 		margin-inline-end: var(--cm-space-2);
 	}
 
-	/* The board is deliberately sized by width here (phone-first, no horizontal scroll),
-	   overriding Chessboard's own vh-based sizing, which assumes a fixed-panel desktop
-	   layout — see the final report for why this can't be fixed inside ui-study instead. */
+	/* Chessboard now sizes itself from this container's width (aspect-ratio, no vh) - the page
+	   just has to constrain that width, phone-first with no horizontal scroll. */
 	.board-shell {
 		width: min(92vw, 560px);
-		aspect-ratio: 1;
 		margin-inline: auto;
-	}
-
-	.board-shell :global(.board-container),
-	.board-shell :global(.board) {
-		width: 100% !important;
-		height: 100% !important;
 	}
 
 	.game-page__layout {

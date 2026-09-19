@@ -191,9 +191,24 @@
     containerEl.addEventListener("mousedown", refreshBounds, { capture: true });
     containerEl.addEventListener("touchstart", refreshBounds, { capture: true, passive: true });
 
+    // The board now sizes itself from its container's width (CSS `aspect-ratio`, no fixed vh),
+    // so it resizes whenever that container does — a sidebar collapsing, an orientation change,
+    // a phone's on-screen keyboard opening. Chessground doesn't observe that on its own; without
+    // this it keeps drawing at its last-known size until some unrelated prop change forces a
+    // re-render.
+    let resizeObserver: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        instance.state.dom.bounds.clear();
+        instance.redrawAll();
+      });
+      resizeObserver.observe(containerEl);
+    }
+
     return () => {
       containerEl.removeEventListener("mousedown", refreshBounds, { capture: true });
       containerEl.removeEventListener("touchstart", refreshBounds, { capture: true });
+      resizeObserver?.disconnect();
       instance.destroy();
       cg = undefined;
     };
@@ -250,12 +265,16 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 100%;
   }
 
+  /* Sized from the container's own width, not the viewport: a `vh`-based size overflows a
+     narrow-but-tall phone (portrait, short widescreen embeds, etc.) and needs a caller-side
+     `!important` override to fix. `--cm-board-max` lets a page cap the board's absolute size
+     (e.g. on a wide desktop layout) without touching this component. */
   .board {
-    width: min(80vh, 560px);
-    height: min(80vh, 560px);
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: var(--cm-board-max, 560px);
   }
 
   .promotion-picker {

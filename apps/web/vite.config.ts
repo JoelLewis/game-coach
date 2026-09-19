@@ -1,7 +1,15 @@
+import { fileURLToPath } from 'node:url';
 import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+
+// apps/web -> the monorepo root (two levels up). `vite dev` otherwise only serves files under
+// this package and Vite's auto-detected workspace root, which can miss sibling workspace
+// packages depending on how pnpm laid out node_modules -- explicit is more reliable than relying
+// on that auto-detection to find crates/chess-core/pkg/web/*.wasm and
+// packages/ui-study/fonts/* on a clean checkout.
+const monorepoRoot = fileURLToPath(new URL('../..', import.meta.url));
 
 export default defineConfig({
 	plugins: [
@@ -39,6 +47,7 @@ export default defineConfig({
 	server: {
 		// In production a Workers Route sends /ws/* to gamecoach-session. Locally that Worker
 		// runs under `wrangler dev` on 8787 (pnpm --filter @game-coach/session dev).
-		proxy: { '/ws': { target: 'http://localhost:8787', ws: true } }
+		proxy: { '/ws': { target: 'http://localhost:8787', ws: true } },
+		fs: { allow: [monorepoRoot] }
 	}
 });

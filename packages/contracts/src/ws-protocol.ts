@@ -71,6 +71,11 @@ export const ServerMessageSchema = v.variant("type", [
     mode: CoachModeSchema,
     talkativeness: v.number(),
     recentEvents: v.array(CoachEventSchema),
+    // True once the server has recorded this game as over (finished/abandoned). Lets a
+    // reconnecting client drop a queued `game_end` frame it already sent but never saw
+    // acknowledged (see the resend outbox in apps/web's game-socket.svelte.ts). Optional with a
+    // `false` default so older senders that don't set it are still schema-valid.
+    gameOver: v.optional(v.boolean(), false),
   }),
   // Sent for every judged move: drives the quiet "coach is watching" indicator.
   v.object({
