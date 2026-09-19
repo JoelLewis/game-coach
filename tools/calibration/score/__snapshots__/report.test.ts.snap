@@ -1,0 +1,176 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders a small report with acceptance, reliability, confusion and review tables 1`] = `
+"# Calibration report
+
+Set: tiny.jsonl · Model: typesafe/jev · Items: 1
+Generated: 1970-01-01T00:00:00.000Z
+
+Overall: **PASS**
+
+## Acceptance
+
+| Metric | Value | Target | n | Result |
+| --- | --- | --- | --- | --- |
+| severity exact | 100.0% | ≥ 80.0% | 1 | PASS |
+| severity adjacent | 100.0% | ≥ 95.0% | 1 | PASS |
+| error_class top-1 | 100.0% | ≥ 70.0% | 1 | PASS |
+| interrupt_now precision at 0.7 | 100.0% | ≥ 85.0% | 1 | PASS |
+| teachable precision at 0.8 | 100.0% | ≥ 75.0% | 1 | PASS |
+| interrupt_now recall at 0.7 | 100.0% | Reported only | 1 | Not gated |
+| teachable recall at 0.8 | 100.0% | Reported only | 1 | Not gated |
+| good_move precision at 0.8 | 100.0% | Reported only | 1 | Not gated |
+| good_move recall at 0.8 | 100.0% | Reported only | 1 | Not gated |
+| missed_tactic precision at 0.8 | 100.0% | Reported only | 1 | Not gated |
+| missed_tactic recall at 0.8 | 100.0% | Reported only | 1 | Not gated |
+| Calibration maximum eligible-bin gap | N/A | ≤ 10.0% | 0 bins | Not gated (no eligible bins) |
+
+Recall, good_move and missed_tactic precision are reported only. Their target is 0 in the metric data; they do not affect acceptance.
+Empty denominators are N/A (NaN in memory, null in JSON), with metric pass=false.
+
+## Reliability
+
+Bins are [lower, upper), with 1 included in the last bin. Bins with n < 10 are reported, not gated.
+Unavailable human labels: repeat_pattern, confidence_override. Their bins have n=0; calibration acceptance covers only labeled questions.
+Noul uses P(yes), severity uses P(level ≥ mistake), and error_class uses choice confidence against top-1 accuracy on all labeled items.
+
+### interrupt_now
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 1 | 100.0% | 100.0% | 0.0% | Not gated |
+
+### teachable
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 1 | 100.0% | 100.0% | 0.0% | Not gated |
+
+### repeat_pattern
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 0 | N/A | N/A | N/A | Not gated |
+
+### good_move
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 1 | 100.0% | 100.0% | 0.0% | Not gated |
+
+### missed_tactic
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 1 | 100.0% | 100.0% | 0.0% | Not gated |
+
+### confidence_override
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 0 | N/A | N/A | N/A | Not gated |
+
+### severity
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 1 | 100.0% | 100.0% | 0.0% | Not gated |
+
+### error_class
+
+| Bin | n | Mean stated | Observed | Gap | Result |
+| --- | --- | --- | --- | --- | --- |
+| [0.0, 0.1) | 0 | N/A | N/A | N/A | Not gated |
+| [0.1, 0.2) | 0 | N/A | N/A | N/A | Not gated |
+| [0.2, 0.3) | 0 | N/A | N/A | N/A | Not gated |
+| [0.3, 0.4) | 0 | N/A | N/A | N/A | Not gated |
+| [0.4, 0.5) | 0 | N/A | N/A | N/A | Not gated |
+| [0.5, 0.6) | 0 | N/A | N/A | N/A | Not gated |
+| [0.6, 0.7) | 0 | N/A | N/A | N/A | Not gated |
+| [0.7, 0.8) | 0 | N/A | N/A | N/A | Not gated |
+| [0.8, 0.9) | 0 | N/A | N/A | N/A | Not gated |
+| [0.9, 1.0] | 1 | 100.0% | 100.0% | 0.0% | Not gated |
+
+## Severity confusion matrix
+
+Rows are human labels; columns are model answers.
+
+| Label / Answer | fine | inaccuracy | mistake | blunder |
+| --- | --- | --- | --- | --- |
+| fine | 0 | 0 | 0 | 0 |
+| inaccuracy | 0 | 0 | 0 | 0 |
+| mistake | 0 | 0 | 1 | 0 |
+| blunder | 0 | 0 | 0 | 0 |
+
+## Worst disagreements
+
+Ranked by severity distance, then count of other disagreements, then item id. Fine-label error-class differences are excluded.
+
+| Item id | Label | Answer | Severity distance | Other disagreements |
+| --- | --- | --- | --- | --- |
+No disagreements.
+"
+`;
