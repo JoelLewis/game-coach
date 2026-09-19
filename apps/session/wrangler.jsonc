@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gamecoach-session",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+
+  // Both Workers share chess.terminal-games.com through Routes (not a Custom Domain, which
+  // would take precedence over routes). The most specific pattern wins, so /ws/* lands here
+  // and everything else goes to gamecoach-web. Enabled at integration (I1), once the proxied
+  // DNS record for `chess` exists.
+  // "routes": [{ "pattern": "chess.terminal-games.com/ws/*", "zone_name": "terminal-games.com" }],
+
+  "vars": {
+    "APP_ORIGIN": "https://chess.terminal-games.com",
+    // "workers_ai" in production; "fixture" replays/heuristics with no AI spend.
+    "JEV_TRANSPORT": "fixture"
+  },
+  // Secret: SESSION_SECRET (shared with gamecoach-web). Local: .dev.vars
+
+  "durable_objects": {
+    "bindings": [
+      { "name": "GAME_SESSION", "class_name": "GameSession" },
+      { "name": "BUDGET_GATE", "class_name": "BudgetGate" }
+    ]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GameSession", "BudgetGate"] }],
+
+  // Workers AI always runs remotely and is billed, even under `wrangler dev`.
+  "ai": { "binding": "AI" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gamecoach",
+      "database_id": "fe91350a-668b-4e4c-9f77-29cf68e5a9d9",
+      "migrations_dir": "../../db/migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "gamecoach" }],
+  "kv_namespaces": [{ "binding": "CONFIG", "id": "c8170156ae094e5e82aecf3147882737" }]
+}

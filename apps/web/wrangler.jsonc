@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gamecoach-web",
+  "main": ".svelte-kit/cloudflare/_worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_als"],
+  "assets": { "binding": "ASSETS", "directory": ".svelte-kit/cloudflare" },
+  "observability": { "enabled": true },
+
+  // Routes, not a Custom Domain: see apps/session/wrangler.jsonc. Enabled at integration (I1).
+  // "routes": [{ "pattern": "chess.terminal-games.com/*", "zone_name": "terminal-games.com" }],
+
+  "vars": {
+    "APP_ORIGIN": "https://chess.terminal-games.com",
+    "EMAIL_FROM": "coach@terminal-games.com"
+  },
+  // Secret: SESSION_SECRET (shared with gamecoach-session). Local: .dev.vars
+
+  "services": [
+    { "binding": "SESSION", "service": "gamecoach-session", "entrypoint": "SessionEntrypoint" }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gamecoach",
+      "database_id": "fe91350a-668b-4e4c-9f77-29cf68e5a9d9",
+      "migrations_dir": "../../db/migrations"
+    }
+  ],
+  // Cloudflare Email Sending (beta). The domain must be onboarded in the dashboard first.
+  "send_email": [{ "name": "EMAIL", "remote": true }]
+}
