@@ -14,9 +14,15 @@ importers:
 
   apps/session:
     dependencies:
+      '@game-coach/coaching-core':
+        specifier: workspace:*
+        version: link:../../packages/coaching-core
       '@game-coach/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@game-coach/jev-client':
+        specifier: workspace:*
+        version: link:../../packages/jev-client
       valibot:
         specifier: ^1.1.0
         version: 1.5.0(typescript@5.9.3)

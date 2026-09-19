@@ -12,7 +12,9 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@game-coach/coaching-core": "workspace:*",
     "@game-coach/contracts": "workspace:*",
+    "@game-coach/jev-client": "workspace:*",
     "valibot": "^1.1.0"
   },
   "devDependencies": {
