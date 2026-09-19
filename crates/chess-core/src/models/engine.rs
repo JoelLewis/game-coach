@@ -86,6 +86,18 @@ impl MoveClassification {
         )
     }
 
+    /// Renders the lowercase name used by `MoveClassificationSchema` in the JS contract.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            MoveClassification::Best => "best",
+            MoveClassification::Excellent => "excellent",
+            MoveClassification::Good => "good",
+            MoveClassification::Inaccuracy => "inaccuracy",
+            MoveClassification::Mistake => "mistake",
+            MoveClassification::Blunder => "blunder",
+        }
+    }
+
     /// Parse from a lowercase string (e.g. "best", "blunder")
     pub fn from_str_loose(s: &str) -> Self {
         match s {

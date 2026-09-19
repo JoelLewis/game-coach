@@ -1,0 +1,156 @@
+[
+  {
+    "id": "ruy_lopez_opening",
+    "pgn": "[Event \"Test Game\"]\n[Site \"?\"]\n[Date \"2024.01.01\"]\n[Round \"1\"]\n[White \"Alice\"]\n[Black \"Bob\"]\n[Result \"1-0\"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 1-0\n",
+    "parsedGame": {
+      "headers": {
+        "Black": "Bob",
+        "Date": "2024.01.01",
+        "Event": "Test Game",
+        "Result": "1-0",
+        "Round": "1",
+        "Site": "?",
+        "White": "Alice"
+      },
+      "startFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "moves": [
+        {
+          "uci": "e2e4",
+          "san": "e4",
+          "fenBefore": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          "fenAfter": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+          "from": "e2",
+          "to": "e4",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "e7e5",
+          "san": "e5",
+          "fenBefore": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+          "fenAfter": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+          "from": "e7",
+          "to": "e5",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "g1f3",
+          "san": "Nf3",
+          "fenBefore": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+          "fenAfter": "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+          "from": "g1",
+          "to": "f3",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "b8c6",
+          "san": "Nc6",
+          "fenBefore": "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+          "fenAfter": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+          "from": "b8",
+          "to": "c6",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "f1b5",
+          "san": "Bb5",
+          "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+          "fenAfter": "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+          "from": "f1",
+          "to": "b5",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "a7a6",
+          "san": "a6",
+          "fenBefore": "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+          "fenAfter": "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4",
+          "from": "a7",
+          "to": "a6",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "b5a4",
+          "san": "Ba4",
+          "fenBefore": "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4",
+          "fenAfter": "r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4",
+          "from": "b5",
+          "to": "a4",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "g8f6",
+          "san": "Nf6",
+          "fenBefore": "r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4",
+          "fenAfter": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5",
+          "from": "g8",
+          "to": "f6",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "e1g1",
+          "san": "O-O",
+          "fenBefore": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5",
+          "fenAfter": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+          "from": "e1",
+          "to": "g1",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        },
+        {
+          "uci": "f8e7",
+          "san": "Be7",
+          "fenBefore": "r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5",
+          "fenAfter": "r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6",
+          "from": "f8",
+          "to": "e7",
+          "isCapture": false,
+          "isCheck": false,
+          "outcome": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "fools_mate_from_fen",
+    "pgn": "[Event \"From FEN\"]\n[SetUp \"1\"]\n[FEN \"rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2\"]\n[Result \"0-1\"]\n\n2... Qh4# 0-1\n",
+    "parsedGame": {
+      "headers": {
+        "Event": "From FEN",
+        "FEN": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+        "Result": "0-1",
+        "SetUp": "1"
+      },
+      "startFen": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+      "moves": [
+        {
+          "uci": "d8h4",
+          "san": "Qh4#",
+          "fenBefore": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+          "fenAfter": "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3",
+          "from": "d8",
+          "to": "h4",
+          "isCapture": false,
+          "isCheck": true,
+          "outcome": "checkmate_black_wins"
+        }
+      ]
+    }
+  }
+]
