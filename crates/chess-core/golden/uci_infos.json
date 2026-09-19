@@ -1,0 +1,60 @@
+[
+  {
+    "id": "cp_score_with_pv",
+    "line": "info depth 20 seldepth 30 multipv 1 score cp 35 nodes 123456 nps 1234567 time 100 pv e2e4 e7e5",
+    "uciInfo": {
+      "depth": 20,
+      "multipv": 1,
+      "scoreCp": 35,
+      "scoreMate": null,
+      "pv": [
+        "e2e4",
+        "e7e5"
+      ]
+    }
+  },
+  {
+    "id": "mate_score",
+    "line": "info depth 15 score mate 3 pv h5f7 e8f7 d1h5",
+    "uciInfo": {
+      "depth": 15,
+      "multipv": 1,
+      "scoreCp": null,
+      "scoreMate": 3,
+      "pv": [
+        "h5f7",
+        "e8f7",
+        "d1h5"
+      ]
+    }
+  },
+  {
+    "id": "multipv_two",
+    "line": "info depth 14 multipv 2 score cp -15 nodes 50000 pv d7d5 e4d5",
+    "uciInfo": {
+      "depth": 14,
+      "multipv": 2,
+      "scoreCp": -15,
+      "scoreMate": null,
+      "pv": [
+        "d7d5",
+        "e4d5"
+      ]
+    }
+  },
+  {
+    "id": "not_an_info_line",
+    "line": "readyok",
+    "uciInfo": null
+  },
+  {
+    "id": "bestmove_line",
+    "line": "bestmove e2e4 ponder e7e5",
+    "uciInfo": null
+  },
+  {
+    "id": "missing_depth",
+    "line": "info score cp 10 pv e2e4",
+    "uciInfo": null
+  }
+]

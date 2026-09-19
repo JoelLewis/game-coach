@@ -1,0 +1,226 @@
+[
+  {
+    "id": "hanging_queen_opening",
+    "playedMove": {
+      "uci": "d1h5",
+      "san": "Qh5",
+      "fenBefore": "rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+      "fenAfter": "rnbqkb1r/pppppppp/5n2/7Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2",
+      "from": "d1",
+      "to": "h5",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "missed_scholars_mate",
+    "playedMove": {
+      "uci": "b1c3",
+      "san": "Nc3",
+      "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+      "fenAfter": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/2N5/PPPP1PPP/R1B1K1NR b KQkq - 5 4",
+      "from": "b1",
+      "to": "c3",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "missed_knight_fork",
+    "playedMove": {
+      "uci": "a2a3",
+      "san": "a3",
+      "fenBefore": "6k1/pp6/3q1r2/8/4N3/8/PP6/3RK3 w - - 0 30",
+      "fenAfter": "6k1/pp6/3q1r2/8/4N3/P7/1P6/3RK3 b - - 0 30",
+      "from": "a2",
+      "to": "a3",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "rook_takes_defended_pawn",
+    "playedMove": {
+      "uci": "a1a7",
+      "san": "Rxa7",
+      "fenBefore": "r4rk1/ppp2ppp/8/8/8/8/1PP2PPP/R4RK1 w - - 0 15",
+      "fenAfter": "r4rk1/Rpp2ppp/8/8/8/8/1PP2PPP/5RK1 b - - 0 15",
+      "from": "a1",
+      "to": "a7",
+      "isCapture": true,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "endgame_opposition_blunder",
+    "playedMove": {
+      "uci": "d2d4",
+      "san": "d4",
+      "fenBefore": "8/8/8/3k4/8/2K5/3P4/8 w - - 0 50",
+      "fenAfter": "8/8/8/3k4/3P4/2K5/8/8 b - - 0 50",
+      "from": "d2",
+      "to": "d4",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "rook_takes_forking_queen",
+    "playedMove": {
+      "uci": "d1d6",
+      "san": "Rxd6",
+      "fenBefore": "6k1/pp6/3q1r2/8/4N3/8/PP6/3RK3 w - - 0 30",
+      "fenAfter": "6k1/pp6/3R1r2/8/4N3/8/PP6/4K3 b - - 0 30",
+      "from": "d1",
+      "to": "d6",
+      "isCapture": true,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "queen_takes_defended_pawn",
+    "playedMove": {
+      "uci": "b2b7",
+      "san": "Qxb7",
+      "fenBefore": "1r2k3/1p6/8/8/8/8/1Q6/4K3 w - - 0 1",
+      "fenAfter": "1r2k3/1Q6/8/8/8/8/8/4K3 b - - 0 1",
+      "from": "b2",
+      "to": "b7",
+      "isCapture": true,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "bishop_sac_unsound",
+    "playedMove": {
+      "uci": "c4f7",
+      "san": "Bxf7+",
+      "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+      "fenAfter": "r1bqkbnr/pppp1Bpp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 4",
+      "from": "c4",
+      "to": "f7",
+      "isCapture": true,
+      "isCheck": true,
+      "outcome": null
+    }
+  },
+  {
+    "id": "castling_good_move",
+    "playedMove": {
+      "uci": "e1g1",
+      "san": "O-O",
+      "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+      "fenAfter": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4",
+      "from": "e1",
+      "to": "g1",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "back_rank_blunder",
+    "playedMove": {
+      "uci": "a1c1",
+      "san": "Rc1",
+      "fenBefore": "2r3k1/pp3ppp/8/8/8/8/PP3PPP/R5K1 w - - 0 20",
+      "fenAfter": "2r3k1/pp3ppp/8/8/8/8/PP3PPP/2R3K1 b - - 1 20",
+      "from": "a1",
+      "to": "c1",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "knight_hangs_on_rim",
+    "playedMove": {
+      "uci": "f3h4",
+      "san": "Nh4",
+      "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+      "fenAfter": "r1bqkbnr/pppp1ppp/2n5/4p3/4P2N/8/PPPP1PPP/RNBQKB1R b KQkq - 3 3",
+      "from": "f3",
+      "to": "h4",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "black_hangs_queen",
+    "playedMove": {
+      "uci": "d8h4",
+      "san": "Qh4",
+      "fenBefore": "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      "fenAfter": "rnb1kbnr/pppp1ppp/8/4p3/4P2q/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+      "from": "d8",
+      "to": "h4",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "en_passant_capture",
+    "playedMove": {
+      "uci": "e5d6",
+      "san": "exd6",
+      "fenBefore": "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1",
+      "fenAfter": "4k3/8/3P4/8/8/8/8/4K3 b - - 0 1",
+      "from": "e5",
+      "to": "d6",
+      "isCapture": true,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "promotion_to_queen",
+    "playedMove": {
+      "uci": "e7e8q",
+      "san": "e8=Q",
+      "fenBefore": "k1b5/4P3/8/8/8/8/8/4K3 w - - 0 1",
+      "fenAfter": "k1b1Q3/8/8/8/8/8/8/4K3 b - - 0 1",
+      "from": "e7",
+      "to": "e8",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": null
+    }
+  },
+  {
+    "id": "stalemate_by_queen",
+    "playedMove": {
+      "uci": "d1d6",
+      "san": "Qd6",
+      "fenBefore": "k7/8/1K6/8/8/8/8/3Q4 w - - 0 1",
+      "fenAfter": "k7/8/1K1Q4/8/8/8/8/8 b - - 1 1",
+      "from": "d1",
+      "to": "d6",
+      "isCapture": false,
+      "isCheck": false,
+      "outcome": "stalemate"
+    }
+  },
+  {
+    "id": "checkmate_fools_mate",
+    "playedMove": {
+      "uci": "d8h4",
+      "san": "Qh4#",
+      "fenBefore": "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+      "fenAfter": "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3",
+      "from": "d8",
+      "to": "h4",
+      "isCapture": false,
+      "isCheck": true,
+      "outcome": "checkmate_black_wins"
+    }
+  }
+]

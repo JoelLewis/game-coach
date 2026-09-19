@@ -1,0 +1,880 @@
+[
+  {
+    "id": "hanging_queen_opening",
+    "moveFeatures": {
+      "phase": "opening",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "queen",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 2,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 3,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [],
+        "player_mobility": 27,
+        "opponent_mobility": 8,
+        "player_undeveloped_minors": 4,
+        "opponent_undeveloped_minors": 3,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [
+          "queen on h5 is undefended and attacked"
+        ],
+        "tactics_for_player": [
+          "queen on h5 pins pawn on f7 to the king"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "knight_on_rim",
+          "undeveloped_pieces",
+          "pinned_piece",
+          "hanging_material"
+        ]
+      }
+    }
+  },
+  {
+    "id": "missed_scholars_mate",
+    "moveFeatures": {
+      "phase": "opening",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "knight",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": true,
+        "best_is_check": true,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 2,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 2,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 2,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [],
+        "player_mobility": 32,
+        "opponent_mobility": 18,
+        "player_undeveloped_minors": 2,
+        "opponent_undeveloped_minors": 3,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [
+          "queen on h5 pins pawn on f7 to the king"
+        ],
+        "tactics_for_player_before": [
+          "queen on h5 pins pawn on f7 to the king"
+        ],
+        "themes": [
+          "knight_on_rim",
+          "central_control",
+          "undeveloped_pieces",
+          "pinned_piece"
+        ]
+      }
+    }
+  },
+  {
+    "id": "missed_knight_fork",
+    "moveFeatures": {
+      "phase": "middlegame",
+      "features": {
+        "material_balance_cp": -580,
+        "material_imbalances": [],
+        "played_piece": "pawn",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": true,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 0,
+        "player_king_open_files": 3,
+        "player_king_zone_attacks": 2,
+        "opponent_king_castled": true,
+        "opponent_king_shield_pawns": 0,
+        "opponent_king_open_files": 3,
+        "opponent_king_zone_attacks": 0,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h"
+        ],
+        "player_mobility": 16,
+        "opponent_mobility": 32,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": true,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [
+          "knight on e4 forks queen on d6 and rook on f6",
+          "queen on d6 is attacked by rook (lesser value)",
+          "rook on f6 is attacked by knight (lesser value)"
+        ],
+        "tactics_for_player_before": [
+          "knight on e4 forks queen on d6 and rook on f6",
+          "queen on d6 is attacked by rook (lesser value)",
+          "rook on f6 is attacked by knight (lesser value)"
+        ],
+        "themes": [
+          "open_file",
+          "pawn_chain_tension",
+          "knight_on_rim",
+          "central_control",
+          "king_safety_compromised",
+          "fork_available",
+          "hanging_material"
+        ]
+      }
+    }
+  },
+  {
+    "id": "rook_takes_defended_pawn",
+    "moveFeatures": {
+      "phase": "middlegame",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "rook",
+        "played_is_capture": true,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": true,
+        "player_king_shield_pawns": 3,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": true,
+        "opponent_king_shield_pawns": 3,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 0,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "a",
+          "d",
+          "e"
+        ],
+        "player_mobility": 13,
+        "opponent_mobility": 9,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": true,
+        "player_rook_on_seventh": true,
+        "tactics_against_player": [
+          "rook on a7 is undefended and attacked"
+        ],
+        "tactics_for_player": [
+          "Back-rank weakness: rook on a7 can access the back rank"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "open_file",
+          "knight_on_rim",
+          "rook_on_seventh",
+          "hanging_material",
+          "back_rank_weakness"
+        ]
+      }
+    }
+  },
+  {
+    "id": "endgame_opposition_blunder",
+    "moveFeatures": {
+      "phase": "endgame",
+      "features": {
+        "material_balance_cp": 100,
+        "material_imbalances": [],
+        "played_piece": "pawn",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 1,
+        "player_king_open_files": 2,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 0,
+        "opponent_king_open_files": 2,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 1,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 1,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "a",
+          "b",
+          "c",
+          "e",
+          "f",
+          "g",
+          "h"
+        ],
+        "player_mobility": 0,
+        "opponent_mobility": 0,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [],
+        "tactics_for_player_before": [],
+        "themes": [
+          "isolated_queen_pawn",
+          "passed_pawn",
+          "open_file",
+          "king_safety_compromised"
+        ]
+      }
+    }
+  },
+  {
+    "id": "rook_takes_forking_queen",
+    "moveFeatures": {
+      "phase": "middlegame",
+      "features": {
+        "material_balance_cp": 320,
+        "material_imbalances": [],
+        "played_piece": "rook",
+        "played_is_capture": true,
+        "played_is_check": false,
+        "best_is_capture": true,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 0,
+        "player_king_open_files": 3,
+        "player_king_zone_attacks": 1,
+        "opponent_king_castled": true,
+        "opponent_king_shield_pawns": 0,
+        "opponent_king_open_files": 3,
+        "opponent_king_zone_attacks": 0,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h"
+        ],
+        "player_mobility": 19,
+        "opponent_mobility": 11,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": true,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [
+          "rook on f6 is undefended and attacked"
+        ],
+        "tactics_for_player_before": [
+          "knight on e4 forks queen on d6 and rook on f6",
+          "queen on d6 is attacked by rook (lesser value)",
+          "rook on f6 is attacked by knight (lesser value)"
+        ],
+        "themes": [
+          "open_file",
+          "central_control",
+          "king_safety_compromised",
+          "hanging_material"
+        ]
+      }
+    }
+  },
+  {
+    "id": "queen_takes_defended_pawn",
+    "moveFeatures": {
+      "phase": "middlegame",
+      "features": {
+        "material_balance_cp": 400,
+        "material_imbalances": [],
+        "played_piece": "queen",
+        "played_is_capture": true,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": true,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 0,
+        "player_king_open_files": 3,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 0,
+        "opponent_king_open_files": 3,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h"
+        ],
+        "player_mobility": 23,
+        "opponent_mobility": 4,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [
+          "queen on b7 is undefended and attacked"
+        ],
+        "tactics_for_player": [
+          "rook on b8 is undefended and attacked",
+          "Back-rank weakness: queen on b7 can access the back rank"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "open_file",
+          "knight_on_rim",
+          "king_safety_compromised",
+          "hanging_material",
+          "back_rank_weakness"
+        ]
+      }
+    }
+  },
+  {
+    "id": "bishop_sac_unsound",
+    "moveFeatures": {
+      "phase": "opening",
+      "features": {
+        "material_balance_cp": 100,
+        "material_imbalances": [],
+        "played_piece": "bishop",
+        "played_is_capture": true,
+        "played_is_check": true,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 2,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 1,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 0,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [],
+        "player_mobility": 18,
+        "opponent_mobility": 18,
+        "player_undeveloped_minors": 2,
+        "opponent_undeveloped_minors": 3,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [
+          "bishop on f7 is undefended and attacked"
+        ],
+        "tactics_for_player": [
+          "bishop on f7 forks king on e8 and knight on g8"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "knight_on_rim",
+          "undeveloped_pieces",
+          "king_safety_compromised",
+          "fork_available",
+          "hanging_material"
+        ]
+      }
+    }
+  },
+  {
+    "id": "castling_good_move",
+    "moveFeatures": {
+      "phase": "opening",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "king",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": true,
+        "player_king_shield_pawns": 3,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 2,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [],
+        "player_mobility": 18,
+        "opponent_mobility": 18,
+        "player_undeveloped_minors": 2,
+        "opponent_undeveloped_minors": 3,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [],
+        "tactics_for_player_before": [],
+        "themes": [
+          "knight_on_rim",
+          "central_control",
+          "undeveloped_pieces"
+        ]
+      }
+    }
+  },
+  {
+    "id": "back_rank_blunder",
+    "moveFeatures": {
+      "phase": "endgame",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "rook",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": true,
+        "player_king_shield_pawns": 3,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": true,
+        "opponent_king_shield_pawns": 3,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 0,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "c",
+          "d",
+          "e"
+        ],
+        "player_mobility": 12,
+        "opponent_mobility": 12,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": true,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [
+          "rook on c1 is undefended and attacked",
+          "Back-rank weakness: rook on c8 can access the back rank"
+        ],
+        "tactics_for_player": [
+          "rook on c8 is undefended and attacked",
+          "Back-rank weakness: rook on c1 can access the back rank"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "open_file",
+          "knight_on_rim",
+          "hanging_material",
+          "back_rank_weakness"
+        ]
+      }
+    }
+  },
+  {
+    "id": "knight_hangs_on_rim",
+    "moveFeatures": {
+      "phase": "opening",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "knight",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 2,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 2,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 0,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [],
+        "player_mobility": 15,
+        "opponent_mobility": 18,
+        "player_undeveloped_minors": 3,
+        "opponent_undeveloped_minors": 3,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [
+          "knight on h4 is undefended and attacked"
+        ],
+        "tactics_for_player": [],
+        "tactics_for_player_before": [],
+        "themes": [
+          "knight_on_rim",
+          "undeveloped_pieces",
+          "hanging_material"
+        ]
+      }
+    }
+  },
+  {
+    "id": "black_hangs_queen",
+    "moveFeatures": {
+      "phase": "opening",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "queen",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 2,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 2,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [],
+        "player_mobility": 23,
+        "opponent_mobility": 14,
+        "player_undeveloped_minors": 4,
+        "opponent_undeveloped_minors": 3,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [
+          "queen on h4 is undefended and attacked"
+        ],
+        "tactics_for_player": [
+          "queen on h4 pins pawn on f2 to the king"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "knight_on_rim",
+          "undeveloped_pieces",
+          "pinned_piece",
+          "hanging_material"
+        ]
+      }
+    }
+  },
+  {
+    "id": "en_passant_capture",
+    "moveFeatures": {
+      "phase": "endgame",
+      "features": {
+        "material_balance_cp": 100,
+        "material_imbalances": [],
+        "played_piece": "pawn",
+        "played_is_capture": true,
+        "played_is_check": false,
+        "best_is_capture": true,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 0,
+        "player_king_open_files": 2,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 0,
+        "opponent_king_open_files": 2,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 1,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 1,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "a",
+          "b",
+          "c",
+          "e",
+          "f",
+          "g",
+          "h"
+        ],
+        "player_mobility": 0,
+        "opponent_mobility": 0,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [],
+        "tactics_for_player_before": [],
+        "themes": [
+          "isolated_queen_pawn",
+          "passed_pawn",
+          "open_file",
+          "king_safety_compromised"
+        ]
+      }
+    }
+  },
+  {
+    "id": "promotion_to_queen",
+    "moveFeatures": {
+      "phase": "endgame",
+      "features": {
+        "material_balance_cp": 570,
+        "material_imbalances": [],
+        "played_piece": "pawn",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 0,
+        "player_king_open_files": 3,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 0,
+        "opponent_king_open_files": 2,
+        "opponent_king_zone_attacks": 0,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h"
+        ],
+        "player_mobility": 18,
+        "opponent_mobility": 7,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 1,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [
+          "queen on e8 pins bishop on c8 to the king",
+          "bishop on c8 is undefended and attacked"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "open_file",
+          "knight_on_rim",
+          "undeveloped_pieces",
+          "king_safety_compromised",
+          "pinned_piece",
+          "hanging_material"
+        ]
+      }
+    }
+  },
+  {
+    "id": "stalemate_by_queen",
+    "moveFeatures": {
+      "phase": "endgame",
+      "features": {
+        "material_balance_cp": 900,
+        "material_imbalances": [],
+        "played_piece": "queen",
+        "played_is_capture": false,
+        "played_is_check": false,
+        "best_is_capture": false,
+        "best_is_check": false,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 0,
+        "player_king_open_files": 3,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 0,
+        "opponent_king_open_files": 2,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h"
+        ],
+        "player_mobility": 23,
+        "opponent_mobility": 0,
+        "player_undeveloped_minors": 0,
+        "opponent_undeveloped_minors": 0,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [
+          "Back-rank weakness: queen on d6 can access the back rank"
+        ],
+        "tactics_for_player_before": [
+          "Back-rank weakness: queen on d1 can access the back rank"
+        ],
+        "themes": [
+          "open_file",
+          "king_safety_compromised",
+          "back_rank_weakness"
+        ]
+      }
+    }
+  },
+  {
+    "id": "checkmate_fools_mate",
+    "moveFeatures": {
+      "phase": "opening",
+      "features": {
+        "material_balance_cp": 0,
+        "material_imbalances": [],
+        "played_piece": "queen",
+        "played_is_capture": false,
+        "played_is_check": true,
+        "best_is_capture": false,
+        "best_is_check": true,
+        "player_king_castled": false,
+        "player_king_shield_pawns": 2,
+        "player_king_open_files": 0,
+        "player_king_zone_attacks": 0,
+        "opponent_king_castled": false,
+        "opponent_king_shield_pawns": 2,
+        "opponent_king_open_files": 0,
+        "opponent_king_zone_attacks": 1,
+        "player_isolated_pawns": 0,
+        "player_doubled_pawns": 0,
+        "player_backward_pawns": 0,
+        "player_passed_pawns": 0,
+        "opponent_isolated_pawns": 0,
+        "opponent_doubled_pawns": 0,
+        "opponent_backward_pawns": 0,
+        "opponent_passed_pawns": 0,
+        "open_files": [],
+        "player_mobility": 22,
+        "opponent_mobility": 5,
+        "player_undeveloped_minors": 4,
+        "opponent_undeveloped_minors": 4,
+        "player_rook_on_open_file": false,
+        "player_rook_on_seventh": false,
+        "tactics_against_player": [],
+        "tactics_for_player": [
+          "Back-rank weakness: queen on h4 can access the back rank"
+        ],
+        "tactics_for_player_before": [],
+        "themes": [
+          "pawn_chain_tension",
+          "knight_on_rim",
+          "undeveloped_pieces",
+          "back_rank_weakness"
+        ]
+      }
+    }
+  }
+]

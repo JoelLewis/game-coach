@@ -4,7 +4,12 @@
 //! in Wave 1 tasks A1/A2. The JS-facing surface is pinned by `ChessCoreApi` in
 //! `packages/contracts`.
 
+pub mod api;
+pub mod error;
 pub mod eval;
+pub mod features;
+pub mod game;
 pub mod heuristics;
 pub mod models;
+pub mod pgn;
 pub mod uci;
