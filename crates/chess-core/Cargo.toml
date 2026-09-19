@@ -11,3 +11,7 @@ crate-type = ["cdylib", "rlib"]
 
 [lints]
 workspace = true
+
+[dependencies]
+shakmaty = "0.27"
+serde = { version = "1", features = ["derive"] }
