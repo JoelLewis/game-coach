@@ -6,6 +6,7 @@ import { kvKeys } from "@game-coach/contracts/storage";
 import { TemplateLibrarySchema, type TemplateLibrary } from "@game-coach/contracts/templates";
 import { CHESS_THEMES } from "@game-coach/contracts/taxonomy";
 import type { GameKind } from "@game-coach/contracts/engine";
+import { CHESS_TEMPLATE_LIBRARY } from "@game-coach/templates-chess/library";
 import { FALLBACK_TEMPLATE_LIBRARY } from "./fallback-templates.ts";
 
 export type ThemeMap = Readonly<Record<string, string>>;
@@ -29,6 +30,11 @@ const readActiveVersions = async (kv: KVNamespace): Promise<ActiveVersions> => {
   };
 };
 
+// What ships in the Worker bundle: the authored chess library. KV can override it without a
+// deploy. The tiny built-in fallback only covers games with no authored library yet.
+const bundledLibrary = (game: GameKind): TemplateLibrary =>
+  game === "chess" ? CHESS_TEMPLATE_LIBRARY : FALLBACK_TEMPLATE_LIBRARY;
+
 export const createTemplatesSource = (kv: KVNamespace): TemplatesSource => {
   let library: TemplateLibrary | undefined;
   let themes: ThemeMap | undefined;
@@ -48,7 +54,7 @@ export const createTemplatesSource = (kv: KVNamespace): TemplatesSource => {
           }
         }
       }
-      library = FALLBACK_TEMPLATE_LIBRARY;
+      library = bundledLibrary(game);
       return library;
     },
 

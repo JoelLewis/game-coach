@@ -23,6 +23,9 @@ importers:
       '@game-coach/jev-client':
         specifier: workspace:*
         version: link:../../packages/jev-client
+      '@game-coach/templates-chess':
+        specifier: workspace:*
+        version: link:../../packages/templates-chess
       valibot:
         specifier: ^1.1.0
         version: 1.5.0(typescript@5.9.3)

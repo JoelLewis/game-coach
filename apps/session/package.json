@@ -15,6 +15,7 @@
     "@game-coach/coaching-core": "workspace:*",
     "@game-coach/contracts": "workspace:*",
     "@game-coach/jev-client": "workspace:*",
+    "@game-coach/templates-chess": "workspace:*",
     "valibot": "^1.1.0"
   },
   "devDependencies": {
