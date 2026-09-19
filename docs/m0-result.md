@@ -34,3 +34,8 @@ Gate (p95 < 500 ms): **pass** for both. Cost uses TypeSafe list price ($0.042 / 
 
 ## Closed
 - Dashboard price: Joel confirmed the day's ~100 calls billed at about $0.02 or less, consistent with TypeSafe list price ($0.042 / M input tokens).
+
+## Staging deploy (2026-09-18)
+`gamecoach-web` (Custom Domain) and `gamecoach-session` (Route `/ws/*`) are live on `https://chess.terminal-games.com` with `JEV_TRANSPORT=fixture` (no AI spend). Verified against the live site: TLS and DNS provisioned; COOP/COEP on pages and static assets (Stockfish wasm served with `require-corp`); CSP nonce in the header matches the inline bootstrap script; page GETs mint no guest; `POST /api/games` returns 403 without or with a foreign `Origin` and 201 with the app origin, creating the game through the service binding; a WebSocket with a valid cookie receives `ready`, while no cookie, a foreign origin and a tampered MAC each get close code 4401 and no frames. Workers on Routes run before a Custom Domain, which is what makes the shared hostname work.
+
+The real Workers AI transport stays off until the session Worker has had its independent security review.
