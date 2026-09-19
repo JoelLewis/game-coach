@@ -1,0 +1,8 @@
+# hooks.server.ts sets these for every dynamic response; static assets bypass the Worker
+# entirely (see src/lib/server/security-headers.ts), so they need the same headers here.
+# Stockfish's multi-threaded WASM build requires the page to be cross-origin isolated.
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
