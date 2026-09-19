@@ -202,7 +202,19 @@ export class GameSession extends DurableObject<Env> {
   // still needs to exist - workerd requires an `acceptWebSocket()`'d Durable Object to define
   // `webSocketClose()`, and an unhandled client-initiated close otherwise surfaces as an
   // uncaught exception in the Worker.
-  async webSocketClose(_ws: WebSocket, _code: number, _reason: string, _wasClean: boolean): Promise<void> {}
+  //
+  // It must also answer the client's close frame. Without the reply the closing handshake never
+  // completes and the browser reports 1006 (abnormal closure) for a perfectly clean close, which
+  // the client treats as a dropped connection. 1005/1006/1015 are reserved and cannot be sent.
+  async webSocketClose(ws: WebSocket, code: number, reason: string, _wasClean: boolean): Promise<void> {
+    const reserved = code === 1005 || code === 1006 || code === 1015;
+    try {
+      ws.close(reserved ? 1000 : code, reserved ? "" : reason);
+    } catch (error) {
+      // Already closed by the runtime or by our own close() (supersede, game over): nothing to do.
+      console.warn("webSocketClose: close reply skipped", error instanceof Error ? error.message : error);
+    }
+  }
 
   async alarm(): Promise<void> {
     const sql = this.ctx.storage.sql;
