@@ -6,7 +6,10 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { D1Like, D1ResultLike, D1Row, D1StatementLike } from "../d1-types.ts";
 
-const MIGRATION_SQL = readFileSync(join(import.meta.dirname, "../../../../../../db/migrations/0001_init.sql"), "utf8");
+const MIGRATIONS_DIR = join(import.meta.dirname, "../../../../../../db/migrations");
+const MIGRATION_SQL = [readFileSync(join(MIGRATIONS_DIR, "0001_init.sql"), "utf8"), readFileSync(join(MIGRATIONS_DIR, "0002_auth_hardening.sql"), "utf8")].join(
+	"\n",
+);
 
 // D1's bind() is `(...values: unknown[])`, so D1Like's is too; node:sqlite's is narrower
 // (`SQLInputValue`, not exported by @types/node). We only ever bind strings/numbers/null, so

@@ -5,7 +5,7 @@ import { GET } from "./+server.ts";
 
 const APP_ORIGIN = "https://chess.terminal-games.com";
 
-const call = (session: Partial<SessionRpc>, playerId = "p1", id = "g1") => {
+const call = (session: Partial<SessionRpc>, playerId: string | null = "p1", id = "g1") => {
 	const event = createFakeEvent({
 		method: "GET",
 		url: `${APP_ORIGIN}/api/games/${id}`,
@@ -45,5 +45,14 @@ describe("GET /api/games/[id]", () => {
 		const getGameSummary = vi.fn(async () => ({ ok: false as const, error: "not_found" as const }));
 		const response = await call({ getGameSummary });
 		expect(response.status).toBe(404);
+	});
+
+	// F03: GET never mints a guest, so an identity-less request must be rejected outright rather
+	// than asking the RPC with an empty playerId.
+	it("rejects with 403 without calling the RPC when there is no identity", async () => {
+		const getGameSummary = vi.fn();
+		const response = await call({ getGameSummary }, null);
+		expect(response.status).toBe(403);
+		expect(getGameSummary).not.toHaveBeenCalled();
 	});
 });

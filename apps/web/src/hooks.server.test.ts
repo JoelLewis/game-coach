@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { SESSION_COOKIE } from "@game-coach/contracts/ws-protocol";
 import { handle } from "./hooks.server.ts";
-import { verifySessionCookie } from "./lib/server/cookie.ts";
+import { signSessionCookie } from "./lib/server/cookie.ts";
 import { createFakeCookies, createFakeEvent } from "./lib/server/testing/fake-event.ts";
+import { createGuestPlayerAndSession } from "./lib/server/players.ts";
 import { SqliteD1 } from "./lib/server/testing/sqlite-d1.ts";
 
 const APP_ORIGIN = "https://chess.terminal-games.com";
-const SESSION_SECRET = "test-secret";
+const SESSION_SECRET = "test-secret-that-is-at-least-32-bytes-long";
 
 let db: SqliteD1;
 
@@ -14,7 +15,7 @@ beforeEach(() => {
 	db = new SqliteD1();
 });
 
-const fakePlatform = () => ({ env: { DB: db, APP_ORIGIN, SESSION_SECRET } });
+const fakePlatform = (env: Record<string, unknown> = {}) => ({ env: { DB: db, APP_ORIGIN, SESSION_SECRET, ...env } });
 
 const run = async (options: {
 	method?: string;
@@ -22,6 +23,8 @@ const run = async (options: {
 	contentType?: string;
 	origin?: string;
 	cookieValue?: string;
+	path?: string;
+	platform?: unknown;
 }) => {
 	const headers: Record<string, string> = {};
 	if (options.accept) headers.accept = options.accept;
@@ -32,9 +35,9 @@ const run = async (options: {
 	const locals: Record<string, unknown> = {};
 	const event = createFakeEvent({
 		method: options.method ?? "GET",
-		url: `${APP_ORIGIN}/`,
+		url: `${APP_ORIGIN}${options.path ?? "/"}`,
 		headers,
-		platform: fakePlatform(),
+		platform: options.platform === undefined ? fakePlatform() : options.platform,
 		locals,
 		cookies,
 	});
@@ -47,35 +50,62 @@ const run = async (options: {
 };
 
 describe("handle", () => {
-	it("lazily creates a guest on an HTML page navigation with no cookie", async () => {
+	// F03: a guest must never be minted for a page view. Only an existing session is resolved.
+	it("does not mint a guest on an HTML page navigation with no cookie", async () => {
 		const { response, cookies, locals } = await run({ accept: "text/html" });
-		expect(locals.playerId).toBeTypeOf("string");
-		expect(locals.playerId).not.toBe("");
-		expect(locals.playerKind).toBe("guest");
-		expect(cookies.get(SESSION_COOKIE)).toBeDefined();
+		expect(locals.playerId).toBeNull();
+		expect(locals.playerKind).toBeNull();
+		expect(cookies.get(SESSION_COOKIE)).toBeUndefined();
 		expect(response.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
 		expect(response.headers.get("Cross-Origin-Embedder-Policy")).toBe("require-corp");
 	});
 
-	it("resolves an existing valid cookie to the same player and refreshes it", async () => {
-		const first = await run({ accept: "text/html" });
-		const cookieValue = first.cookies.get(SESSION_COOKIE) as string;
-
-		const second = await run({ accept: "text/html", cookieValue });
-		expect(second.locals.playerId).toBe(first.locals.playerId);
-		expect(second.cookies.get(SESSION_COOKIE)).toBeDefined();
-	});
-
-	it("does not create a guest for a bare GET with no cookie and no html Accept header", async () => {
+	it("does not mint a guest for any bare GET, regardless of Accept", async () => {
 		const { locals, cookies } = await run({ accept: "application/json" });
-		expect(locals.playerId).toBe("");
+		expect(locals.playerId).toBeNull();
 		expect(cookies.get(SESSION_COOKIE)).toBeUndefined();
 	});
 
-	it("lazily creates a guest for a non-GET request with no cookie", async () => {
-		const { locals, cookies } = await run({ method: "POST", accept: "application/json", origin: APP_ORIGIN });
-		expect(locals.playerId).not.toBe("");
-		expect(cookies.get(SESSION_COOKIE)).toBeDefined();
+	// F03: this is the concrete exploit -- repeated cookie-less requests must never write to D1.
+	it("F03: never writes a player/session row for cookie-less requests, however many arrive", async () => {
+		for (let i = 0; i < 10; i += 1) {
+			await run({ accept: "text/html" });
+			await run({ method: "OPTIONS" });
+			await run({ method: "GET", path: "/nonexistent-route" });
+		}
+		const players = await db.prepare("SELECT * FROM players").all();
+		expect(players.results).toHaveLength(0);
+	});
+
+	// F03: a non-GET request with no session must not get a guest minted for it by the hook
+	// either -- that's now the route handler's job (guest-session.ts), after Origin/body/rate
+	// limit checks.
+	it("does not mint a guest for a non-GET request with no cookie", async () => {
+		const { locals, cookies } = await run({ method: "POST", contentType: "application/json", origin: APP_ORIGIN });
+		expect(locals.playerId).toBeNull();
+		expect(cookies.get(SESSION_COOKIE)).toBeUndefined();
+	});
+
+	it("resolves an existing valid cookie to the same player and does not immediately touch it", async () => {
+		const guest = await createGuestPlayerAndSession(db, Date.now());
+		const cookieValue = await signSessionCookie(guest.sessionId, SESSION_SECRET);
+
+		const { locals } = await run({ accept: "text/html", cookieValue });
+		expect(locals.playerId).toBe(guest.playerId);
+		expect(locals.playerKind).toBe("guest");
+
+		const row = await db
+			.prepare("SELECT expires_at FROM sessions WHERE player_id = ?")
+			.bind(guest.playerId)
+			.first<{ expires_at: number }>();
+		expect(row?.expires_at).toBe(guest.expiresAt);
+	});
+
+	// F04: Origin must be checked regardless of Content-Type.
+	it("rejects a state-changing request with a mismatched Origin even without a Content-Type header", async () => {
+		const { response, locals } = await run({ method: "POST", origin: "https://evil.example" });
+		expect(response.status).toBe(403);
+		expect(locals.playerId).toBeUndefined();
 	});
 
 	it("rejects a JSON POST with a mismatched Origin before touching the DB", async () => {
@@ -93,9 +123,39 @@ describe("handle", () => {
 		expect(cookies.get(SESSION_COOKIE)).toBeUndefined();
 	});
 
-	it("issues a cookie whose signature verifies against SESSION_SECRET", async () => {
-		const { cookies } = await run({ accept: "text/html" });
-		const cookieValue = cookies.get(SESSION_COOKIE) as string;
-		expect(await verifySessionCookie(cookieValue, SESSION_SECRET)).not.toBeNull();
+	it("still applies baseline security headers to a 403", async () => {
+		const { response } = await run({ method: "POST", origin: "https://evil.example" });
+		expect(response.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
+	});
+
+	// F12: missing/invalid config must fail closed with a controlled 503, before any DB access.
+	it("F12: returns a 503 with security headers when SESSION_SECRET is missing, without touching the DB", async () => {
+		const { response } = await run({ accept: "text/html", platform: fakePlatform({ SESSION_SECRET: undefined }) });
+		expect(response.status).toBe(503);
+		expect(response.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
+		const players = await db.prepare("SELECT * FROM players").all();
+		expect(players.results).toHaveLength(0);
+	});
+
+	it("F12: returns a 503 when SESSION_SECRET is too short", async () => {
+		const { response } = await run({ accept: "text/html", platform: fakePlatform({ SESSION_SECRET: "too-short" }) });
+		expect(response.status).toBe(503);
+	});
+
+	it("F12: returns a 503 when APP_ORIGIN is missing", async () => {
+		const { response } = await run({ accept: "text/html", platform: fakePlatform({ APP_ORIGIN: undefined }) });
+		expect(response.status).toBe(503);
+	});
+
+	// F09: auth routes get stricter headers than the general baseline.
+	it("F09: applies no-store/no-referrer to responses under /auth/", async () => {
+		const { response } = await run({ accept: "text/html", path: "/auth/verify" });
+		expect(response.headers.get("Cache-Control")).toBe("no-store");
+		expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+	});
+
+	it("does not apply no-store to non-auth routes", async () => {
+		const { response } = await run({ accept: "text/html", path: "/" });
+		expect(response.headers.get("Cache-Control")).not.toBe("no-store");
 	});
 });
