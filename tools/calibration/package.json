@@ -4,15 +4,22 @@
   "version": "0.0.0",
   "license": "GPL-3.0-only",
   "type": "module",
-  "exports": { "./score/*": "./score/*.ts" },
+  "exports": { "./score/*": "./score/*.ts", "./build/*": "./build/*.ts" },
   "scripts": {
-    "typecheck": "tsc -p score/tsconfig.json && tsc -p ingest/tsconfig.json",
-    "test": "vitest run score ingest",
+    "ensure-chess-core": "pnpm --filter @game-coach/chess-core run ensure-build",
+    "typecheck": "pnpm run ensure-chess-core && tsc -p score/tsconfig.json && tsc -p ingest/tsconfig.json && tsc -p build/tsconfig.json",
+    "test": "pnpm run ensure-chess-core && vitest run score ingest build",
     "score": "node --experimental-strip-types score/run.ts",
-    "ingest": "node --experimental-strip-types ingest/cli.ts"
+    "ingest": "node --experimental-strip-types ingest/cli.ts",
+    "build-set": "node --experimental-strip-types build/build-set.ts",
+    "apply-proposals": "node --experimental-strip-types build/apply-proposals.ts",
+    "export-requests": "node --experimental-strip-types build/export-requests.ts"
   },
   "dependencies": {
+    "@game-coach/chess-core": "workspace:*",
+    "@game-coach/coaching-core": "workspace:*",
     "@game-coach/contracts": "workspace:*",
+    "@game-coach/templates-chess": "workspace:*",
     "chess.js": "^1.4.0",
     "valibot": "^1.1.0"
   },

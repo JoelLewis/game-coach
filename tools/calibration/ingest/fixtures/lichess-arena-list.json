@@ -1,0 +1,79 @@
+{
+  "created": [
+    {
+      "id": "createdCapped1",
+      "fullName": "≤1500 Blitz Arena",
+      "rated": true,
+      "perf": { "key": "blitz" },
+      "variant": { "key": "standard" },
+      "hasMaxRating": true,
+      "maxRating": { "rating": 1500 }
+    }
+  ],
+  "started": [
+    {
+      "id": "startedCapped1",
+      "fullName": "≤1700 Rapid Arena",
+      "rated": true,
+      "perf": { "key": "rapid" },
+      "variant": { "key": "standard" },
+      "hasMaxRating": true,
+      "maxRating": { "rating": 1700 }
+    }
+  ],
+  "finished": [
+    {
+      "id": "finishedCapped1",
+      "fullName": "≤1700 Blitz Arena",
+      "rated": true,
+      "perf": { "key": "blitz" },
+      "variant": { "key": "standard" },
+      "hasMaxRating": true,
+      "maxRating": { "rating": 1700 }
+    },
+    {
+      "id": "finishedCapped2",
+      "fullName": "≤1300 Rapid Arena",
+      "rated": true,
+      "perf": { "key": "rapid" },
+      "variant": { "key": "standard" },
+      "hasMaxRating": true,
+      "maxRating": { "rating": 1300 }
+    },
+    {
+      "id": "finishedBullet",
+      "fullName": "≤1500 Bullet Arena",
+      "rated": true,
+      "perf": { "key": "bullet" },
+      "variant": { "key": "standard" },
+      "hasMaxRating": true,
+      "maxRating": { "rating": 1500 }
+    },
+    {
+      "id": "finishedUncapped",
+      "fullName": "Hourly Blitz Arena",
+      "rated": true,
+      "perf": { "key": "blitz" },
+      "variant": { "key": "standard" },
+      "hasMaxRating": false
+    },
+    {
+      "id": "finishedCasual",
+      "fullName": "≤1700 Casual Blitz Arena",
+      "rated": false,
+      "perf": { "key": "blitz" },
+      "variant": { "key": "standard" },
+      "hasMaxRating": true,
+      "maxRating": { "rating": 1700 }
+    },
+    {
+      "id": "finishedVariant",
+      "fullName": "≤1700 Crazyhouse Arena",
+      "rated": true,
+      "perf": { "key": "crazyhouse" },
+      "variant": { "key": "crazyhouse" },
+      "hasMaxRating": true,
+      "maxRating": { "rating": 1700 }
+    }
+  ]
+}

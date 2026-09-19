@@ -146,11 +146,50 @@ describe("runIngest", () => {
     // All 15 plies are candidates now, not just White's 8.
     expect(result.candidates).toHaveLength(15);
   });
+
+  it("emits club-source candidates with CandidateSource.kind 'lichess', both colors, and clubStats", async () => {
+    const arenaPgn = await fixture("lichess-arena-games.pgn"); // 2 kept games, one 22-ply, one 20-ply
+    const fetchFn = vi.fn(async () => new Response(arenaPgn, { status: 200 }));
+    const fake = createFakeEngine();
+    const result = await runIngest(
+      { ...baseOptions, sources: [{ kind: "club", arenaIds: ["myArena"], clubAutoTarget: null }] },
+      { fetchFn, createEngine: () => fake.engine },
+    );
+    expect(result.candidates.length).toBe(22 + 20); // every ply of both kept games is a candidate
+    for (const c of result.candidates) {
+      v.parse(CandidateSchema, c);
+      expect(c.source.kind).toBe("lichess");
+      expect(c.id.startsWith("lichess:")).toBe(true);
+    }
+    expect(result.clubStats?.gamesKept).toBe(2);
+    expect(result.clubStats?.analysedGamesKept).toBe(1);
+  });
+
+  it("returns clubStats null when no club source was requested", async () => {
+    const pgn = await fixture("cli-fixture-game.pgn");
+    const fetchFn = vi.fn(async () => new Response(pgn, { status: 200 }));
+    const fake = createFakeEngine();
+    const result = await runIngest(baseOptions, { fetchFn, createEngine: () => fake.engine });
+    expect(result.clubStats).toBeNull();
+  });
 });
 
 describe("parseCliArgs", () => {
   it("requires at least one source", () => {
     expect(() => parseCliArgs([])).toThrow();
+  });
+
+  it("accepts --arena (repeatable) and --club-auto as a source on their own", () => {
+    const { options } = parseCliArgs(["--arena", "a1", "--arena", "a2", "--club-auto", "40"]);
+    expect(options.sources).toEqual([{ kind: "club", arenaIds: ["a1", "a2"], clubAutoTarget: 40 }]);
+  });
+
+  it("combines --arena/--club-auto with the other sources into one club SourceSpec", () => {
+    const { options } = parseCliArgs(["--lichess", "someone", "--club-auto", "10"]);
+    expect(options.sources).toEqual([
+      { kind: "lichess", username: "someone" },
+      { kind: "club", arenaIds: [], clubAutoTarget: 10 },
+    ]);
   });
 
   it("tolerates a leading literal '--' the way pnpm's passthrough forwards it", () => {
