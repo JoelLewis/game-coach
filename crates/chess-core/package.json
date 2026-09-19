@@ -10,8 +10,9 @@
   },
   "scripts": {
     "build": "wasm-pack build --release --target web --out-dir pkg/web --out-name chess_core && wasm-pack build --release --target nodejs --out-dir pkg/node --out-name chess_core && rm -f pkg/web/.gitignore pkg/web/package.json pkg/node/.gitignore pkg/node/package.json",
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "test -d pkg/node || pnpm run build && vitest run"
+    "typecheck": "pnpm run ensure-build && tsc -p tsconfig.json",
+    "test": "pnpm run ensure-build && vitest run",
+    "ensure-build": "(test -d pkg/node && test -d pkg/web) || pnpm run build"
   },
   "dependencies": {
     "@game-coach/contracts": "workspace:*",
