@@ -1,0 +1,12 @@
+{
+  "name": "@game-coach/ui-study",
+  "private": true,
+  "version": "0.0.0",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "exports": {
+    "./styles/*": "./styles/*",
+    "./fonts/*": "./fonts/*",
+    "./components/*": "./components/*"
+  }
+}

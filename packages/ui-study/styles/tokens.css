@@ -1,0 +1,393 @@
+/*
+ * ChessMentor Design Tokens
+ *
+ * All colors, typography, and shadows are defined here as CSS custom properties.
+ * Components reference these tokens via var(--cm-*) instead of hardcoded values.
+ *
+ * Theme switching works by overriding tokens under [data-theme="grid"].
+ * The Study theme is the default (matches the original hardcoded palette).
+ */
+
+/* ─── The Study (default theme) ─────────────────────────────────── */
+
+:root,
+[data-theme="study"] {
+  /* ── Surfaces ── */
+  --cm-bg-app: #FAF8F2;
+  --cm-bg-surface: #ffffff;
+  --cm-bg-surface-alt: #F5F0E8;
+  --cm-bg-hover: #f3f4f6;
+  --cm-bg-active: #e5e7eb;
+  --cm-bg-sidebar: #1e293b;
+  --cm-bg-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --cm-bg-sidebar-active: rgba(255, 255, 255, 0.1);
+  --cm-bg-overlay: rgba(0, 0, 0, 0.5);
+  --cm-bg-overlay-light: rgba(0, 0, 0, 0.3);
+  --cm-bg-scrim: rgba(0, 0, 0, 0.08);
+  --cm-sidebar-text: #e2e8f0;
+
+  /* ── Text ── */
+  --cm-text-primary: #1e293b;
+  --cm-text-secondary: #374151;
+  --cm-text-tertiary: #475569;
+  --cm-text-muted: #6b7280;
+  --cm-text-faint: #64748b;
+  --cm-text-disabled: #9ca3af;
+  --cm-text-inverse: #ffffff;
+  --cm-text-inverse-muted: rgba(255, 255, 255, 0.7);
+
+  /* ── Borders ── */
+  --cm-border-default: #e2e8f0;
+  --cm-border-light: #e5e7eb;
+  --cm-border-medium: #d1d5db;
+  --cm-border-sidebar: rgba(255, 255, 255, 0.1);
+
+  /* ── Accent (primary action) ── */
+  --cm-accent-primary: #4f46e5;
+  --cm-accent-primary-hover: #4338ca;
+  --cm-accent-primary-bg: #eef2ff;
+  --cm-accent-primary-bg-hover: #e0e7ff;
+  --cm-accent-primary-light: #6366f1;
+  --cm-accent-primary-lighter: #8b5cf6;
+  --cm-accent-primary-text: #4f46e5;
+
+  /* ── Accent (secondary — blue) ── */
+  --cm-accent-secondary: #3b82f6;
+  --cm-accent-secondary-hover: #1d4ed8;
+  --cm-accent-secondary-deep: #1e40af;
+  --cm-accent-secondary-deeper: #1e3a8a;
+  --cm-accent-secondary-bg: #eff6ff;
+  --cm-accent-secondary-bg-alt: #dbeafe;
+  --cm-accent-secondary-light: #60a5fa;
+  --cm-accent-secondary-muted: #bfdbfe;
+  --cm-accent-secondary-text: #0369a1;
+
+  /* ── Status: Success ── */
+  --cm-status-success: #16a34a;
+  --cm-status-success-alt: #059669;
+  --cm-status-success-light: #10b981;
+  --cm-status-success-lighter: #6ee7b7;
+  --cm-status-success-bg: #f0fdf4;
+  --cm-status-success-bg-alt: #ecfdf5;
+  --cm-status-success-text: #166534;
+
+  /* ── Status: Error ── */
+  --cm-status-error: #dc2626;
+  --cm-status-error-light: #ef4444;
+  --cm-status-error-lighter: #fca5a5;
+  --cm-status-error-muted: #fecaca;
+  --cm-status-error-bg: #fef2f2;
+  --cm-status-error-bg-alt: #fee2e2;
+
+  /* ── Status: Warning ── */
+  --cm-status-warning: #f59e0b;
+  --cm-status-warning-dark: #ca8a04;
+  --cm-status-warning-bg: #fffbeb;
+  --cm-status-warning-bg-alt: #fef3c7;
+  --cm-status-warning-light: #fcd34d;
+  --cm-status-warning-lighter: #fde68a;
+  --cm-status-warning-lightest: #fef9c3;
+
+  /* ── Status: Info ── */
+  --cm-status-info: #f97316;
+  --cm-status-info-bg: #fff7ed;
+  --cm-status-info-muted: #fed7aa;
+
+  /* ── Violet / tertiary accent ── */
+  --cm-accent-violet: #7c3aed;
+  --cm-accent-violet-dark: #5b21b6;
+  --cm-accent-violet-light: #8b5cf6;
+  --cm-accent-violet-bg: #faf5ff;
+  --cm-accent-violet-bg-alt: #ede9fe;
+  --cm-accent-violet-muted: #c7d2fe;
+  --cm-accent-violet-lighter: #a5b4fc;
+
+  /* ── Move Classification ── */
+  --cm-class-best: #26a641;
+  --cm-class-excellent: #57ab5a;
+  --cm-class-good: #8ddb8c;
+  --cm-class-inaccuracy: #d29922;
+  --cm-class-mistake: #e5534b;
+  --cm-class-blunder: #da3633;
+
+  /* ── Skill Radar (dashboard) ── */
+  --cm-skill-tactical: #ef4444;
+  --cm-skill-positional: #3b82f6;
+  --cm-skill-endgame: #8b5cf6;
+  --cm-skill-opening: #f59e0b;
+  --cm-skill-pattern: #10b981;
+  --cm-skill-radar-fill: rgba(99, 102, 241, 0.15);
+  --cm-skill-radar-stroke: #6366f1;
+
+  /* ── Board ── */
+  --cm-board-light: #f0d9b5;
+  --cm-board-dark-overlay: rgba(0, 0, 0, 0.2);
+  --cm-board-last-move: rgba(155, 199, 0, 0.41);
+  --cm-board-selected: rgba(20, 85, 30, 0.5);
+  --cm-board-check: radial-gradient(
+    ellipse at center,
+    rgba(255, 0, 0, 1) 0%,
+    rgba(231, 0, 0, 1) 25%,
+    rgba(169, 0, 0, 0) 89%,
+    rgba(158, 0, 0, 0) 100%
+  );
+  --cm-board-move-dest: rgba(20, 85, 30, 0.5);
+  --cm-board-move-dest-hover: rgba(20, 85, 30, 0.3);
+  --cm-board-coords-dark: rgba(72, 72, 72, 0.8);
+  --cm-board-coords-light: rgba(255, 255, 255, 0.8);
+
+  /* ── Eval Bar ── */
+  --cm-eval-bar-black: #403d39;
+
+  /* ── Status (additional) ── */
+  --cm-status-warning-text: #92400e;
+  --cm-status-success-hover: #047857;
+
+  /* ── Typography ── */
+  --cm-font-body: "Source Serif 4", Georgia, serif;
+  --cm-font-heading: "Playfair Display", Georgia, serif;
+  --cm-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* ── Font Sizes ── */
+  --cm-text-xs: 10px;
+  --cm-text-sm: 12px;
+  --cm-text-base: 14px;
+  --cm-text-lg: 16px;
+  --cm-text-xl: 20px;
+  --cm-text-2xl: 24px;
+
+  /* ── Spacing ── */
+  --cm-space-1: 4px;
+  --cm-space-2: 8px;
+  --cm-space-3: 12px;
+  --cm-space-4: 16px;
+  --cm-space-5: 20px;
+  --cm-space-6: 24px;
+  --cm-space-8: 32px;
+
+  /* ── Overlay Opacity ── */
+  --cm-overlay-subtle: rgba(255, 255, 255, 0.2);
+  --cm-overlay-medium: rgba(255, 255, 255, 0.3);
+  --cm-overlay-border: rgba(255, 255, 255, 0.4);
+
+  /* ── Shadows (warm-tinted) ── */
+  --cm-shadow-sm: 0 1px 3px rgba(139, 109, 71, 0.12);
+  --cm-shadow-md: 2px 4px 12px rgba(139, 109, 71, 0.15);
+  --cm-shadow-lg: 3px 8px 20px rgba(139, 109, 71, 0.15);
+  --cm-shadow-xl: 4px 12px 30px rgba(139, 109, 71, 0.18);
+  --cm-shadow-focus: 0 2px 8px rgba(201, 168, 76, 0.15);
+
+  /* ── Study Surface Effects ── */
+  --cm-study-walnut: #5C3D2E;
+  --cm-study-baize: #2D5A3D;
+  --cm-study-brass: #C9A84C;
+  --cm-study-brass-highlight: rgba(255, 248, 220, 0.6);
+  --cm-study-brass-shadow: rgba(139, 116, 52, 0.5);
+  --cm-study-brass-glow: 0 0 12px rgba(201, 168, 76, 0.25);
+
+  /* ── Glow (inert in Study) ── */
+  --cm-glow-primary: none;
+  --cm-glow-primary-intense: none;
+  --cm-border-glow: var(--cm-border-medium);
+
+  /* ── Transitions ── */
+  --cm-transition-fast: 150ms ease;
+  --cm-transition-normal: 200ms ease;
+  --cm-transition-slow: 300ms ease;
+
+  /* ── Border Radius ── */
+  --cm-radius-sm: 4px;
+  --cm-radius-md: 8px;
+  --cm-radius-lg: 12px;
+  --cm-radius-xl: 16px;
+  --cm-radius-full: 9999px;
+}
+
+/* ─── The Grid (dark neon theme) ─────────────────────────────────── */
+
+[data-theme="grid"] {
+  /* ── Surfaces ── */
+  --cm-bg-app: #0a0a0f;
+  --cm-bg-surface: #12121a;
+  --cm-bg-surface-alt: #16161f;
+  --cm-bg-hover: #1c1c28;
+  --cm-bg-active: #252535;
+  --cm-bg-sidebar: #070b14;
+  --cm-bg-sidebar-hover: rgba(0, 229, 255, 0.05);
+  --cm-bg-sidebar-active: rgba(0, 229, 255, 0.1);
+  --cm-bg-overlay: rgba(0, 0, 0, 0.7);
+  --cm-bg-overlay-light: rgba(0, 0, 0, 0.5);
+  --cm-bg-scrim: rgba(0, 229, 255, 0.04);
+  --cm-sidebar-text: #b0b0c0;
+
+  /* ── Text ── */
+  --cm-text-primary: #e0e0e8;
+  --cm-text-secondary: #b0b0c0;
+  --cm-text-tertiary: #8888a0;
+  --cm-text-muted: #606078;
+  --cm-text-faint: #5a5a78;
+  --cm-text-disabled: #353548;
+  --cm-text-inverse: #0a0a0f;
+  --cm-text-inverse-muted: rgba(10, 10, 15, 0.7);
+
+  /* ── Borders ── */
+  --cm-border-default: #1e293b;
+  --cm-border-light: #1a1a2e;
+  --cm-border-medium: #252540;
+  --cm-border-sidebar: rgba(0, 229, 255, 0.15);
+
+  /* ── Accent (primary — cyan neon) ── */
+  --cm-accent-primary: #00e5ff;
+  --cm-accent-primary-hover: #00bcd4;
+  --cm-accent-primary-bg: rgba(0, 229, 255, 0.08);
+  --cm-accent-primary-bg-hover: rgba(0, 229, 255, 0.12);
+  --cm-accent-primary-light: #4df0ff;
+  --cm-accent-primary-lighter: #80f4ff;
+  --cm-accent-primary-text: #00e5ff;
+
+  /* ── Accent (secondary — electric blue) ── */
+  --cm-accent-secondary: #4d8dff;
+  --cm-accent-secondary-hover: #3370e6;
+  --cm-accent-secondary-deep: #2255cc;
+  --cm-accent-secondary-deeper: #1a44b3;
+  --cm-accent-secondary-bg: rgba(77, 141, 255, 0.15);
+  --cm-accent-secondary-bg-alt: rgba(77, 141, 255, 0.12);
+  --cm-accent-secondary-light: #6ea3ff;
+  --cm-accent-secondary-muted: rgba(77, 141, 255, 0.2);
+  --cm-accent-secondary-text: #80b8ff;
+
+  /* ── Status: Success (neon green) ── */
+  --cm-status-success: #00ff88;
+  --cm-status-success-alt: #00cc6a;
+  --cm-status-success-light: #33ffaa;
+  --cm-status-success-lighter: #66ffbb;
+  --cm-status-success-bg: rgba(0, 255, 136, 0.15);
+  --cm-status-success-bg-alt: rgba(0, 255, 136, 0.12);
+  --cm-status-success-text: #00ff88;
+
+  /* ── Status: Error (neon red/magenta) ── */
+  --cm-status-error: #ff3366;
+  --cm-status-error-light: #ff5580;
+  --cm-status-error-lighter: #ff8099;
+  --cm-status-error-muted: rgba(255, 51, 102, 0.2);
+  --cm-status-error-bg: rgba(255, 51, 102, 0.15);
+  --cm-status-error-bg-alt: rgba(255, 51, 102, 0.12);
+
+  /* ── Status: Warning (neon amber) ── */
+  --cm-status-warning: #ffaa00;
+  --cm-status-warning-dark: #cc8800;
+  --cm-status-warning-bg: rgba(255, 170, 0, 0.15);
+  --cm-status-warning-bg-alt: rgba(255, 170, 0, 0.12);
+  --cm-status-warning-light: #ffcc44;
+  --cm-status-warning-lighter: #ffdd77;
+  --cm-status-warning-lightest: rgba(255, 170, 0, 0.15);
+
+  /* ── Status: Info (neon orange) ── */
+  --cm-status-info: #ff6600;
+  --cm-status-info-bg: rgba(255, 102, 0, 0.15);
+  --cm-status-info-muted: rgba(255, 102, 0, 0.2);
+
+  /* ── Violet / tertiary accent (neon purple) ── */
+  --cm-accent-violet: #aa44ff;
+  --cm-accent-violet-dark: #8822dd;
+  --cm-accent-violet-light: #bb66ff;
+  --cm-accent-violet-bg: rgba(170, 68, 255, 0.08);
+  --cm-accent-violet-bg-alt: rgba(170, 68, 255, 0.12);
+  --cm-accent-violet-muted: rgba(170, 68, 255, 0.2);
+  --cm-accent-violet-lighter: rgba(170, 68, 255, 0.3);
+
+  /* ── Move Classification (neon variants) ── */
+  --cm-class-best: #00ff88;
+  --cm-class-excellent: #33ff99;
+  --cm-class-good: #66ffbb;
+  --cm-class-inaccuracy: #ffcc00;
+  --cm-class-mistake: #ff6644;
+  --cm-class-blunder: #ff3333;
+
+  /* ── Skill Radar (dashboard) ── */
+  --cm-skill-tactical: #ff4466;
+  --cm-skill-positional: #4d8dff;
+  --cm-skill-endgame: #bb66ff;
+  --cm-skill-opening: #ffaa00;
+  --cm-skill-pattern: #00ff88;
+  --cm-skill-radar-fill: rgba(0, 229, 255, 0.12);
+  --cm-skill-radar-stroke: #00e5ff;
+
+  /* ── Board ── */
+  --cm-board-light: #1a1a2e;
+  --cm-board-dark-overlay: rgba(0, 229, 255, 0.06);
+  --cm-board-last-move: rgba(0, 229, 255, 0.15);
+  --cm-board-selected: rgba(0, 229, 255, 0.25);
+  --cm-board-check: radial-gradient(
+    ellipse at center,
+    rgba(255, 51, 102, 0.8) 0%,
+    rgba(255, 51, 102, 0.5) 25%,
+    rgba(255, 51, 102, 0) 89%,
+    rgba(255, 51, 102, 0) 100%
+  );
+  --cm-board-move-dest: rgba(0, 229, 255, 0.3);
+  --cm-board-move-dest-hover: rgba(0, 229, 255, 0.2);
+  --cm-board-coords-dark: rgba(0, 229, 255, 0.4);
+  --cm-board-coords-light: rgba(224, 224, 232, 0.5);
+
+  /* ── Typography ── */
+  --cm-font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --cm-font-heading: "Orbitron", system-ui, sans-serif;
+  --cm-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* ── Overlay Opacity ── */
+  --cm-overlay-subtle: rgba(255, 255, 255, 0.15);
+  --cm-overlay-medium: rgba(255, 255, 255, 0.25);
+  --cm-overlay-border: rgba(255, 255, 255, 0.35);
+
+  /* ── Eval Bar ── */
+  --cm-eval-bar-black: #1a1a2e;
+
+  /* ── Status (additional) ── */
+  --cm-status-warning-text: #ffaa00;
+  --cm-status-success-hover: #00994d;
+
+  /* ── Shadows (glow effects) ── */
+  --cm-shadow-sm: 0 0 6px rgba(0, 229, 255, 0.08);
+  --cm-shadow-md: 0 0 12px rgba(0, 229, 255, 0.12);
+  --cm-shadow-lg: 0 0 24px rgba(0, 229, 255, 0.15);
+  --cm-shadow-xl: 0 0 40px rgba(0, 229, 255, 0.2);
+  --cm-shadow-focus: 0 0 8px rgba(0, 229, 255, 0.2);
+
+  /* ── Glow (active in Grid) ── */
+  --cm-glow-primary: 0 0 12px rgba(0, 229, 255, 0.15);
+  --cm-glow-primary-intense: 0 0 20px rgba(0, 229, 255, 0.3);
+  --cm-border-glow: rgba(0, 229, 255, 0.4);
+}
+
+/* ─── Stat Pulse Animation ─────────────────────────────────── */
+
+@keyframes stat-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.stat-pulse {
+  animation: stat-pulse 200ms ease;
+  display: inline-block;
+}
+
+/* ─── Global Focus Styles ─────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--cm-accent-primary);
+  outline-offset: 2px;
+}
+
+/* ─── Reduced Motion ─────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

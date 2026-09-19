@@ -1,0 +1,19 @@
+/*
+ * Grid theme surface treatment — CRT scanline overlay.
+ * Applied as a ::after pseudo-element on <html> so it covers the entire viewport
+ * without interfering with interaction (pointer-events: none).
+ */
+[data-theme="grid"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 1px,
+    rgba(255, 255, 255, 0.03) 1px,
+    rgba(255, 255, 255, 0.03) 2px
+  );
+}
