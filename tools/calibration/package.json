@@ -1,0 +1,22 @@
+{
+  "name": "@game-coach/calibration",
+  "private": true,
+  "version": "0.0.0",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "exports": { "./score/*": "./score/*.ts" },
+  "scripts": {
+    "typecheck": "tsc -p score/tsconfig.json",
+    "test": "vitest run score",
+    "score": "node --experimental-strip-types score/run.ts"
+  },
+  "dependencies": {
+    "@game-coach/contracts": "workspace:*",
+    "valibot": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
+  }
+}
