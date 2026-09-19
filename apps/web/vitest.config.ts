@@ -1,20 +1,20 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vitest/config";
 
-// Separate from vite.config.ts (which owns the SvelteKit + Cloudflare adapter build): unit
-// tests only need the Svelte plugin, for `.svelte.ts` rune modules.
-// Two populations: server code is tested next to its source under src/ in a Node
-// environment (crypto.subtle, node:sqlite); the play UI is tested under test/ in jsdom.
+// Two populations, two environments:
+// - server code is tested next to its source under src/, in Node (crypto.subtle, node:sqlite),
+//   through the real vite.config.ts so SvelteKit's $app/* and $lib aliases resolve;
+// - the play UI is tested under test/ in jsdom, needing only the Svelte plugin for
+//   `.svelte.ts` rune modules.
 export default defineConfig({
-  plugins: [svelte({ compilerOptions: { runes: true } })],
   test: {
     projects: [
       {
-        extends: true,
+        extends: "./vite.config.ts",
         test: { name: "server", environment: "node", include: ["src/**/*.test.ts"] },
       },
       {
-        extends: true,
+        plugins: [svelte({ compilerOptions: { runes: true } })],
         test: { name: "play", environment: "jsdom", include: ["test/**/*.test.ts"] },
       },
     ],
