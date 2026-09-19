@@ -31,6 +31,8 @@ const choiceAnswer = (question: ChoiceQuestion, words: readonly string[]): Choic
   };
 };
 
+const HARD_TO_FIND_MARGIN_CP = 80;
+
 // Local development only: this deliberately simple stand-in is not model judgment.
 export const heuristicResponse = (request: JevRequest): JevResponse => {
   const rawSwing = record(request.state.engine).swing;
@@ -38,11 +40,20 @@ export const heuristicResponse = (request: JevRequest): JevResponse => {
   const level = swing >= -50 ? 0 : swing >= -100 ? 1 : swing >= -200 ? 2 : 3;
   const rawPhase = record(request.state.game).phase;
   const phase = typeof rawPhase === "string" ? rawPhase.toLowerCase() : "";
+  // Praise is rare on purpose: only the engine's first choice, and only when it clearly beats the
+  // next best option, i.e. a move that was there to be missed. Holding the eval is just ordinary.
+  const engine = record(request.state.engine);
+  const played = record(request.state.position).played;
+  const alternative = Array.isArray(engine.alternatives) ? record(engine.alternatives[0]).eval : undefined;
+  const margin = typeof engine.eval_after === "number" && typeof alternative === "number" ? engine.eval_after - alternative : 0;
+  const hardToFind = swing >= -10 && typeof played === "string" && played === engine.best_move && margin >= HARD_TO_FIND_MARGIN_CP;
+  const templateWords = level === 0 ? [hardToFind ? "praise" : "neutral", phase] : [phase, SEVERITY_LEVELS[level]];
+
   const answers = {
     ...Object.fromEntries(NOUL_KEYS.map((key) => [key, {
-      type: "noul", noul: (key === "good_move" ? swing >= -10 : key === "interrupt_now" && level >= 2) ? 0.85 : 0.15,
+      type: "noul", noul: (key === "good_move" ? hardToFind : key === "interrupt_now" && level >= 2) ? 0.85 : 0.15,
     }])),
-    ...Object.fromEntries(CHOICE_KEYS.map((key) => [key, choiceAnswer(request.questions[key], [phase, SEVERITY_LEVELS[level]])])),
+    ...Object.fromEntries(CHOICE_KEYS.map((key) => [key, choiceAnswer(request.questions[key], key === "template" ? templateWords : [phase, SEVERITY_LEVELS[level]])])),
     severity: scoreAnswer(request.questions.severity.criteria, level),
     complexity: scoreAnswer(request.questions.complexity.criteria, 1),
   };

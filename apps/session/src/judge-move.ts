@@ -60,35 +60,51 @@ export type JudgeMoveResult = JudgedMove | { kind: "unavailable"; error: JevErro
 const asJevError = (error: unknown): JevError =>
   error instanceof JevError ? error : new JevError("bad_response", "Could not build a Jev request", error);
 
-const findNeutralFallback = (library: TemplateLibrary, phase: MoveFacts["phase"]): Template => {
-  const forPhase = library.templates.find((t) => t.kind === "neutral" && t.phase === phase);
-  const any = library.templates.find((t) => t.kind === "neutral");
-  const fallback = forPhase ?? any;
-  if (fallback === undefined) {
-    throw new Error("template library has no neutral template to fall back to");
+type SpokenKind = "error" | "praise";
+
+const tryFill = (template: Template, values: ReturnType<typeof slotValuesFromFacts>): string | undefined => {
+  try {
+    return fillTemplate(template, values);
+  } catch (error) {
+    if (error instanceof MissingSlotError) return undefined;
+    throw error;
   }
-  return fallback;
 };
 
-const resolveTemplateAndText = (
+// How well an error template fits what decide() concluded, for when Jev's own pick cannot be used.
+const errorFitScore = (template: Template, decision: Decision, phase: MoveFacts["phase"]): number =>
+  (template.errorClass === decision.errorClass ? 4 : 0) +
+  (template.severities.includes(decision.severity) ? 2 : 0) +
+  (template.phase === phase ? 1 : 0);
+
+const errorFallbacks = (library: TemplateLibrary, decision: Decision, phase: MoveFacts["phase"]): Template[] =>
+  library.templates
+    .filter((t) => t.kind === "error" && (t.phase === phase || t.phase === "any") && t.severities.includes(decision.severity))
+    .map((template, index) => ({ template, index, score: errorFitScore(template, decision, phase) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(({ template }) => template);
+
+// The coach only speaks with a template whose kind matches what it is doing. Template choice was
+// Jev's weakest answer in M0, so its pick is a suggestion: an interrupt falls back to the
+// best-fitting error template, and praise with anything but a praise template is dropped, because
+// a mixed signal is not worth breaking the player's silence for.
+const resolveSpokenTemplate = (
   library: TemplateLibrary,
   decision: Decision,
   facts: MoveFacts,
-): { template: Template; text: string } => {
-  const chosen = library.templates.find((t) => t.id === decision.templateId);
+  kind: SpokenKind,
+): { template: Template; text: string } | undefined => {
   const values = slotValuesFromFacts(facts);
-
-  if (chosen !== undefined) {
-    try {
-      return { template: chosen, text: fillTemplate(chosen, values) };
-    } catch (error) {
-      if (!(error instanceof MissingSlotError)) throw error;
-      // fall through to the neutral fallback below
-    }
+  const chosen = library.templates.find((t) => t.id === decision.templateId);
+  const candidates = [
+    ...(chosen !== undefined && chosen.kind === kind ? [chosen] : []),
+    ...(kind === "error" ? errorFallbacks(library, decision, facts.phase) : []),
+  ];
+  for (const template of candidates) {
+    const text = tryFill(template, values);
+    if (text !== undefined) return { template, text };
   }
-
-  const fallback = findNeutralFallback(library, facts.phase);
-  return { template: fallback, text: fillTemplate(fallback, values) };
+  return undefined;
 };
 
 export const judgeMove = async (input: JudgeMoveInput, transport: JevTransport): Promise<JudgeMoveResult> => {
@@ -107,19 +123,27 @@ export const judgeMove = async (input: JudgeMoveInput, transport: JevTransport):
     assertRequestWithinBudget(request, input.game);
 
     const result = await transport.judge(request);
-    const decision = decide(result.response.answers, input.thresholds, input.context);
+    const decided = decide(result.response.answers, input.thresholds, input.context);
 
+    let decision = decided;
     let coachEvent: CoachEvent | undefined;
-    if (decision.action === "interrupt" || decision.action === "praise") {
-      const { template, text } = resolveTemplateAndText(input.templateLibrary, decision, input.facts);
-      coachEvent = buildCoachEvent({
-        id: input.idFactory(),
-        facts: input.facts,
-        decision,
-        template,
-        text,
-        source: "template",
-      });
+    if (decided.action === "interrupt" || decided.action === "praise") {
+      const kind: SpokenKind = decided.action === "interrupt" ? "error" : "praise";
+      const spoken = resolveSpokenTemplate(input.templateLibrary, decided, input.facts, kind);
+      if (spoken === undefined) {
+        // Nothing fitting to say: stay silent and leave the moment for review. The logged action
+        // must be what the player actually experienced.
+        decision = { ...decided, action: "queued", reasons: [...decided.reasons, `no_fitting_template:${kind}`] };
+      } else {
+        coachEvent = buildCoachEvent({
+          id: input.idFactory(),
+          facts: input.facts,
+          decision: decided,
+          template: spoken.template,
+          text: spoken.text,
+          source: "template",
+        });
+      }
     }
 
     return {

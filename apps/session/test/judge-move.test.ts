@@ -43,9 +43,8 @@ const baseInput = (overrides: Partial<JudgeMoveInput> = {}): JudgeMoveInput => (
 
 describe("judgeMove", () => {
   it("judges a fine, unremarkable move with no coach event", async () => {
-    // swing -30 stays in the "fine" severity bucket (cpLoss <= 50) but is below the heuristic
-    // responder's good_move threshold (swing >= -10), so this move is neither an error nor
-    // praiseworthy - the case with nothing at all to say.
+    // swing -30 stays in the "fine" severity bucket (cpLoss <= 50) and is not a hard-to-find best
+    // move, so it is neither an error nor praiseworthy - the case with nothing at all to say.
     const facts = moveFacts({ swing: -30, evalBefore: { kind: "cp", cp: 20 }, evalAfter: { kind: "cp", cp: -10 } });
     const result = await judgeMove(baseInput({ facts }), heuristicTransport);
     expect(result.kind).toBe("judged");
@@ -82,29 +81,63 @@ describe("judgeMove", () => {
     expect(result.coachEvent).toBeUndefined();
   });
 
-  it("falls back to the neutral template for the phase when the chosen template id does not exist", async () => {
-    const transport: JevTransport = {
-      async judge(request) {
-        const response = heuristicResponse(request);
-        return {
-          response: { ...response, answers: { ...response.answers, template: { ...response.answers.template, choice: "no.such.template" } } },
-          latencyMs: 1,
-          transport: "fixture",
-        };
-      },
-    };
-    const result = await judgeMove(
-      baseInput({ facts: blunderFacts({ ply: 30, phase: "endgame" }), context: context({ pliesSinceLastInterrupt: 30 }) }),
-      transport,
-    );
-    expect(result.kind).toBe("judged");
+  // The coach only speaks with a template whose kind matches what it is doing. Template choice was
+  // Jev's weakest answer in M0 (it picked a neutral "book move" line for a missed mate), so the
+  // pick is a suggestion, never a licence to say something that does not fit.
+  const withTemplateChoice = (choice: string, goodMove?: number): JevTransport => ({
+    async judge(request) {
+      const response = heuristicResponse(request);
+      const answers = {
+        ...response.answers,
+        template: { ...response.answers.template, choice },
+        ...(goodMove === undefined ? {} : { good_move: { type: "noul" as const, noul: goodMove } }),
+      };
+      return { response: { ...response, answers }, latencyMs: 1, transport: "fixture" };
+    },
+  });
+
+  it("stays silent rather than praising with a neutral template", async () => {
+    // good_move 0.9 makes decide() say "praise"; the template pick is what disagrees.
+    const facts = moveFacts({ swing: 0, evalBefore: { kind: "cp", cp: 30 }, evalAfter: { kind: "cp", cp: 30 } });
+    const result = await judgeMove(baseInput({ facts, context: context({ pliesSinceLastInterrupt: 20 }) }), withTemplateChoice("neutral.any.book_move", 0.9));
     if (result.kind !== "judged") throw new Error("expected judged");
-    if (result.decision.action === "interrupt" || result.decision.action === "praise") {
-      expect(result.coachEvent).toBeDefined();
-      expect(result.coachEvent?.templateId).not.toBe("no.such.template");
-      const fallbackTemplate = FALLBACK_TEMPLATE_LIBRARY.templates.find((t) => t.id === result.coachEvent?.templateId);
-      expect(fallbackTemplate?.kind).toBe("neutral");
+    expect(result.coachEvent).toBeUndefined();
+    expect(result.decision.action).toBe("queued");
+    expect(result.decision.reasons).toContain("no_fitting_template:praise");
+  });
+
+  it("praises when Jev picks a praise template", async () => {
+    const facts = moveFacts({ swing: 0, evalBefore: { kind: "cp", cp: 30 }, evalAfter: { kind: "cp", cp: 30 } });
+    const result = await judgeMove(baseInput({ facts, context: context({ pliesSinceLastInterrupt: 20 }) }), withTemplateChoice("praise.any.strong_move", 0.9));
+    if (result.kind !== "judged") throw new Error("expected judged");
+    expect(result.decision.action).toBe("praise");
+    expect(result.coachEvent?.templateId).toBe("praise.any.strong_move");
+  });
+
+  it("interrupts a blunder with a fitting error template when Jev's pick is neutral or unknown", async () => {
+    for (const choice of ["neutral.any.book_move", "no.such.template"]) {
+      const result = await judgeMove(
+        baseInput({ facts: blunderFacts({ ply: 30, phase: "endgame" }), context: context({ pliesSinceLastInterrupt: 30 }) }),
+        withTemplateChoice(choice),
+      );
+      if (result.kind !== "judged") throw new Error("expected judged");
+      expect(result.decision.action).toBe("interrupt");
+      const spoken = FALLBACK_TEMPLATE_LIBRARY.templates.find((t) => t.id === result.coachEvent?.templateId);
+      expect(spoken?.kind).toBe("error");
+      expect(spoken?.severities).toContain(3);
     }
+  });
+
+  it("stays silent on a blunder when the library has no error template that fits", async () => {
+    const noErrors = { ...FALLBACK_TEMPLATE_LIBRARY, templates: FALLBACK_TEMPLATE_LIBRARY.templates.filter((t) => t.kind !== "error") };
+    const result = await judgeMove(
+      baseInput({ facts: blunderFacts({ ply: 30 }), context: context({ pliesSinceLastInterrupt: 30 }), templateLibrary: noErrors }),
+      withTemplateChoice("neutral.any.book_move"),
+    );
+    if (result.kind !== "judged") throw new Error("expected judged");
+    expect(result.coachEvent).toBeUndefined();
+    expect(result.decision.action).toBe("queued");
+    expect(result.decision.reasons).toContain("no_fitting_template:error");
   });
 
   it("returns 'unavailable' when the transport throws a JevError, without ever calling the template step", async () => {
