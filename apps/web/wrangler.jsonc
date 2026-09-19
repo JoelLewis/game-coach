@@ -9,8 +9,9 @@
   // this still guards any query string that does reach a request/trace against being retained.
   "observability": { "enabled": true, "redact_query_string": true },
 
-  // Routes, not a Custom Domain: see apps/session/wrangler.jsonc. Enabled at integration (I1).
-  // "routes": [{ "pattern": "chess.terminal-games.com/*", "zone_name": "terminal-games.com" }],
+  // Custom Domain: Cloudflare creates the proxied DNS record and certificate. gamecoach-session
+  // has a Route on /ws/* for the same hostname, and Routes run before a Custom Domain.
+  "routes": [{ "pattern": "chess.terminal-games.com", "custom_domain": true }],
 
   "vars": {
     "APP_ORIGIN": "https://chess.terminal-games.com",

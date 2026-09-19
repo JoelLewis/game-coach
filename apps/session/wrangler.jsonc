@@ -5,11 +5,10 @@
   "compatibility_date": "2026-09-01",
   "observability": { "enabled": true },
 
-  // Both Workers share chess.terminal-games.com through Routes (not a Custom Domain, which
-  // would take precedence over routes). The most specific pattern wins, so /ws/* lands here
-  // and everything else goes to gamecoach-web. Enabled at integration (I1), once the proxied
-  // DNS record for `chess` exists.
-  // "routes": [{ "pattern": "chess.terminal-games.com/ws/*", "zone_name": "terminal-games.com" }],
+  // Both Workers share chess.terminal-games.com. Workers on Routes run BEFORE a Custom Domain
+  // (which Cloudflare treats as the origin), so this Route takes /ws/* and everything else
+  // falls through to gamecoach-web's Custom Domain, which also owns the DNS record and cert.
+  "routes": [{ "pattern": "chess.terminal-games.com/ws/*", "zone_name": "terminal-games.com" }],
 
   "vars": {
     "APP_ORIGIN": "https://chess.terminal-games.com",
