@@ -1,0 +1,596 @@
+[
+  {
+    "sourceId": "generic_best",
+    "classification": "best",
+    "theme": null,
+    "ratingBand": null,
+    "text": "Excellent find! This is the strongest move in the position.",
+    "placeholders": [],
+    "sourceLine": 8
+  },
+  {
+    "sourceId": "generic_excellent",
+    "classification": "excellent",
+    "theme": null,
+    "ratingBand": null,
+    "text": "Very good move. You're playing accurately.",
+    "placeholders": [],
+    "sourceLine": 9
+  },
+  {
+    "sourceId": "generic_good",
+    "classification": "good",
+    "theme": null,
+    "ratingBand": null,
+    "text": "Solid choice. This keeps the position balanced.",
+    "placeholders": [],
+    "sourceLine": 10
+  },
+  {
+    "sourceId": "generic_inaccuracy",
+    "classification": "inaccuracy",
+    "theme": null,
+    "ratingBand": null,
+    "text": "This move is okay, but there was a stronger option available.",
+    "placeholders": [],
+    "sourceLine": 12
+  },
+  {
+    "sourceId": "generic_mistake",
+    "classification": "mistake",
+    "theme": null,
+    "ratingBand": null,
+    "text": "This move gives your opponent an advantage. Look for the stronger alternative.",
+    "placeholders": [],
+    "sourceLine": 15
+  },
+  {
+    "sourceId": "generic_blunder",
+    "classification": "blunder",
+    "theme": null,
+    "ratingBand": null,
+    "text": "This is a serious error that changes the evaluation significantly.",
+    "placeholders": [],
+    "sourceLine": 18
+  },
+  {
+    "sourceId": "theme_error_knight_on_rim",
+    "classification": null,
+    "theme": "knight_on_rim",
+    "ratingBand": null,
+    "text": "Your knight ended up on the rim where it controls fewer squares. Knights are strongest in the center where they can reach up to 8 squares.",
+    "placeholders": [],
+    "sourceLine": 31
+  },
+  {
+    "sourceId": "theme_error_bishop_pair_advantage",
+    "classification": null,
+    "theme": "bishop_pair_advantage",
+    "ratingBand": null,
+    "text": "The bishop pair is a valuable asset, especially in open positions. Try to keep the position open to maximize their range.",
+    "placeholders": [],
+    "sourceLine": 35
+  },
+  {
+    "sourceId": "theme_error_isolated_queen_pawn",
+    "classification": null,
+    "theme": "isolated_queen_pawn",
+    "ratingBand": null,
+    "text": "There's an isolated queen pawn. It can be a target since it has no neighboring pawns to defend it, but it also controls central squares.",
+    "placeholders": [],
+    "sourceLine": 39
+  },
+  {
+    "sourceId": "theme_error_passed_pawn",
+    "classification": null,
+    "theme": "passed_pawn",
+    "ratingBand": null,
+    "text": "There's a passed pawn in the position that needs attention. Passed pawns must be either pushed or blockaded.",
+    "placeholders": [],
+    "sourceLine": 42
+  },
+  {
+    "sourceId": "theme_error_doubled_pawns",
+    "classification": null,
+    "theme": "doubled_pawns",
+    "ratingBand": null,
+    "text": "There are doubled pawns in the position. They can be weak because they can't protect each other.",
+    "placeholders": [],
+    "sourceLine": 46
+  },
+  {
+    "sourceId": "theme_error_backward_pawn",
+    "classification": null,
+    "theme": "backward_pawn",
+    "ratingBand": null,
+    "text": "There's a backward pawn that can become a target. It can't advance safely and isn't supported by adjacent pawns.",
+    "placeholders": [],
+    "sourceLine": 50
+  },
+  {
+    "sourceId": "theme_error_open_file",
+    "classification": null,
+    "theme": "open_file",
+    "ratingBand": null,
+    "text": "There's an open file available. Getting a rook on an open file gives you control and potential for infiltration.",
+    "placeholders": [],
+    "sourceLine": 54
+  },
+  {
+    "sourceId": "theme_error_rook_on_seventh",
+    "classification": null,
+    "theme": "rook_on_seventh",
+    "ratingBand": null,
+    "text": "A rook on the seventh rank is very powerful \u2014 it attacks pawns and restricts the enemy king.",
+    "placeholders": [],
+    "sourceLine": 58
+  },
+  {
+    "sourceId": "theme_error_king_safety_compromised",
+    "classification": null,
+    "theme": "king_safety_compromised",
+    "ratingBand": null,
+    "text": "Your king's safety is weakened. Consider strengthening your pawn shield or castling if you haven't already.",
+    "placeholders": [],
+    "sourceLine": 62
+  },
+  {
+    "sourceId": "theme_error_undeveloped_pieces",
+    "classification": null,
+    "theme": "undeveloped_pieces",
+    "ratingBand": null,
+    "text": "You still have pieces on the back rank. Prioritize getting all your pieces into the game before launching an attack.",
+    "placeholders": [],
+    "sourceLine": 66
+  },
+  {
+    "sourceId": "theme_error_central_control",
+    "classification": null,
+    "theme": "central_control",
+    "ratingBand": null,
+    "text": "Central control is key here. The player who controls the center usually has more piece mobility and attacking chances.",
+    "placeholders": [],
+    "sourceLine": 70
+  },
+  {
+    "sourceId": "theme_error_pawn_chain_tension",
+    "classification": null,
+    "theme": "pawn_chain_tension",
+    "ratingBand": null,
+    "text": "There's tension in the pawn chain. Consider whether to maintain, release, or increase the tension based on your plan.",
+    "placeholders": [],
+    "sourceLine": 74
+  },
+  {
+    "sourceId": "theme_error_material_imbalance",
+    "classification": null,
+    "theme": "material_imbalance",
+    "ratingBand": null,
+    "text": "There's a material imbalance. Consider whether to simplify (if ahead) or complicate the position (if behind).",
+    "placeholders": [],
+    "sourceLine": 78
+  },
+  {
+    "sourceId": "theme_error_back_rank_weakness",
+    "classification": null,
+    "theme": "back_rank_weakness",
+    "ratingBand": null,
+    "text": "The back rank is vulnerable. Make sure your king has an escape square to avoid a back-rank mate \u2014 consider making a 'luft' move.",
+    "placeholders": [],
+    "sourceLine": 82
+  },
+  {
+    "sourceId": "theme_error_pinned_piece",
+    "classification": null,
+    "theme": "pinned_piece",
+    "ratingBand": null,
+    "text": "There's a pin in the position. Pinned pieces can't move without exposing something more valuable behind them.",
+    "placeholders": [],
+    "sourceLine": 86
+  },
+  {
+    "sourceId": "theme_error_fork_available",
+    "classification": null,
+    "theme": "fork_available",
+    "ratingBand": null,
+    "text": "There's a forking opportunity \u2014 a single piece attacking two or more targets at once.",
+    "placeholders": [],
+    "sourceLine": 90
+  },
+  {
+    "sourceId": "theme_error_hanging_material",
+    "classification": null,
+    "theme": "hanging_material",
+    "ratingBand": null,
+    "text": "There's undefended material on the board. Always do a 'blunder check' before committing to a move.",
+    "placeholders": [],
+    "sourceLine": 94
+  },
+  {
+    "sourceId": "theme_positive_best_central_control",
+    "classification": "best",
+    "theme": "central_control",
+    "ratingBand": null,
+    "text": "Excellent find! You're maintaining strong control of the center.",
+    "placeholders": [],
+    "sourceLine": 109
+  },
+  {
+    "sourceId": "theme_positive_best_passed_pawn",
+    "classification": "best",
+    "theme": "passed_pawn",
+    "ratingBand": null,
+    "text": "Great move! Advancing or supporting a passed pawn is often the key to winning.",
+    "placeholders": [],
+    "sourceLine": 112
+  },
+  {
+    "sourceId": "theme_positive_best_open_file",
+    "classification": "best",
+    "theme": "open_file",
+    "ratingBand": null,
+    "text": "Great move! Controlling the open file gives you a lasting advantage.",
+    "placeholders": [],
+    "sourceLine": 115
+  },
+  {
+    "sourceId": "theme_positive_best_rook_on_seventh",
+    "classification": "best",
+    "theme": "rook_on_seventh",
+    "ratingBand": null,
+    "text": "Excellent! A rook on the seventh rank dominates the position.",
+    "placeholders": [],
+    "sourceLine": 118
+  },
+  {
+    "sourceId": "theme_positive_best_king_safety_compromised",
+    "classification": "best",
+    "theme": "king_safety_compromised",
+    "ratingBand": null,
+    "text": "Great find! You're exploiting the weakened king position.",
+    "placeholders": [],
+    "sourceLine": 121
+  },
+  {
+    "sourceId": "theme_positive_best_hanging_material",
+    "classification": "best",
+    "theme": "hanging_material",
+    "ratingBand": null,
+    "text": "Sharp eye! You spotted the undefended material.",
+    "placeholders": [],
+    "sourceLine": 124
+  },
+  {
+    "sourceId": "theme_positive_best_fork_available",
+    "classification": "best",
+    "theme": "fork_available",
+    "ratingBand": null,
+    "text": "Excellent! You found the fork \u2014 attacking multiple targets at once.",
+    "placeholders": [],
+    "sourceLine": 127
+  },
+  {
+    "sourceId": "theme_positive_best_back_rank_weakness",
+    "classification": "best",
+    "theme": "back_rank_weakness",
+    "ratingBand": null,
+    "text": "Great find! You're exploiting the back-rank weakness.",
+    "placeholders": [],
+    "sourceLine": 130
+  },
+  {
+    "sourceId": "theme_positive_best_pinned_piece",
+    "classification": "best",
+    "theme": "pinned_piece",
+    "ratingBand": null,
+    "text": "Well played! You're taking advantage of the pin.",
+    "placeholders": [],
+    "sourceLine": 133
+  },
+  {
+    "sourceId": "theme_positive_excellent_central_control",
+    "classification": "excellent",
+    "theme": "central_control",
+    "ratingBand": null,
+    "text": "Good play \u2014 maintaining central control keeps your pieces active.",
+    "placeholders": [],
+    "sourceLine": 136
+  },
+  {
+    "sourceId": "theme_positive_excellent_open_file",
+    "classification": "excellent",
+    "theme": "open_file",
+    "ratingBand": null,
+    "text": "Good eye \u2014 controlling the open file gives you a lasting advantage.",
+    "placeholders": [],
+    "sourceLine": 139
+  },
+  {
+    "sourceId": "theme_positive_excellent_passed_pawn",
+    "classification": "excellent",
+    "theme": "passed_pawn",
+    "ratingBand": null,
+    "text": "Nice move \u2014 supporting or advancing your passed pawn is strong here.",
+    "placeholders": [],
+    "sourceLine": 142
+  },
+  {
+    "sourceId": "theme_positive_excellent_bishop_pair_advantage",
+    "classification": "excellent",
+    "theme": "bishop_pair_advantage",
+    "ratingBand": null,
+    "text": "Good move \u2014 you're making the most of the bishop pair in this position.",
+    "placeholders": [],
+    "sourceLine": 145
+  },
+  {
+    "sourceId": "theme_positive_excellent_rook_on_seventh",
+    "classification": "excellent",
+    "theme": "rook_on_seventh",
+    "ratingBand": null,
+    "text": "Well played \u2014 a rook on the seventh rank is a powerful asset.",
+    "placeholders": [],
+    "sourceLine": 148
+  },
+  {
+    "sourceId": "rank_addendum_blunder_novice",
+    "classification": "blunder",
+    "theme": null,
+    "ratingBand": "novice",
+    "text": "Mistakes like this are the most common at your level - spotting them is the fastest way to improve.",
+    "placeholders": [],
+    "sourceLine": 162
+  },
+  {
+    "sourceId": "rank_addendum_blunder_developing",
+    "classification": "blunder",
+    "theme": null,
+    "ratingBand": "developing",
+    "text": "Oversights like this still decide many games at your level - a consistent blunder-check will pay off.",
+    "placeholders": [],
+    "sourceLine": 165
+  },
+  {
+    "sourceId": "rank_addendum_blunder_advancing",
+    "classification": "blunder",
+    "theme": null,
+    "ratingBand": "advancing",
+    "text": "Players at your level usually catch this - treat it as a reminder to slow down on critical moves.",
+    "placeholders": [],
+    "sourceLine": 168
+  },
+  {
+    "sourceId": "rank_addendum_blunder_expert",
+    "classification": "blunder",
+    "theme": null,
+    "ratingBand": "expert",
+    "text": "Even stronger players miss this under pressure.",
+    "placeholders": [],
+    "sourceLine": 171
+  },
+  {
+    "sourceId": "rank_addendum_mistake_novice",
+    "classification": "mistake",
+    "theme": null,
+    "ratingBand": "novice",
+    "text": "Errors like this are very common at your level - you're in good company.",
+    "placeholders": [],
+    "sourceLine": 174
+  },
+  {
+    "sourceId": "rank_addendum_mistake_developing",
+    "classification": "mistake",
+    "theme": null,
+    "ratingBand": "developing",
+    "text": "This is one of the most frequent mistakes at your level.",
+    "placeholders": [],
+    "sourceLine": 177
+  },
+  {
+    "sourceId": "rank_addendum_mistake_advancing",
+    "classification": "mistake",
+    "theme": null,
+    "ratingBand": "advancing",
+    "text": "At your level this is usually avoidable with a careful check of candidate moves.",
+    "placeholders": [],
+    "sourceLine": 180
+  },
+  {
+    "sourceId": "rank_addendum_mistake_expert",
+    "classification": "mistake",
+    "theme": null,
+    "ratingBand": "expert",
+    "text": "Even stronger players slip here occasionally.",
+    "placeholders": [],
+    "sourceLine": 183
+  },
+  {
+    "sourceId": "rank_addendum_inaccuracy_novice",
+    "classification": "inaccuracy",
+    "theme": null,
+    "ratingBand": "novice",
+    "text": "Don't worry - precision here comes with practice.",
+    "placeholders": [],
+    "sourceLine": 186
+  },
+  {
+    "sourceId": "rank_addendum_inaccuracy_developing",
+    "classification": "inaccuracy",
+    "theme": null,
+    "ratingBand": "developing",
+    "text": "Small improvements like this add up quickly at your level.",
+    "placeholders": [],
+    "sourceLine": 189
+  },
+  {
+    "sourceId": "rank_addendum_inaccuracy_advancing",
+    "classification": "inaccuracy",
+    "theme": null,
+    "ratingBand": "advancing",
+    "text": "Sharpening these small decisions is what separates your level from the next.",
+    "placeholders": [],
+    "sourceLine": 192
+  },
+  {
+    "sourceId": "rank_addendum_inaccuracy_expert",
+    "classification": "inaccuracy",
+    "theme": null,
+    "ratingBand": "expert",
+    "text": "At your level, these fine margins are where games are decided.",
+    "placeholders": [],
+    "sourceLine": 195
+  },
+  {
+    "sourceId": "rank_addendum_best_novice",
+    "classification": "best",
+    "theme": null,
+    "ratingBand": "novice",
+    "text": "Finds like this are rare at your level - great progress.",
+    "placeholders": [],
+    "sourceLine": 198
+  },
+  {
+    "sourceId": "rank_addendum_best_developing",
+    "classification": "best",
+    "theme": null,
+    "ratingBand": "developing",
+    "text": "Spotting this consistently will carry you past many players at your level.",
+    "placeholders": [],
+    "sourceLine": 201
+  },
+  {
+    "sourceId": "rank_addendum_best_advancing",
+    "classification": "best",
+    "theme": null,
+    "ratingBand": "advancing",
+    "text": "That's exactly the standard expected at your level.",
+    "placeholders": [],
+    "sourceLine": 204
+  },
+  {
+    "sourceId": "rank_addendum_best_expert",
+    "classification": "best",
+    "theme": null,
+    "ratingBand": "expert",
+    "text": "Strong play - even at your level this takes precision.",
+    "placeholders": [],
+    "sourceLine": 207
+  },
+  {
+    "sourceId": "tactic_pin",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "There's a pin in the position. A pinned piece can't move without exposing a more valuable piece behind it.",
+    "placeholders": [],
+    "sourceLine": 217
+  },
+  {
+    "sourceId": "tactic_fork",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "Watch out for forks \u2014 a single piece attacking two or more targets at once. Always check knight and pawn forks before committing to a move.",
+    "placeholders": [],
+    "sourceLine": 221
+  },
+  {
+    "sourceId": "tactic_skewer",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "There's a skewer in the position \u2014 a piece is forced to move, exposing a less valuable piece behind it to capture.",
+    "placeholders": [],
+    "sourceLine": 224
+  },
+  {
+    "sourceId": "tactic_hanging_piece",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "There's undefended material on the board. Always do a 'blunder check' \u2014 look for any pieces left hanging before you play.",
+    "placeholders": [],
+    "sourceLine": 229
+  },
+  {
+    "sourceId": "tactic_back_rank_threat",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "There's a back-rank threat. Make sure your king has an escape square \u2014 consider making a 'luft' move to prevent back-rank mates.",
+    "placeholders": [],
+    "sourceLine": 233
+  },
+  {
+    "sourceId": "tactic_discovered_attack",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "Watch for discovered attacks \u2014 when one piece moves, it can reveal an attack from a piece behind it. These are easy to overlook.",
+    "placeholders": [],
+    "sourceLine": 237
+  },
+  {
+    "sourceId": "phase_opening_to_middlegame",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "The opening is over \u2014 you're entering the middlegame. Focus on piece activity, creating plans, and looking for tactical opportunities.",
+    "placeholders": [],
+    "sourceLine": 247
+  },
+  {
+    "sourceId": "phase_middlegame_to_endgame",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "The game is transitioning to an endgame. King activity becomes crucial \u2014 centralize your king and push passed pawns.",
+    "placeholders": [],
+    "sourceLine": 251
+  },
+  {
+    "sourceId": "phase_opening_to_endgame",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "The game jumped straight to an endgame! Activate your king immediately and focus on pawn structure and piece coordination.",
+    "placeholders": [],
+    "sourceLine": 255
+  },
+  {
+    "sourceId": "personality_aggressive",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "Your opponent plays aggressively \u2014 make sure your king is safe before attacking.",
+    "placeholders": [],
+    "sourceLine": 272
+  },
+  {
+    "sourceId": "personality_positional",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "Your opponent favors solid positions \u2014 look for pawn breaks and active piece play.",
+    "placeholders": [],
+    "sourceLine": 275
+  },
+  {
+    "sourceId": "personality_trappy",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "Be careful \u2014 your opponent may be setting up a trap. Double-check every capture.",
+    "placeholders": [],
+    "sourceLine": 278
+  },
+  {
+    "sourceId": "personality_solid",
+    "classification": null,
+    "theme": null,
+    "ratingBand": null,
+    "text": "Your opponent plays safely \u2014 look for ways to create imbalances and seize the initiative.",
+    "placeholders": [],
+    "sourceLine": 281
+  }
+]
