@@ -6,12 +6,14 @@
   "type": "module",
   "exports": { "./score/*": "./score/*.ts" },
   "scripts": {
-    "typecheck": "tsc -p score/tsconfig.json",
-    "test": "vitest run score",
-    "score": "node --experimental-strip-types score/run.ts"
+    "typecheck": "tsc -p score/tsconfig.json && tsc -p ingest/tsconfig.json",
+    "test": "vitest run score ingest",
+    "score": "node --experimental-strip-types score/run.ts",
+    "ingest": "node --experimental-strip-types ingest/cli.ts"
   },
   "dependencies": {
     "@game-coach/contracts": "workspace:*",
+    "chess.js": "^1.4.0",
     "valibot": "^1.1.0"
   },
   "devDependencies": {
