@@ -1,0 +1,1238 @@
+{
+  "version": 1,
+  "game": "chess",
+  "templates": [
+    {
+      "id": "tactical_oversight.opening.inaccuracy_hanging_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "opening",
+      "severities": [
+        1
+      ],
+      "themeId": "hanging_piece",
+      "description": "A minor piece was left briefly undefended early in the opening.",
+      "text": "After {played}, {piece} on {square} was briefly loose. Get in the habit of checking every piece after you move it.",
+      "slots": [
+        "played",
+        "piece",
+        "square"
+      ]
+    },
+    {
+      "id": "tactical_oversight.opening.mistake_pin",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "opening",
+      "severities": [
+        2
+      ],
+      "themeId": "pin",
+      "description": "A developing piece walked into a pin worth real tempo.",
+      "text": "{played} let your opponent pin {piece} to something more valuable. Break the pin quickly or you will keep losing tempo.",
+      "slots": [
+        "played",
+        "piece"
+      ]
+    },
+    {
+      "id": "tactical_oversight.opening.blunder_fork",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "opening",
+      "severities": [
+        3
+      ],
+      "themeId": "fork",
+      "description": "An early fork wins a piece outright, a costly opening blunder.",
+      "text": "{played} walked straight into a fork; {best_move} was already winning a piece back. You gave up {swing} in a handful of moves.",
+      "slots": [
+        "played",
+        "best_move",
+        "swing"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.inaccuracy_hanging_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        1
+      ],
+      "themeId": "hanging_piece",
+      "description": "A piece was left loosely defended for a move or two.",
+      "text": "{piece} on {square} was only loosely defended after {played}. A quick defender check before you move keeps this from becoming a real loss.",
+      "slots": [
+        "piece",
+        "square",
+        "played"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.inaccuracy_discovered_attack",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        1
+      ],
+      "themeId": "discovered_attack",
+      "description": "A piece shift opened a discovered attack worth a small edge.",
+      "text": "Moving {piece} opened a discovered attack you did not need to allow. Watch what lines open up before you move a piece off its file or diagonal.",
+      "slots": [
+        "piece"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.mistake_overloaded_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "overloaded_piece",
+      "description": "One defender was covering two jobs it could not both do.",
+      "text": "{piece} on {square} was covering two things at once, and {played} asked too much of it. Find the piece with the least to do before you rely on it.",
+      "slots": [
+        "piece",
+        "square",
+        "played"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.mistake_removing_defender",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "removing_defender",
+      "description": "A trade removed the one defender your position needed.",
+      "text": "{played} traded off the piece defending {target_square}, which was the whole point of the trade for your opponent. Before trading, ask what the piece you are removing was actually doing.",
+      "slots": [
+        "played",
+        "target_square"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.mistake_skewer",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "skewer",
+      "description": "A skewer forced a bigger piece to move and lose material.",
+      "text": "{played} lined your pieces up for a skewer along that file. {best_move} kept them apart and stayed level.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.blunder_back_rank",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "back_rank",
+      "description": "The back rank was undefended and cost material or worse.",
+      "text": "{played} left your back rank open with no escape square for the king. You gave up {swing} to a threat a single luft move would have stopped.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.blunder_mate_threat",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "mate_threat",
+      "description": "A short mating attack was already on the board and missed.",
+      "text": "{played} missed a forced mating idea sitting on the board. {best_move} was already ending the game in your favor.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.blunder_trapped_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "trapped_piece",
+      "description": "A piece was already trapped with no safe square to reach.",
+      "text": "{piece} on {square} had no safe square left after {played}. That cost you {swing} for a piece that was already lost.",
+      "slots": [
+        "piece",
+        "square",
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "tactical_oversight.endgame.inaccuracy_hanging_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "endgame",
+      "severities": [
+        1
+      ],
+      "themeId": "hanging_piece",
+      "description": "A piece was briefly undefended in a simplified position.",
+      "text": "With so few pieces left, {piece} on {square} needed a second look after {played}. In the endgame every undefended unit is easy for your opponent to spot.",
+      "slots": [
+        "piece",
+        "square",
+        "played"
+      ]
+    },
+    {
+      "id": "tactical_oversight.endgame.mistake_fork",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "endgame",
+      "severities": [
+        2
+      ],
+      "themeId": "fork",
+      "description": "A king and pawn fork picked up material in a simple ending.",
+      "text": "{played} allowed a fork that picks off a pawn in an ending where every pawn matters. {best_move} kept your structure intact.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.endgame.blunder_skewer",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "endgame",
+      "severities": [
+        3
+      ],
+      "themeId": "skewer",
+      "description": "A skewer in the ending forced the loss of the deciding piece.",
+      "text": "{played} put your king and rook on the same line for a skewer. You gave up {swing} in a position that should have been holdable.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "tactical_oversight.endgame.blunder_pin",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "endgame",
+      "severities": [
+        3
+      ],
+      "themeId": "pin",
+      "description": "A pin in the ending stopped the one piece that could defend.",
+      "text": "{played} pinned your only active defender to the king. That let the position slip by {swing} in a few moves.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "positional.opening.inaccuracy_space_and_center",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "opening",
+      "severities": [
+        1
+      ],
+      "themeId": "space_and_center",
+      "description": "A slightly passive setup ceded central space early on.",
+      "text": "{played} let your opponent claim more central space than they should have gotten for free. A central pawn break soon will help you contest it back.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "positional.opening.mistake_king_safety",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "opening",
+      "severities": [
+        2
+      ],
+      "themeId": "king_safety",
+      "description": "Castling was delayed while the center opened up around the king.",
+      "text": "{played} put off castling while the center was opening up. {best_move} tucked your king away before the position got sharp.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "positional.opening.blunder_piece_activity",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "opening",
+      "severities": [
+        3
+      ],
+      "themeId": "piece_activity",
+      "description": "A piece was misplaced badly enough to cost real activity.",
+      "text": "{played} sent {piece} somewhere it will need several moves to escape from. That kind of lost tempo is worth {swing} against a player who develops normally.",
+      "slots": [
+        "played",
+        "piece",
+        "swing"
+      ]
+    },
+    {
+      "id": "positional.middlegame.inaccuracy_weak_squares",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        1
+      ],
+      "themeId": "weak_squares",
+      "description": "A pawn move created a hole for an enemy piece to use.",
+      "text": "{played} left a hole on {square} that a well-placed piece can now sit on. Try to cover that square or trade off the piece heading for it.",
+      "slots": [
+        "played",
+        "square"
+      ]
+    },
+    {
+      "id": "positional.middlegame.inaccuracy_pawn_structure",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        1
+      ],
+      "themeId": "pawn_structure",
+      "description": "A trade left an isolated pawn without enough compensation.",
+      "text": "{played} settled for an isolated pawn without the activity to make up for it. Keep your pieces active enough to justify the weakness, or avoid the trade next time.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "positional.middlegame.mistake_open_files",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "open_files",
+      "description": "An open file was handed to your opponent without a fight.",
+      "text": "{played} gave up the open file instead of contesting it. {best_move} put a rook there first and kept the file for you.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "positional.middlegame.mistake_trades",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "trades",
+      "description": "A trade simplified into an ending your side gains less from.",
+      "text": "{played} traded pieces off in a position where you needed them on the board. Keep tension when the resulting endgame favors your opponent's structure.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "positional.middlegame.mistake_king_safety",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "king_safety",
+      "description": "The king's pawn shield was loosened for no clear gain.",
+      "text": "{played} pushed a pawn shielding your king without a concrete reason to. {best_move} kept the shelter intact while making progress elsewhere.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "positional.middlegame.blunder_piece_activity",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "piece_activity",
+      "description": "A trade left a piece passive for the rest of the game.",
+      "text": "{played} left you with a piece that has almost nothing to do for the rest of the game. That kind of imbalance is worth {swing} even without a single tactic.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "positional.middlegame.blunder_weak_squares",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "weak_squares",
+      "description": "A permanent hole was created right next to your own king.",
+      "text": "{played} put a permanent hole on {square}, right where your king lives. A piece is going to plant itself there and you have no pawn left to remove it.",
+      "slots": [
+        "played",
+        "square"
+      ]
+    },
+    {
+      "id": "positional.middlegame.blunder_king_safety",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "king_safety",
+      "description": "The king was opened to a live attack with pieces still on.",
+      "text": "{played} opened lines toward your own king while your opponent still has attackers on the board. You gave up {swing} to an attack a safer move would have avoided.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "positional.endgame.inaccuracy_pawn_structure",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "endgame",
+      "severities": [
+        1
+      ],
+      "themeId": "pawn_structure",
+      "description": "A pawn move fixed a weakness for the rest of the game.",
+      "text": "{played} fixed your pawn structure in a shape that is easy to attack. In a simplified position, structure decides more than any single move.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "positional.endgame.mistake_trades",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "endgame",
+      "severities": [
+        2
+      ],
+      "themeId": "trades",
+      "description": "A trade removed the one piece stopping the opposing plan.",
+      "text": "{played} traded off the piece keeping your opponent's plan in check. {best_move} kept it on the board and kept you in the fight.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "positional.endgame.blunder_open_files",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "endgame",
+      "severities": [
+        3
+      ],
+      "themeId": "open_files",
+      "description": "A rook sat idle instead of fighting for the open file.",
+      "text": "{played} left your rook stuck behind pawns instead of finding the open file. That passivity cost {swing} in a position that needed your rook active.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "positional.endgame.blunder_piece_activity",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "endgame",
+      "severities": [
+        3
+      ],
+      "themeId": "piece_activity",
+      "description": "A passive move let the opponent's pieces take over the board.",
+      "text": "{played} kept your pieces on their starting squares while your opponent's took over the board. You gave up {swing} to activity alone.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "endgame_technique.endgame.inaccuracy_king_activity_endgame",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "endgame",
+      "severities": [
+        1
+      ],
+      "themeId": "king_activity_endgame",
+      "description": "The king stayed passive when it needed to join the fight.",
+      "text": "{played} kept your king at home instead of marching it toward the action. In the endgame your king is a fighting piece, and every tempo centralizing it matters.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "endgame_technique.endgame.inaccuracy_opposition",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "endgame",
+      "severities": [
+        1
+      ],
+      "themeId": "opposition",
+      "description": "The opposition was given up a move before it was needed.",
+      "text": "{played} let go of the opposition a move earlier than you had to. {best_move} kept the key squares and kept the result in hand.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "endgame_technique.endgame.mistake_passed_pawns",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "endgame",
+      "severities": [
+        2
+      ],
+      "themeId": "passed_pawns",
+      "description": "A passed pawn was left unsupported and easy to round up.",
+      "text": "{played} pushed the passed pawn without an escort, so it never got far. {best_move} brought a piece along first and kept the pawn's value.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "endgame_technique.endgame.mistake_rook_endgames",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "endgame",
+      "severities": [
+        2
+      ],
+      "themeId": "rook_endgames",
+      "description": "The rook was placed in front of the pawn instead of behind it.",
+      "text": "{played} put your rook in front of the pawn instead of behind it. A rook belongs behind a passed pawn, yours or your opponent's.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "endgame_technique.endgame.blunder_conversion",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "endgame",
+      "severities": [
+        3
+      ],
+      "themeId": "conversion",
+      "description": "A winning edge slipped to equal by allowing counterplay.",
+      "text": "{played} allowed exactly the counterplay a winning position needs to avoid. You gave up {swing} converting an advantage that should have been routine.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "endgame_technique.endgame.blunder_king_activity_endgame",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "endgame",
+      "severities": [
+        3
+      ],
+      "themeId": "king_activity_endgame",
+      "description": "The king stayed a move behind in a race the kings decided.",
+      "text": "{played} left your king a full move behind in a race decided by tempo alone. That cost {swing} in a position your king could have contested.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "opening_prep.opening.inaccuracy_slow_move",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "opening",
+      "severities": [
+        1
+      ],
+      "themeId": "opening_principles",
+      "description": "A natural developing move was skipped for something slower.",
+      "text": "{played} spends a move on something other than development this early. {best_move} brings a piece out and keeps pace with known theory.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "opening_prep.opening.inaccuracy_piece_twice",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "opening",
+      "severities": [
+        1
+      ],
+      "themeId": "opening_principles",
+      "description": "The same piece moved twice before development was finished.",
+      "text": "{played} moves a piece a second time while others stay home. Finish developing before you go hunting for something extra.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "opening_prep.opening.mistake_left_theory",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "opening",
+      "severities": [
+        2
+      ],
+      "themeId": "opening_principles",
+      "description": "A known opening line was left for an untested idea too early.",
+      "text": "{played} steps outside known theory earlier than the position calls for. {best_move} keeps you in a well-tested line with a clear plan.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "opening_prep.opening.blunder_broke_principle",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "opening",
+      "severities": [
+        3
+      ],
+      "themeId": "opening_principles",
+      "description": "An opening principle was broken badly enough to lose real ground.",
+      "text": "{played} breaks a basic opening principle and it costs you right away. You gave up {swing} before move fifteen.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "opening_prep.opening.blunder_early_queen",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "opening",
+      "severities": [
+        3
+      ],
+      "themeId": "opening_principles",
+      "description": "The queen came out too early and ran into an attack.",
+      "text": "{played} brings your queen out before your other pieces are ready to support it. Chasing it around cost {swing} in tempo alone.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "time_pressure.any.inaccuracy_played_fast",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "time_pressure",
+      "phase": "any",
+      "severities": [
+        1
+      ],
+      "themeId": "time_management",
+      "description": "A decent move was played too fast with time to spare.",
+      "text": "{played} came out fast even though your clock had plenty left. Slowing down on non-forced moves usually costs less than the time you save.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "time_pressure.any.mistake_low_clock",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "time_pressure",
+      "phase": "any",
+      "severities": [
+        2
+      ],
+      "themeId": "time_management",
+      "description": "A rushed move under time pressure missed a better option.",
+      "text": "{played} was a fast choice with the clock getting low. {best_move} was available and worth the extra seconds to find.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "time_pressure.any.blunder_flagging_risk",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "time_pressure",
+      "phase": "any",
+      "severities": [
+        3
+      ],
+      "themeId": "time_management",
+      "description": "A low clock led to a move that loses material outright.",
+      "text": "{played} came under real time pressure and it cost {swing}. When the clock is low, a shorter, safer move beats a fast, risky one.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "calculation_depth.any.inaccuracy_stopped_short",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "calculation_depth",
+      "phase": "any",
+      "severities": [
+        1
+      ],
+      "themeId": "calculation",
+      "description": "A short forcing line was calculated one move too shallow.",
+      "text": "{played} stops calculating the line one move too early. Push the forcing sequence one move further before you commit to it.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "calculation_depth.any.mistake_missed_point",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "calculation_depth",
+      "phase": "any",
+      "severities": [
+        2
+      ],
+      "themeId": "calculation",
+      "description": "A forcing sequence was seen but its final point was missed.",
+      "text": "{played} follows the right idea but stops one move short of the point. The point of the line is {line}; carry your calculation that far next time.",
+      "slots": [
+        "played",
+        "line"
+      ]
+    },
+    {
+      "id": "calculation_depth.any.blunder_miscalculated_line",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "calculation_depth",
+      "phase": "any",
+      "severities": [
+        3
+      ],
+      "themeId": "calculation",
+      "description": "A deep line was miscalculated and the position was lost.",
+      "text": "{played} misjudges the end of a forcing line several moves deep. That miscalculation cost {swing} in a sequence you had already started.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "unclear.any.inaccuracy_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "unclear",
+      "phase": "any",
+      "severities": [
+        1
+      ],
+      "themeId": "defense",
+      "description": "The engine flags a small loss with no clear reason.",
+      "text": "{played} loses a little ground here for reasons that are not clear-cut. Keep an eye on this type of position in review.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "unclear.any.mistake_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "unclear",
+      "phase": "any",
+      "severities": [
+        2
+      ],
+      "themeId": "defense",
+      "description": "The error does not fit a single clear pattern this time.",
+      "text": "{played} costs you some ground without an obvious single cause. {best_move} was the more solid choice in this position.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "unclear.any.blunder_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "unclear",
+      "phase": "any",
+      "severities": [
+        3
+      ],
+      "themeId": "defense",
+      "description": "A real loss happened with no single, obvious explanation.",
+      "text": "{played} gave up {swing} here for reasons that do not reduce to one clean explanation. Positions like this are worth a closer look after the game.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "praise.opening.good_development",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "opening",
+      "severities": [
+        0
+      ],
+      "themeId": "opening_principles",
+      "description": "A normal, timely developing move that keeps pace with theory.",
+      "text": "{played} is a solid developing move that keeps your plan on track. Keep bringing pieces out before you look for anything sharper.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.opening.good_center",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "opening",
+      "severities": [
+        0
+      ],
+      "themeId": "space_and_center",
+      "description": "A move that claims central space at the right moment.",
+      "text": "{played} grabs central space while your opponent is still getting organized. That kind of space is easy to use and hard to give back.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.opening.good_king_safety",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "opening",
+      "severities": [
+        0
+      ],
+      "themeId": "king_safety",
+      "description": "Castling early keeps the king safe before the position sharpens.",
+      "text": "{played} gets your king to safety before things get complicated. That is exactly the right moment for it.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.middlegame.good_tactic",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "middlegame",
+      "severities": [
+        0
+      ],
+      "themeId": "fork",
+      "description": "A tactic was found and calculated correctly to the end.",
+      "text": "{played} finds the fork and follows it through to the end. That is a sharp piece of calculation.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.middlegame.good_piece_activity",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "middlegame",
+      "severities": [
+        0
+      ],
+      "themeId": "piece_activity",
+      "description": "A piece was rerouted to a clearly better square.",
+      "text": "{played} sends {piece} to a square where it finally has something to do. Small improvements like that add up over a game.",
+      "slots": [
+        "played",
+        "piece"
+      ]
+    },
+    {
+      "id": "praise.middlegame.good_open_file",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "middlegame",
+      "severities": [
+        0
+      ],
+      "themeId": "open_files",
+      "description": "A rook claimed the open file before the opponent could.",
+      "text": "{played} gets your rook to the open file first. That file is yours to use for the rest of the middlegame.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.endgame.good_king_activity",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "endgame",
+      "severities": [
+        0
+      ],
+      "themeId": "king_activity_endgame",
+      "description": "The king was activated at exactly the right moment.",
+      "text": "{played} brings your king into the game right when it matters most. That kind of king activity often decides simple endings.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.endgame.good_passed_pawn",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "endgame",
+      "severities": [
+        0
+      ],
+      "themeId": "passed_pawns",
+      "description": "A passed pawn was pushed with the right support behind it.",
+      "text": "{played} pushes the passed pawn with a piece already backing it up. That is the technique that turns an edge into a full point.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.endgame.good_technique",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "endgame",
+      "severities": [
+        0
+      ],
+      "themeId": "rook_endgames",
+      "description": "Textbook rook placement made a technical ending straightforward.",
+      "text": "{played} puts your rook exactly where rook endgame technique says it belongs. Positions like this are won by technique, not tricks.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.any.good_move",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "any",
+      "severities": [
+        0
+      ],
+      "themeId": "calculation",
+      "description": "The strongest move in the position, found and played.",
+      "text": "{played} is the strongest move here. Well calculated.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.any.good_defense",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "any",
+      "severities": [
+        0
+      ],
+      "themeId": "defense",
+      "description": "The most resilient defense in a difficult position was found.",
+      "text": "{played} is the toughest defense available in a hard spot. That kind of resourcefulness saves games that look lost.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "praise.any.good_conversion",
+      "game": "chess",
+      "kind": "praise",
+      "errorClass": null,
+      "phase": "any",
+      "severities": [
+        0
+      ],
+      "themeId": "conversion",
+      "description": "A clean, accurate move kept a winning position fully under control.",
+      "text": "{played} keeps everything under control without giving your opponent any chances. That is how winning positions stay winning.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.opening.book_move",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "opening",
+      "severities": [
+        0
+      ],
+      "themeId": "opening_principles",
+      "description": "An ordinary book move that keeps the position balanced.",
+      "text": "{played} is a normal, well-known move here. Nothing special is required of you yet.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.opening.quiet_move",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "opening",
+      "severities": [
+        0
+      ],
+      "themeId": "space_and_center",
+      "description": "A quiet move that neither gains nor gives up central ground.",
+      "text": "{played} keeps things level in the center without committing to much. A perfectly fine, unremarkable choice.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.opening.solid_setup",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "opening",
+      "severities": [
+        0
+      ],
+      "themeId": "king_safety",
+      "description": "A solid, standard setup move with nothing sharp about it.",
+      "text": "{played} keeps your position solid without taking on any risk. Plenty of games are won from positions just like this one.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.middlegame.book_move",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "middlegame",
+      "severities": [
+        0
+      ],
+      "themeId": "piece_activity",
+      "description": "A reasonable move that keeps your pieces about where they were.",
+      "text": "{played} is a fine, ordinary move that keeps your position together. No theme stands out here either way.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.middlegame.quiet_move",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "middlegame",
+      "severities": [
+        0
+      ],
+      "themeId": "trades",
+      "description": "A trade that changes little about the shape of the position.",
+      "text": "{played} trades a pair of pieces without changing much about the position. Either recapture would have kept things about the same.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.middlegame.solid_setup",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "middlegame",
+      "severities": [
+        0
+      ],
+      "themeId": "pawn_structure",
+      "description": "A pawn move that keeps the structure flexible without weakening it.",
+      "text": "{played} keeps your pawn structure flexible for now. There is no clear commitment here yet, which is fine.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.endgame.book_move",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "endgame",
+      "severities": [
+        0
+      ],
+      "themeId": "opposition",
+      "description": "A standard king move that keeps the position from changing much.",
+      "text": "{played} keeps the kings roughly where they were. This kind of ending can stay balanced for a while yet.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.endgame.quiet_move",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "endgame",
+      "severities": [
+        0
+      ],
+      "themeId": "rook_endgames",
+      "description": "A rook move that keeps the position about where it was.",
+      "text": "{played} keeps your rook active without changing the balance of the position. A perfectly reasonable waiting move.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.endgame.solid_setup",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "endgame",
+      "severities": [
+        0
+      ],
+      "themeId": "king_activity_endgame",
+      "description": "A steady king step keeps options open in a level ending.",
+      "text": "{played} brings your king a step closer to the action without committing to a plan yet. That keeps your options open.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.any.book_move",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "any",
+      "severities": [
+        0
+      ],
+      "themeId": "calculation",
+      "description": "An ordinary move that does not change the evaluation much either way.",
+      "text": "{played} is a reasonable move that does not shift the evaluation much. Nothing here needs your attention right now.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.any.time_neutral",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "any",
+      "severities": [
+        0
+      ],
+      "themeId": "time_management",
+      "description": "A quick, simple decision that used a normal amount of time.",
+      "text": "{played} took about the time you would expect for a move like this. Your clock management here was fine.",
+      "slots": [
+        "played"
+      ]
+    },
+    {
+      "id": "neutral.any.defense_neutral",
+      "game": "chess",
+      "kind": "neutral",
+      "errorClass": null,
+      "phase": "any",
+      "severities": [
+        0
+      ],
+      "themeId": "defense",
+      "description": "A safe, solid choice in a position that is not yet critical.",
+      "text": "{played} is a safe choice in a position that has not become sharp yet. There is no pressing reason to look for more.",
+      "slots": [
+        "played"
+      ]
+    }
+  ]
+}
