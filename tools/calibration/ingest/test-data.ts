@@ -20,6 +20,7 @@ export const candidate = (overrides: Partial<Candidate> = {}): Candidate => {
     fenAfter: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
     recentSan: [],
     clockMs: 1000,
+    timeControl: "180+0",
     evalBefore,
     evalAfter,
     swing: 0,

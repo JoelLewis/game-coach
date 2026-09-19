@@ -37,6 +37,10 @@ export const CandidateSchema = v.object({
   fenAfter: v.string(),
   recentSan: v.pipe(v.array(SanSchema), v.maxLength(6)),
   clockMs: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  // PGN "TimeControl" header (e.g. "300+0"); "unknown" when the source PGN has none
+  // (studies never have one). Carried through so build/ can send it in the state block
+  // exactly as production would ("game.time_control").
+  timeControl: v.pipe(v.string(), v.minLength(1), v.maxLength(32)),
   evalBefore: EvalSchema,
   evalAfter: EvalSchema,
   swing: v.pipe(v.number(), v.integer()),

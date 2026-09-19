@@ -272,9 +272,18 @@ importers:
 
   tools/calibration:
     dependencies:
+      '@game-coach/chess-core':
+        specifier: workspace:*
+        version: link:../../crates/chess-core
+      '@game-coach/coaching-core':
+        specifier: workspace:*
+        version: link:../../packages/coaching-core
       '@game-coach/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@game-coach/templates-chess':
+        specifier: workspace:*
+        version: link:../../packages/templates-chess
       '@lichess-org/chessground':
         specifier: ^9.1.1
         version: 9.10.3

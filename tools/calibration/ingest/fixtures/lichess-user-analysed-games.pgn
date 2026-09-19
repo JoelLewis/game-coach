@@ -1,0 +1,13 @@
+[Event "Rated Blitz game"]
+[Site "https://lichess.org/fallbackGameA"]
+[Date "2026.09.19"]
+[White "clubWhiteA"]
+[Black "someOpponent"]
+[Result "1-0"]
+[WhiteElo "1250"]
+[BlackElo "1230"]
+[Variant "Standard"]
+[TimeControl "300+0"]
+[Termination "Normal"]
+
+1. d4 { [%eval 0.1] [%clk 0:05:00] } 1... d5 { [%eval 0.12] [%clk 0:05:00] } 2. c4 { [%eval 0.2] [%clk 0:04:58] } 2... e6 { [%eval 0.18] [%clk 0:04:57] } 3. Nc3 { [%eval 0.22] [%clk 0:04:56] } 3... Nf6 { [%eval 0.2] [%clk 0:04:55] } 4. Bg5 { [%eval 0.25] [%clk 0:04:54] } 4... Be7 { [%eval 0.24] [%clk 0:04:53] } 5. e3 { [%eval 0.2] [%clk 0:04:52] } 5... O-O { [%eval 0.22] [%clk 0:04:50] } 6. Nf3 { [%eval 0.2] [%clk 0:04:49] } 6... h6?? { [%eval 2.4] [%clk 0:04:40] } 7. Bxf6 { [%eval 2.5] [%clk 0:04:45] } 7... Bxf6 { [%eval 2.3] [%clk 0:04:38] } 8. Rc1 { [%eval 2.2] [%clk 0:04:40] } 8... c6 { [%eval 2.3] [%clk 0:04:30] } 9. cxd5 { [%eval 2.4] [%clk 0:04:35] } 9... exd5 { [%eval 2.3] [%clk 0:04:25] } 10. Bd3 { [%eval 2.2] [%clk 0:04:30] } 10... Re8 { [%eval 2.4] [%clk 0:04:20] } 1-0

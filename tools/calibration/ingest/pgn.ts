@@ -120,7 +120,10 @@ const tokenizeMainline = (movetext: string): string[] => {
 
 const HEADER_RE = /\[(\w+)\s+"((?:[^"\\]|\\.)*)"\]/g;
 
-const splitGames = (pgnText: string): string[] =>
+// Exported for club.ts, which needs each game's raw PGN chunk (not just the parsed
+// headers/moves parsePgnDatabase returns) so it can re-emit only the games that pass the
+// club-level rating/ply filter.
+export const splitGames = (pgnText: string): string[] =>
   pgnText
     .split(/(?=\[Event\s)/)
     .map((chunk) => chunk.trim())

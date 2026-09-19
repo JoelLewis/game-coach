@@ -15,9 +15,12 @@ import type { UciInfo } from "@game-coach/contracts/chess-core-api";
 import type { Candidate, CandidateBestLine } from "./candidate.ts";
 import { fetchChessComGames } from "./chesscom.ts";
 import { fetchLichessStudy, fetchLichessUserGames } from "./lichess.ts";
+import { runClubIngestion, type ClubRunStats } from "./club.ts";
 import type { FetchLike, SleepLike } from "./http.ts";
 import { parsePgnDatabase, replayGame, uciLineToSan, type ReplayedMove } from "./pgn.ts";
-import { buildPool, CP_LOSS_BUCKETS, sampleCandidates, type SampleResult } from "./sample.ts";
+import {
+  buildPool, CP_LOSS_BUCKETS, sampleCandidates, SEVERITY_STRATA, type SampleResult,
+} from "./sample.ts";
 import { createStockfishEngine, type StockfishEngine } from "./stockfish.ts";
 
 export class IngestError extends Error {
@@ -30,7 +33,16 @@ export class IngestError extends Error {
 export type SourceSpec =
   | { kind: "lichess"; username: string }
   | { kind: "chesscom"; username: string }
-  | { kind: "study"; studyId: string };
+  | { kind: "study"; studyId: string }
+  // Public club-level games: explicit arena ids and/or auto-discovered rating-capped
+  // arenas (see club.ts). Emitted candidates still carry CandidateSource.kind "lichess"
+  // (the contract's picklist has no separate value, and these are Lichess games).
+  | { kind: "club"; arenaIds: readonly string[]; clubAutoTarget: number | null };
+
+// The CandidateSource kind the contract/schema understands. "club" is an internal
+// SourceSpec discriminator only; its games are ordinary public Lichess games.
+const candidateSourceKind = (kind: SourceSpec["kind"]): "lichess" | "chesscom" | "study" =>
+  kind === "club" ? "lichess" : kind;
 
 export type IngestOptions = {
   sources: readonly SourceSpec[];
@@ -51,7 +63,12 @@ export type IngestDeps = {
   log?: (message: string) => void;
 };
 
-export type IngestResult = { candidates: Candidate[]; sample: SampleResult; gamesSeen: number };
+export type IngestResult = {
+  candidates: Candidate[];
+  sample: SampleResult;
+  gamesSeen: number;
+  clubStats: ClubRunStats | null;
+};
 
 // A candidate move's own position (fenBefore) is never game-over -- a legal move
 // existed. Only fenAfter can be, so evalAfter is the one place needing this fallback.
@@ -108,7 +125,9 @@ const resolvePlayerColors = (
   username: string | null,
   headers: Record<string, string>,
 ): ("w" | "b")[] => {
-  if (kind === "study") return ["w", "b"];
+  // "study" (both sides annotated) and "club" (club.ts's filterClubGames already required
+  // BOTH colors to be rated 1000-1800) treat every mover as a candidate.
+  if (kind === "study" || kind === "club") return ["w", "b"];
   if (!username) return [];
   const target = username.toLowerCase();
   const colors: ("w" | "b")[] = [];
@@ -123,13 +142,20 @@ const playerRatingFor = (color: "w" | "b", headers: Record<string, string>): num
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+// Studies have no TimeControl header; "unknown" is a valid, honest value downstream
+// (build/ sends it verbatim as `game.time_control`).
+const timeControlFor = (headers: Record<string, string>): string => headers["TimeControl"] || "unknown";
+
+type FetchAllSourcesResult = { fetched: FetchedSource[]; clubStats: ClubRunStats | null };
+
 const fetchAllSources = async (
   sources: readonly SourceSpec[],
   maxGames: number,
   deps: Pick<IngestDeps, "fetchFn" | "sleep" | "log">,
-): Promise<FetchedSource[]> => {
+): Promise<FetchAllSourcesResult> => {
   const log = deps.log ?? (() => undefined);
   const fetched: FetchedSource[] = [];
+  let clubStats: ClubRunStats | null = null;
   const sleepOptions = deps.sleep ? { sleep: deps.sleep } : {};
   // Sequential on purpose: be polite to the public APIs (one request in flight).
   for (const source of sources) {
@@ -141,20 +167,29 @@ const fetchAllSources = async (
       log(`Fetching up to ${maxGames} Chess.com games for ${source.username}...`);
       const text = await fetchChessComGames(deps.fetchFn, source.username, maxGames, sleepOptions);
       fetched.push({ kind: "chesscom", text, username: source.username });
-    } else {
+    } else if (source.kind === "study") {
       log(`Fetching Lichess study ${source.studyId}...`);
       const text = await fetchLichessStudy(deps.fetchFn, source.studyId, sleepOptions);
       fetched.push({ kind: "study", text, username: null });
+    } else {
+      const { text, stats } = await runClubIngestion(
+        { arenaIds: source.arenaIds, clubAutoTarget: source.clubAutoTarget },
+        { fetchFn: deps.fetchFn, log, ...sleepOptions },
+      );
+      clubStats = stats;
+      fetched.push({ kind: "club", text, username: null });
     }
   }
-  return fetched;
+  return { fetched, clubStats };
 };
 
 export const runIngest = async (options: IngestOptions, deps: IngestDeps): Promise<IngestResult> => {
   const log = deps.log ?? (() => undefined);
-  if (options.sources.length === 0) throw new IngestError("At least one of --lichess/--chesscom/--study is required");
+  if (options.sources.length === 0) {
+    throw new IngestError("At least one of --lichess/--chesscom/--study/--arena/--club-auto is required");
+  }
 
-  const fetched = await fetchAllSources(options.sources, options.maxGames, deps);
+  const { fetched, clubStats } = await fetchAllSources(options.sources, options.maxGames, deps);
 
   const engine = deps.createEngine({
     binaryPath: options.stockfishPath,
@@ -189,7 +224,8 @@ export const runIngest = async (options: IngestOptions, deps: IngestDeps): Promi
         const gameId = gameSlug(gameUrl, gamesSeen);
         const playerColors = resolvePlayerColors(source.kind, source.username, replayed.headers);
         if (playerColors.length === 0) {
-          log(`  skip game ${gamesSeen} (${gameId}): no side matches ${source.username ?? "(study)"}`);
+          const reason = source.username ? `no side matches ${source.username}` : "both sides are annotated";
+          log(`  skip game ${gamesSeen} (${gameId}): ${reason}`);
           continue;
         }
         for (let index = 0; index < replayed.moves.length; index += 1) {
@@ -201,9 +237,10 @@ export const runIngest = async (options: IngestOptions, deps: IngestDeps): Promi
           const evalAfter = await evalAfterMove(move, getInfos);
           log(`  analysed ${gameId} ply ${move.ply} (${candidates.length + 1} candidates so far)`);
 
+          const candidateKind = candidateSourceKind(source.kind);
           candidates.push({
-            id: `${source.kind}:${gameId}:${move.ply}`,
-            source: { kind: source.kind, gameUrl, ply: move.ply },
+            id: `${candidateKind}:${gameId}:${move.ply}`,
+            source: { kind: candidateKind, gameUrl, ply: move.ply },
             playerRating: playerRatingFor(move.color, replayed.headers),
             fenBefore: move.fenBefore,
             moveUci: move.uci,
@@ -211,6 +248,7 @@ export const runIngest = async (options: IngestOptions, deps: IngestDeps): Promi
             fenAfter: move.fenAfter,
             recentSan: replayed.moves.slice(Math.max(0, index - 6), index).map((m) => m.san),
             clockMs: move.clockMs,
+            timeControl: timeControlFor(replayed.headers),
             evalBefore,
             evalAfter,
             swing: swingCp(evalBefore, evalAfter),
@@ -225,7 +263,7 @@ export const runIngest = async (options: IngestOptions, deps: IngestDeps): Promi
     log(`Analysed ${candidates.length} candidate move(s) from ${gamesSeen} game(s) seen.`);
     const pool = buildPool(candidates);
     const sample = sampleCandidates(pool, options.target, options.seed);
-    return { candidates, sample, gamesSeen };
+    return { candidates, sample, gamesSeen, clubStats };
   } finally {
     await engine.quit();
   }
@@ -263,6 +301,16 @@ export const formatBucketTable = (counts: SampleResult["counts"]): string => {
   return lines.join("\n");
 };
 
+export const formatStrataTable = (strataCounts: SampleResult["strataCounts"], totalSelected: number): string => {
+  const lines = ["severity mix (target vs. pool vs. achieved):"];
+  for (const stratum of SEVERITY_STRATA) {
+    const stat = strataCounts[stratum];
+    const pct = totalSelected > 0 ? ((stat.selected / totalSelected) * 100).toFixed(1) : "0.0";
+    lines.push(`  ${stratum.padEnd(12)} target=${stat.target}  pool=${stat.pool}  selected=${stat.selected} (${pct}%)`);
+  }
+  return lines.join("\n");
+};
+
 class IngestArgsError extends Error {
   constructor(message: string) {
     super(message);
@@ -289,6 +337,8 @@ export const parseCliArgs = (
       lichess: { type: "string" },
       chesscom: { type: "string" },
       study: { type: "string", multiple: true },
+      arena: { type: "string", multiple: true },
+      "club-auto": { type: "string" },
       "max-games": { type: "string", default: "60" },
       target: { type: "string", default: "320" },
       movetime: { type: "string", default: "400" },
@@ -304,8 +354,15 @@ export const parseCliArgs = (
   if (values.lichess) sources.push({ kind: "lichess", username: values.lichess });
   if (values.chesscom) sources.push({ kind: "chesscom", username: values.chesscom });
   for (const studyId of values.study ?? []) sources.push({ kind: "study", studyId });
+  const arenaIds = values.arena ?? [];
+  const clubAutoTarget = values["club-auto"] ? positiveInt("club-auto", values["club-auto"]) : null;
+  if (arenaIds.length > 0 || clubAutoTarget !== null) {
+    sources.push({ kind: "club", arenaIds, clubAutoTarget });
+  }
   if (sources.length === 0) {
-    throw new IngestArgsError("Provide at least one of --lichess <user>, --chesscom <user>, --study <id>");
+    throw new IngestArgsError(
+      "Provide at least one of --lichess <user>, --chesscom <user>, --study <id>, --arena <id>, --club-auto <n>",
+    );
   }
 
   const threads = Math.max(1, Math.min(4, cpus().length - 1));
@@ -327,13 +384,30 @@ export const parseCliArgs = (
 
 const defaultOutPath = (): string => fileURLToPath(new URL("../data/candidates.jsonl", import.meta.url));
 
+const formatRatingHistogram = (candidates: readonly Candidate[]): string => {
+  const bands = [
+    ["<1000", (r: number) => r < 1000],
+    ["1000-1199", (r: number) => r >= 1000 && r < 1200],
+    ["1200-1399", (r: number) => r >= 1200 && r < 1400],
+    ["1400-1599", (r: number) => r >= 1400 && r < 1600],
+    ["1600-1799", (r: number) => r >= 1600 && r < 1800],
+    ["1800+", (r: number) => r >= 1800],
+  ] as const;
+  const rated = candidates.map((c) => c.playerRating).filter((r): r is number => r !== null);
+  const unrated = candidates.length - rated.length;
+  const lines = ["rating distribution:"];
+  for (const [label, inBand] of bands) lines.push(`  ${label.padEnd(10)} ${rated.filter(inBand).length}`);
+  if (unrated > 0) lines.push(`  unrated    ${unrated}`);
+  return lines.join("\n");
+};
+
 const main = async (): Promise<void> => {
   const { options, outPath } = parseCliArgs(process.argv.slice(2));
   const resolvedOutPath = outPath ?? defaultOutPath();
   const log = (message: string): void => {
     process.stderr.write(`${message}\n`);
   };
-  const { sample, gamesSeen } = await runIngest(options, {
+  const { sample, gamesSeen, clubStats } = await runIngest(options, {
     fetchFn: fetch,
     createEngine: createStockfishEngine,
     log,
@@ -341,6 +415,18 @@ const main = async (): Promise<void> => {
   await writeCandidatesJsonl(resolvedOutPath, sample.candidates);
   process.stdout.write(`Saw ${gamesSeen} game(s); wrote ${sample.candidates.length} candidates to ${resolvedOutPath}\n`);
   process.stdout.write(`${formatBucketTable(sample.counts)}\n`);
+  process.stdout.write(`${formatStrataTable(sample.strataCounts, sample.candidates.length)}\n`);
+  process.stdout.write(`${formatRatingHistogram(sample.candidates)}\n`);
+  if (clubStats) {
+    const analysedPct = clubStats.gamesKept > 0
+      ? ((clubStats.analysedGamesKept / clubStats.gamesKept) * 100).toFixed(1)
+      : "0.0";
+    process.stdout.write(
+      `club source: arenas=${clubStats.arenasVisited.length} games_seen=${clubStats.gamesSeen} ` +
+        `games_kept=${clubStats.gamesKept} analysed_kept=${clubStats.analysedGamesKept} (${analysedPct}%) ` +
+        `fallback_users=${clubStats.fallbackUsersTried} fallback_games=${clubStats.fallbackGamesKept}\n`,
+    );
+  }
 };
 
 const isMainModule = (): boolean => {
