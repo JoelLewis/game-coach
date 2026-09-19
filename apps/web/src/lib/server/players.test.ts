@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { MAGIC_LINK_TTL_SECONDS } from "@game-coach/contracts/storage";
 import { SESSION_TTL_SECONDS } from "@game-coach/contracts/ws-protocol";
 import { sha256Hex } from "./crypto-utils.ts";
+import type { D1Like } from "./d1-types.ts";
 import { SqliteD1 } from "./testing/sqlite-d1.ts";
 import {
 	MAX_LIVE_TOKENS_PER_WINDOW,
@@ -487,9 +488,11 @@ describe("completeVerification", () => {
 		const consumedB = await consumeMagicLinkToken(db, tokenB.token, NOW);
 		if (!consumedA || !consumedB) throw new Error("unreachable");
 
+		// Hash first: an `await` inside the array literal would let A finish before B starts.
+		const [hashA, hashB] = [await sha256Hex(guestA.sessionId), await sha256Hex(guestB.sessionId)];
 		const [outcomeA, outcomeB] = await Promise.all([
-			completeVerification(db, consumedA, await sha256Hex(guestA.sessionId), NOW),
-			completeVerification(db, consumedB, await sha256Hex(guestB.sessionId), NOW),
+			completeVerification(db, consumedA, hashA, NOW),
+			completeVerification(db, consumedB, hashB, NOW),
 		]);
 
 		expect(outcomeA.playerId).toBe(outcomeB.playerId);
@@ -503,5 +506,47 @@ describe("completeVerification", () => {
 		expect(resolvedA?.playerId).toBe(outcomeA.playerId);
 		expect(resolvedB?.playerId).toBe(outcomeA.playerId);
 		expect(resolvedA?.playerKind).toBe("account");
+	});
+
+	// The in-memory adapter resolves every call in a microtask, so Promise.all never opens the
+	// window between the "does an account exist" read and the batch. Open it deterministically: a
+	// competing verification commits an account for the same email just before our first batch.
+	// Our guest has then lost the race, and its games must still reach the winning account rather
+	// than being stranded on a merged-away player id.
+	it("F08: a guest that loses the new-email race keeps its games, on the winning account", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		await db
+			.prepare(
+				"INSERT INTO games (id, player_id, game, source, status, config_json, started_at) VALUES ('game-1', ?, 'chess', 'played', 'live', '{}', ?)",
+			)
+			.bind(guest.playerId, NOW)
+			.run();
+		const token = await createMagicLinkToken(db, "shared@example.com", guest.playerId, NOW);
+		if (!token.ok) throw new Error("unreachable");
+		const consumed = await consumeMagicLinkToken(db, token.token, NOW);
+		if (!consumed) throw new Error("unreachable");
+
+		let raced = false;
+		const racingDb: D1Like = {
+			prepare: (sql) => db.prepare(sql),
+			batch: async (statements) => {
+				if (!raced) {
+					raced = true;
+					await db.batch([
+						db.prepare("INSERT INTO players (id, kind, merged_into, created_at) VALUES ('winner', 'account', NULL, ?)").bind(NOW),
+						db.prepare("INSERT INTO accounts (id, email, player_id, created_at) VALUES ('acct-winner', 'shared@example.com', 'winner', ?)").bind(NOW),
+					]);
+				}
+				return db.batch(statements);
+			},
+		};
+
+		const outcome = await completeVerification(racingDb, consumed, await sha256Hex(guest.sessionId), NOW);
+
+		expect(outcome.playerId).toBe("winner");
+		const game = await db.prepare("SELECT player_id FROM games WHERE id = 'game-1'").first<{ player_id: string }>();
+		expect(game?.player_id).toBe("winner");
+		const loser = await db.prepare("SELECT kind, merged_into FROM players WHERE id = ?").bind(guest.playerId).first<{ kind: string; merged_into: string | null }>();
+		expect(loser).toEqual({ kind: "guest", merged_into: "winner" });
 	});
 });

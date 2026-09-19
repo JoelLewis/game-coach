@@ -370,7 +370,17 @@ export const completeVerification = async (
 	// player with no accounts row. ------------------------------------------------------------
 	const candidatePlayerId = eligibleGuestId ?? newId();
 	const promoteOrCreateStatements: D1StatementLike[] = eligibleGuestId
-		? [db.prepare("UPDATE players SET kind = 'account' WHERE id = ? AND kind = 'guest' AND merged_into IS NULL").bind(eligibleGuestId)]
+		? [
+				// Only promote while the email is still unclaimed. If a concurrent verification has
+				// already committed an account for it, this guest stays a guest, so the lost-race
+				// path below takes the ordinary merge and its games and usage move to the winner.
+				db
+					.prepare(
+						`UPDATE players SET kind = 'account' WHERE id = ? AND kind = 'guest' AND merged_into IS NULL
+						 AND NOT EXISTS (SELECT 1 FROM accounts WHERE email = ?)`,
+					)
+					.bind(eligibleGuestId, consumed.email),
+			]
 		: [db.prepare("INSERT INTO players (id, kind, merged_into, created_at) VALUES (?, 'account', NULL, ?)").bind(candidatePlayerId, now)];
 
 	await db.batch([
@@ -399,13 +409,9 @@ export const completeVerification = async (
 	const winnerTerminal = await resolveTerminalPlayer(db, winner.player_id);
 	if (!winnerTerminal) throw new VerificationFailedError("unresolvable account destination after race");
 
-	// If our own promote lost, `candidatePlayerId` may still be `kind = 'guest'`; the merge
-	// statements' guard only requires that, which holds whether we started from an eligible
-	// guest or a freshly minted (still-guest, since our create-players statement never ran)
-	// player. If we *did* create a fresh 'account' player (the no-eligible-guest path) and lost,
-	// buildMergeStatements' guard (`kind = 'guest'`) will not match it -- fall back to a direct
-	// merged_into pointer instead, since there's no guest-owned data to move for a player that
-	// was only just created.
+	// An eligible guest that lost is still `kind = 'guest'` (its promote is conditional on the
+	// email being unclaimed), so the ordinary merge applies and moves its games and usage. A
+	// freshly minted 'account' player that lost owns nothing yet; a merged_into pointer is enough.
 	const candidate = await getPlayer(db, candidatePlayerId);
 	const isGuestCandidate = candidate?.kind === "guest" && candidate.merged_into === null;
 	const mergeStatements = isGuestCandidate
