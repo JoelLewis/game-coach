@@ -6,7 +6,7 @@ import type { InitInput } from "../src/game-session.ts";
 import { defaultGameConfig, moveFacts, seedGame, seedPlayer, seedSession, signSessionCookie } from "./fixtures.ts";
 import { MessageQueue, openSocket, send, waitForClose } from "./ws-helpers.ts";
 
-const SESSION_SECRET = "test-session-secret";
+const SESSION_SECRET = "test-session-secret-at-least-32-bytes-long";
 
 type SetupOptions = { reservationChunkSize?: number; minMsBetweenJevCalls?: number };
 

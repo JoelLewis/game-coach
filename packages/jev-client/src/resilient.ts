@@ -3,17 +3,21 @@ import { toJevError } from "./errors.ts";
 
 export type RetryOptions = { timeoutMs?: number; retries?: number };
 
+// The timer handle's type differs by runtime (Node: Timeout, browsers and workerd: number), and
+// workerd's clearTimeout rejects `undefined`. Capturing it in a closure keeps this file
+// type-correct when imported as source into a Worker.
 const withDeadline = async (call: () => Promise<JevResult>, timeoutMs: number): Promise<JevResult> => {
-  let timer: ReturnType<typeof setTimeout> | undefined;
+  let cancelTimer = (): void => {};
   try {
     return await Promise.race([
       Promise.resolve().then(call),
       new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new JevError("timeout", `Jev exceeded ${timeoutMs} ms`)), timeoutMs);
+        const timer = setTimeout(() => reject(new JevError("timeout", `Jev exceeded ${timeoutMs} ms`)), timeoutMs);
+        cancelTimer = () => clearTimeout(timer);
       }),
     ]);
   } finally {
-    clearTimeout(timer);
+    cancelTimer();
   }
 };
 

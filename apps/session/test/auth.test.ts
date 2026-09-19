@@ -32,25 +32,31 @@ describe("isAllowedOrigin", () => {
 
 describe("verifySessionCookie", () => {
   it("round-trips a cookie signed with the same secret", async () => {
-    const cookie = await signSessionCookie("session-abc", "secret-1");
-    const result = await verifySessionCookie(cookie, "secret-1");
+    const cookie = await signSessionCookie("session-abc", "secret-1-padded-to-at-least-32-bytes!");
+    const result = await verifySessionCookie(cookie, "secret-1-padded-to-at-least-32-bytes!");
     expect(result).toBeInstanceOf(Uint8Array);
     expect(new TextDecoder().decode(result)).toBe("session-abc");
   });
 
+  it("rejects every cookie when the secret is missing or shorter than 32 bytes", async () => {
+    const cookie = await signSessionCookie("session-abc", "short");
+    expect(await verifySessionCookie(cookie, "short")).toBeUndefined();
+    expect(await verifySessionCookie(cookie, "")).toBeUndefined();
+  });
+
   it("rejects a cookie signed with a different secret", async () => {
-    const cookie = await signSessionCookie("session-abc", "secret-1");
-    expect(await verifySessionCookie(cookie, "secret-2")).toBeUndefined();
+    const cookie = await signSessionCookie("session-abc", "secret-1-padded-to-at-least-32-bytes!");
+    expect(await verifySessionCookie(cookie, "secret-2-padded-to-at-least-32-bytes!")).toBeUndefined();
   });
 
   it("rejects a malformed cookie with no separator", async () => {
-    expect(await verifySessionCookie("not-a-valid-cookie", "secret-1")).toBeUndefined();
+    expect(await verifySessionCookie("not-a-valid-cookie", "secret-1-padded-to-at-least-32-bytes!")).toBeUndefined();
   });
 
   it("rejects a tampered MAC", async () => {
-    const cookie = await signSessionCookie("session-abc", "secret-1");
+    const cookie = await signSessionCookie("session-abc", "secret-1-padded-to-at-least-32-bytes!");
     const [id] = cookie.split(".");
-    expect(await verifySessionCookie(`${id}.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`, "secret-1")).toBeUndefined();
+    expect(await verifySessionCookie(`${id}.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`, "secret-1-padded-to-at-least-32-bytes!")).toBeUndefined();
   });
 });
 
@@ -69,20 +75,20 @@ describe("resolvePlayerId / authenticatePlayer", () => {
   it("authenticates a valid, unexpired session cookie", async () => {
     await seedPlayer(env.DB, "player-auth-1");
     await seedSession(env.DB, "sess-auth-1", "player-auth-1");
-    const cookieHeader = `gc_session=${await signSessionCookie("sess-auth-1", "test-session-secret")}`;
-    const playerId = await authenticatePlayer(env.DB, cookieHeader, "test-session-secret", Date.now());
+    const cookieHeader = `gc_session=${await signSessionCookie("sess-auth-1", "test-session-secret-at-least-32-bytes-long")}`;
+    const playerId = await authenticatePlayer(env.DB, cookieHeader, "test-session-secret-at-least-32-bytes-long", Date.now());
     expect(playerId).toBe("player-auth-1");
   });
 
   it("rejects an expired session", async () => {
     await seedPlayer(env.DB, "player-auth-2");
     await seedSession(env.DB, "sess-auth-2", "player-auth-2", -1000);
-    const cookieHeader = `gc_session=${await signSessionCookie("sess-auth-2", "test-session-secret")}`;
-    expect(await authenticatePlayer(env.DB, cookieHeader, "test-session-secret", Date.now())).toBeUndefined();
+    const cookieHeader = `gc_session=${await signSessionCookie("sess-auth-2", "test-session-secret-at-least-32-bytes-long")}`;
+    expect(await authenticatePlayer(env.DB, cookieHeader, "test-session-secret-at-least-32-bytes-long", Date.now())).toBeUndefined();
   });
 
   it("rejects a missing cookie", async () => {
-    expect(await authenticatePlayer(env.DB, null, "test-session-secret", Date.now())).toBeUndefined();
+    expect(await authenticatePlayer(env.DB, null, "test-session-secret-at-least-32-bytes-long", Date.now())).toBeUndefined();
   });
 });
 
@@ -113,7 +119,7 @@ describe("authenticateWsRequest", () => {
     await seedPlayer(env.DB, "player-full-1");
     await seedSession(env.DB, "sess-full-1", "player-full-1");
     await seedGame(env.DB, "game-full-1", "player-full-1");
-    const cookie = `gc_session=${await signSessionCookie("sess-full-1", "test-session-secret")}`;
+    const cookie = `gc_session=${await signSessionCookie("sess-full-1", "test-session-secret-at-least-32-bytes-long")}`;
     const request = new Request(gameUrl, { headers: { Origin: "https://chess.terminal-games.com", Cookie: cookie } });
 
     const result = await authenticateWsRequest(request, env, "game-full-1");
@@ -137,7 +143,7 @@ describe("authenticateWsRequest", () => {
     await seedPlayer(env.DB, "owner-full-2");
     await seedSession(env.DB, "sess-full-2", "player-full-2");
     await seedGame(env.DB, "game-full-2", "owner-full-2");
-    const cookie = `gc_session=${await signSessionCookie("sess-full-2", "test-session-secret")}`;
+    const cookie = `gc_session=${await signSessionCookie("sess-full-2", "test-session-secret-at-least-32-bytes-long")}`;
     const request = new Request("https://chess.terminal-games.com/ws/game/game-full-2", {
       headers: { Origin: "https://chess.terminal-games.com", Cookie: cookie },
     });

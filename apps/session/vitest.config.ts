@@ -17,7 +17,7 @@ export default defineWorkersConfig(async () => {
               TEST_MIGRATIONS: migrations,
               // wrangler.jsonc declares this as a secret (set via `wrangler secret put` in
               // production); tests supply a fixed value instead of reading `.dev.vars`.
-              SESSION_SECRET: "test-session-secret",
+              SESSION_SECRET: "test-session-secret-at-least-32-bytes-long",
             },
           },
         },

@@ -38,7 +38,11 @@ const parseCookie = (header: string | null, name: string): string | undefined =>
 // Cookie value: base64url(sessionId) + "." + base64url(HMAC-SHA256(SESSION_SECRET, sessionId)).
 // Returns the raw sessionId bytes only once `crypto.subtle.verify` has confirmed the MAC in
 // constant time; the caller hashes them to look up `sessions.id_hash`.
+const MIN_SECRET_BYTES = 32;
+
 export const verifySessionCookie = async (cookieValue: string, secret: string): Promise<Uint8Array | undefined> => {
+  // A missing or short secret must reject every cookie, not throw from importKey.
+  if (new TextEncoder().encode(secret ?? "").length < MIN_SECRET_BYTES) return undefined;
   const dot = cookieValue.indexOf(".");
   if (dot < 0) return undefined;
 
