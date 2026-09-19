@@ -2,7 +2,7 @@
 
 Date: 2026-09-18 · Model: `jev-1.13.0` via `env.AI.run('typesafe/jev', …)` · Probe: `apps/spike-jev`
 
-**Recommendation: GO**, with four changes to carry into the contracts (below). Dashboard price still needs a manual cross-check.
+**Decision: GO** (Joel, 2026-09-18). Four changes carried into the contracts (below).
 
 ## Exit test
 11 questions per call, 50 sequential calls per variant, latency measured inside the Worker around `AI.run`.
@@ -30,5 +30,5 @@ Gate (p95 < 500 ms): **pass** for both. Cost uses TypeSafe list price ($0.042 / 
 - `STATE_TOKEN_BUDGET` stays at 1,500 for the state block; add a `QUESTION_TOKEN_BUDGET` and a test that the whole request stays under ~3,000 tokens.
 - `JevTransport` unwraps the `{state, result}` envelope; fixture replay keys on the request, and tests must not assert exact scores.
 
-## Still open
-- [ ] Cloudflare dashboard price per million input tokens for `typesafe/jev` vs. list (Joel: AI → AI Gateway → usage for today's ~115 calls, ≈ 440k input tokens; list price predicts ≈ $0.018).
+## Closed
+- Dashboard price: Joel confirmed the day's ~100 calls billed at about $0.02 or less, consistent with TypeSafe list price ($0.042 / M input tokens).

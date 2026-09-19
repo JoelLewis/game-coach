@@ -13,6 +13,7 @@
     "noUncheckedSideEffectImports": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
     "moduleDetection": "force",
     "resolveJsonModule": true,
     "skipLibCheck": true,

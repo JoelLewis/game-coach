@@ -28,6 +28,9 @@ A task owns exactly the directories named in its brief. Do not touch others.
 ## Conventions
 - TypeScript strict, ESM only, no `any` (use `unknown` and narrow), `type` over `interface`, no enums, no barrel files, `const` by default.
 - Explicit error types; no silent catches.
+- `erasableSyntaxOnly` is on (code must run under Node's type stripping): no constructor parameter properties, no enums, no namespaces.
+- Import contracts by file, e.g. `import { MoveFactsSchema } from "@game-coach/contracts/engine"`. Derive types from valibot schemas with `v.InferOutput`; validate at every trust boundary.
+- Jev answers are not deterministic (about ±0.1 on a score). Never assert exact values; gate on probability mass (`scoreMassAtLeast`), not raw `confidence`. See `docs/m0-result.md`.
 - Svelte 5 runes, Tailwind 4, tokens from `packages/ui-study`.
 - Rust: edition 2024, `cargo fmt`, clippy clean, `thiserror` for library errors.
 - Workers: `wrangler.jsonc`, Web Standard APIs only, run `wrangler types` after config changes.

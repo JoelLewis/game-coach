@@ -4,8 +4,11 @@ import evalCases from "../fixtures/coaching_eval.json" with { type: "json" };
 type EngineEval = { type: string; value?: number; moves?: number };
 
 export class UnknownEvalError extends Error {
-  constructor(readonly score: EngineEval) {
+  readonly score: EngineEval;
+
+  constructor(score: EngineEval) {
     super(`unrecognised engine eval: ${JSON.stringify(score)}`);
+    this.score = score;
     this.name = "UnknownEvalError";
   }
 }

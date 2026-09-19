@@ -39,11 +39,11 @@ export type JevBinding = {
 };
 
 export class JevResponseError extends Error {
-  constructor(
-    message: string,
-    readonly raw: unknown,
-  ) {
+  readonly raw: unknown;
+
+  constructor(message: string, raw: unknown) {
     super(message);
+    this.raw = raw;
     this.name = "JevResponseError";
   }
 }
