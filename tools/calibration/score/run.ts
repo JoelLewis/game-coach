@@ -49,14 +49,18 @@ const readJsonl = async <T>(
 };
 
 const AnswerRowSchema = v.object({ id: v.string(), answers: JevAnswersSchema });
+// Jev reports probabilities rounded to two decimals, so a real four-level distribution sums to
+// 0.99-1.01 (7 of 320 recorded answers summed to 0.99). Anything further off is a malformed row.
+const PROBABILITY_SUM_TOLERANCE = 0.03;
+
 const parseAnswerRow = (value: unknown): v.InferOutput<typeof AnswerRowSchema> => {
   const row = v.parse(AnswerRowSchema, value);
   // The wire schema does not constrain score levels or require a probability distribution.
   const probabilities = Object.entries(row.answers.severity.probabilities);
   const total = probabilities.reduce((sum, [, probability]) => sum + probability, 0);
   if (!probabilities.length || probabilities.some(([level]) => !["0", "1", "2", "3"].includes(level)) ||
-    Math.abs(total - 1) > 1e-6) {
-    throw new ScoreInputError("severity probabilities must use levels 0..3 and sum to 1");
+    Math.abs(total - 1) > PROBABILITY_SUM_TOLERANCE) {
+    throw new ScoreInputError("severity probabilities must use levels 0..3 and sum to about 1");
   }
   return row;
 };

@@ -46,3 +46,26 @@ The real Workers AI transport stays off until the session Worker has had its ind
 - **Real requests are larger than the M0 stub**: 3,066-3,510 input tokens (median 3,343) against 2,575, because real feature blocks are richer. At list price that is about $0.0056 per 40-move game, still roughly a tenth of the $0.05 target.
 - **Engine severity and practical severity diverge a lot at club level.** Label proposals (Claude Sonnet, four independent batches, judged on practical value for the player's rating) called 230 of the 320 moves fine, 38 inaccuracies, 30 mistakes and 22 blunders, with 42 interrupt-worthy, and disagreed with Lichess's automatic ?!/?/?? on 37 of 73 annotated moves, mostly in positions that were already decided. This is the `confidence_override` territory from finding 9, now with data behind it.
 - Proposals are starting points only: every label is confirmed by a human in the labeler, the scorer never treats a proposal as truth, and the labeler records how often a proposal is accepted unchanged. The guide is `tools/calibration/LABELING-GUIDE.md`.
+
+## M1 preview: real Jev on pool v1 (2026-09-19) — NOT the M1 result
+All 320 production-shaped requests were run through `jev-1.13.0`: p50 238 ms, p95 372 ms, max 982 ms, mean 3,232 input tokens, $0.043 total at list price. Ten calls failed mid-run with `2018: Invalid User Credentials` and succeeded on retry, so the transport's retry-on-upstream matters in practice.
+
+Scored against the **label proposals** (Claude Sonnet, practical severity for the player's rating). Only Joel's labels are ground truth; this preview exists to show direction and to prove the scorer end to end.
+
+| Metric | Value | PRD target |
+| --- | --- | --- |
+| severity exact / adjacent | 19.1% / 51.2% | 80% / 95% |
+| error_class top-1 (n=88) | 44.3% | 70% |
+| interrupt_now precision at 0.7 (fired on 171 of 320) | 24.0% | 85% |
+| interrupt_now recall at 0.7 | 97.6% | reported |
+| teachable at 0.8 | never fired (0 of 320) | 75% precision |
+| good_move at 0.8 | never fired | reported |
+
+What is going on:
+- **Jev rubber-stamps the engine swing** (the PRD's named risk, M0 finding 7). 159 of the 320 moves were played in positions that were already decided (still winning by 4+ pawns afterwards, or already lost by 6+). The proposals call 157 of those fine; Jev's most likely severity is "fine" on 8.
+- **`confidence_override` does not rescue it**: median 0.51 on decided positions against 0.56 on live ones. It carries no usable signal, so the 0.85 veto never fires.
+- On the 161 live positions severity agreement is 32% exact, 74% adjacent: better, still far from target.
+- **A code-side gate recovers most of the interrupt decision.** "Do not interrupt when the position was already decided" (engine facts only, no model) takes the real `decide()` rule from 170 fires at 24% precision to 89 fires at 45% with 95% recall. Raising `interruptNoul` on top: 0.75 gives 69% precision / 81% recall, 0.78 gives 90% / 62%, 0.80 gives 93% / 33%. This fits principle 3, "code owns the workflow".
+- `teachable` and `good_move` never reach their thresholds, so as configured the writing model and praise would never trigger.
+
+Caveats: the pool is sampled 75% engine-errors by design, so fire rates here are not game rates; proposals are not ground truth; thresholds tuned on this pool must be validated on held-out labels.

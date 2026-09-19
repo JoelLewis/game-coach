@@ -1,4 +1,4 @@
-import { type JevBinding, type JevResponse, JevResponseError, parseJevResponse } from "./jev.ts";
+import { type JevBinding, type JevRequest, type JevResponse, JevResponseError, parseJevResponse } from "./jev.ts";
 import { buildQuestionSet, templateOptionCount } from "./questions.ts";
 import { buildStateBlock, EVAL_CASES } from "./state.ts";
 
@@ -61,11 +61,41 @@ const runCalls = async (
   return results;
 };
 
+const MAX_JUDGE_BODY_BYTES = 64_000;
+
+// Runs one caller-supplied Jev request (the calibration set's exported production requests).
+const judgeOne = async (request: Request, env: Env): Promise<Response> => {
+  if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  const text = await request.text();
+  if (text.length > MAX_JUDGE_BODY_BYTES) return json({ error: "too_large" }, 413);
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return json({ error: "bad_json" }, 400);
+  }
+  if (typeof body !== "object" || body === null || !("state" in body) || !("questions" in body)) {
+    return json({ error: "expected {state, questions}" }, 400);
+  }
+  try {
+    const startedAt = Date.now();
+    const raw = await env.AI.run("typesafe/jev", body as JevRequest);
+    const latencyMs = Date.now() - startedAt;
+    return json({ latencyMs, response: parseJevResponse(raw) });
+  } catch (error) {
+    if (error instanceof JevResponseError) {
+      return json({ error: "bad_jev_response", message: error.message }, 502);
+    }
+    return json({ error: "jev_call_failed", message: error instanceof Error ? error.message : String(error) }, 502);
+  }
+};
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    if (url.pathname !== "/run") return json({ error: "not_found" }, 404);
+    if (url.pathname !== "/run" && url.pathname !== "/judge") return json({ error: "not_found" }, 404);
     if (!isAuthorized(request, env)) return json({ error: "unauthorized" }, 401);
+    if (url.pathname === "/judge") return judgeOne(request, env);
 
     const variant = parseVariant(url.searchParams.get("templates"));
     const count = Math.min(Number(url.searchParams.get("n") ?? 1) || 1, MAX_CALLS_PER_REQUEST);

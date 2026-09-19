@@ -57,6 +57,17 @@ it.each([
   await expect(readFile(join(dir, "report.json"))).rejects.toThrow();
 });
 
+// Real Jev rounds probabilities to two decimals: 7 of 320 recorded severity answers sum to 0.99.
+it("accepts severity probabilities that sum to 1 only after rounding, and rejects real garbage", async () => {
+  const rounded = { ...score(3), probabilities: { "0": 0, "1": 0.01, "2": 0.06, "3": 0.92 } };
+  const ok = await setup([item("yes")], [{ id: "yes", answers: answers({ severity: rounded }) }]);
+  expect(run(ok).stderr).toBe("");
+
+  const broken = { ...score(3), probabilities: { "0": 0, "1": 0, "2": 0.2, "3": 0.5 } };
+  const bad = await setup([item("yes")], [{ id: "yes", answers: answers({ severity: broken }) }]);
+  expect(run(bad).stderr).toContain("sum to about 1");
+});
+
 it("reports malformed JSON with file and line", async () => {
   const dir = await setup([], []);
   await writeFile(join(dir, "set.jsonl"), "\n{broken}\n");
