@@ -52,6 +52,9 @@ export type GameSocketOptions = {
   // Highest ply the client already has (e.g. from a game summary fetched before connecting).
   // Zero for a brand-new game.
   initialLastPly?: number;
+  // Seeds `events` from a hydrated game state (up to 20) so the coach panel isn't empty for the
+  // brief gap before the socket's own `ready` arrives with its own (shorter) recent history.
+  initialEvents?: readonly CoachEvent[];
   createSocket?: CreateSocket;
   // Same-origin `ws(s)://host` prefix. Defaults to deriving it from `location`.
   origin?: string;
@@ -90,9 +93,17 @@ const defaultOrigin = (): string => {
 
 const defaultCreateSocket: CreateSocket = (url) => new WebSocket(url) as unknown as WebSocketLike;
 
-type OutboxFrame = Extract<ClientMessage, { type: "move" | "opponent_move" }>;
+// `game_end` is queued alongside `move`/`opponent_move` so a dropped connection right after
+// resign/checkmate can't silently lose the game's end (see `flushOutbox` and `enqueueAndSend`
+// below). It has no ply, so it is dropped by acknowledgement (`ready.gameOver` or a `game_over`
+// close) instead of by `serverPly`.
+type OutboxFrame = Extract<ClientMessage, { type: "move" | "opponent_move" | "game_end" }>;
 
-const plyOf = (frame: OutboxFrame): number => (frame.type === "move" ? frame.facts.ply : frame.ply);
+const plyOf = (frame: OutboxFrame): number | null => {
+  if (frame.type === "move") return frame.facts.ply;
+  if (frame.type === "opponent_move") return frame.ply;
+  return null;
+};
 
 export type GameSocket = {
   readonly status: SocketStatus;
@@ -122,7 +133,7 @@ export const createGameSocket = (options: GameSocketOptions): GameSocket => {
 
   let status = $state<SocketStatus>("connecting");
   let lastJudgment = $state<JudgmentInfo | null>(null);
-  let events = $state<CoachEvent[]>([]);
+  let events = $state<CoachEvent[]>(options.initialEvents ? [...options.initialEvents].slice(-MAX_EVENTS) : []);
   let unjudgedReason = $state<UnjudgedReason | null>(null);
   let mode = $state<CoachMode | null>(null);
   let talkativeness = $state<number | null>(null);
@@ -141,9 +152,18 @@ export const createGameSocket = (options: GameSocketOptions): GameSocket => {
     socket.send(JSON.stringify(v.parse(ClientMessageSchema, message)));
   };
 
-  const flushOutbox = (serverPly: number): void => {
+  // `gameOver` is `ready.gameOver`: once the server has recorded this game as over, any queued
+  // `game_end` has already done its job (either it landed, or the game ended some other way -
+  // e.g. the opponent's `game_end` raced this client's reconnect) and must not be resent forever.
+  const flushOutbox = (serverPly: number, gameOver: boolean): void => {
     for (let i = outbox.length - 1; i >= 0; i -= 1) {
-      if (plyOf(outbox[i] as OutboxFrame) <= serverPly) outbox.splice(i, 1);
+      const frame = outbox[i] as OutboxFrame;
+      const ply = plyOf(frame);
+      if (ply !== null && ply <= serverPly) {
+        outbox.splice(i, 1);
+      } else if (frame.type === "game_end" && gameOver) {
+        outbox.splice(i, 1);
+      }
     }
     for (const frame of outbox) sendRaw(frame);
   };
@@ -189,7 +209,7 @@ export const createGameSocket = (options: GameSocketOptions): GameSocket => {
         events = message.recentEvents.slice(-MAX_EVENTS);
         reconnectAttempt = 0;
         status = "open";
-        flushOutbox(message.serverPly);
+        flushOutbox(message.serverPly, message.gameOver);
         return;
       }
       case "judgment": {
@@ -230,6 +250,15 @@ export const createGameSocket = (options: GameSocketOptions): GameSocket => {
     ws.onmessage = (event) => handleMessage(event.data);
     ws.onclose = (event) => {
       socket = null;
+      // A `game_over` close is itself the acknowledgement a queued `game_end` was waiting for
+      // (the server only closes with this code once the game is recorded as over) - drop it so
+      // it isn't resent by some future reconnect attempt (e.g. one already scheduled but not
+      // yet run when this event fires).
+      if (event.code === WS_CLOSE.game_over) {
+        for (let i = outbox.length - 1; i >= 0; i -= 1) {
+          if ((outbox[i] as OutboxFrame).type === "game_end") outbox.splice(i, 1);
+        }
+      }
       if (closedByCaller) {
         status = "closed";
         return;
@@ -247,8 +276,18 @@ export const createGameSocket = (options: GameSocketOptions): GameSocket => {
   };
 
   const enqueueAndSend = (frame: OutboxFrame): void => {
-    outbox.push(frame);
-    highestPly = Math.max(highestPly, plyOf(frame));
+    if (frame.type === "game_end") {
+      // Only one `game_end` is ever meaningful for a game; replace rather than accumulate if
+      // the caller somehow calls this twice (the game controller itself already guards against
+      // that, but the socket shouldn't rely on it).
+      const existingIndex = outbox.findIndex((existing) => existing.type === "game_end");
+      if (existingIndex >= 0) outbox[existingIndex] = frame;
+      else outbox.push(frame);
+    } else {
+      outbox.push(frame);
+      const ply = plyOf(frame);
+      if (ply !== null) highestPly = Math.max(highestPly, ply);
+    }
     sendRaw(frame);
   };
 
@@ -283,7 +322,7 @@ export const createGameSocket = (options: GameSocketOptions): GameSocket => {
     sendSetMode: (nextMode, nextTalkativeness) =>
       sendRaw({ type: "set_mode", mode: nextMode, talkativeness: nextTalkativeness }),
     sendFeedback: (eventId, helpful) => sendRaw({ type: "feedback", eventId, helpful }),
-    sendGameEnd: (result, finalPosition) => sendRaw({ type: "game_end", result, finalPosition }),
+    sendGameEnd: (result, finalPosition) => enqueueAndSend({ type: "game_end", result, finalPosition }),
     close: () => {
       closedByCaller = true;
       clearReconnectTimer();

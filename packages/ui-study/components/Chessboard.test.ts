@@ -10,7 +10,7 @@ const { ChessgroundMock, mockApi, pieces, resetMock } = vi.hoisted(() => {
   const pieces = new Map<string, MockPiece>();
 
   const mockApi = {
-    state: { pieces },
+    state: { pieces, dom: { bounds: { clear: vi.fn() } } },
     set: vi.fn((_config: MockConfig) => {}),
     setPieces: vi.fn((diff: Map<string, MockPiece | undefined>) => {
       for (const [key, piece] of diff) {
@@ -18,6 +18,7 @@ const { ChessgroundMock, mockApi, pieces, resetMock } = vi.hoisted(() => {
         else pieces.delete(key);
       }
     }),
+    redrawAll: vi.fn(),
     destroy: vi.fn(),
   };
 
@@ -27,11 +28,41 @@ const { ChessgroundMock, mockApi, pieces, resetMock } = vi.hoisted(() => {
     pieces.clear();
     mockApi.set.mockClear();
     mockApi.setPieces.mockClear();
+    mockApi.state.dom.bounds.clear.mockClear();
+    mockApi.redrawAll.mockClear();
     mockApi.destroy.mockClear();
     ChessgroundMock.mockClear();
   };
 
   return { ChessgroundMock, mockApi, pieces, resetMock };
+});
+
+// jsdom does not implement ResizeObserver; a minimal, manually-triggered stand-in is enough to
+// prove Chessboard observes its container and reacts, without pulling in a real layout engine.
+type ResizeCallback = () => void;
+const { observedElements, triggerResize } = vi.hoisted(() => {
+  const observedElements = new Map<Element, ResizeCallback>();
+  class FakeResizeObserver {
+    #callback: ResizeCallback;
+    constructor(callback: ResizeCallback) {
+      this.#callback = callback;
+    }
+    observe(el: Element) {
+      observedElements.set(el, this.#callback);
+    }
+    disconnect() {
+      observedElements.clear();
+    }
+    unobserve(el: Element) {
+      observedElements.delete(el);
+    }
+  }
+  // @ts-expect-error -- test stand-in, not a spec-complete ResizeObserver
+  globalThis.ResizeObserver = FakeResizeObserver;
+  const triggerResize = () => {
+    for (const callback of observedElements.values()) callback();
+  };
+  return { observedElements, triggerResize };
 });
 
 vi.mock("@lichess-org/chessground", () => ({
@@ -134,5 +165,21 @@ describe("Chessboard", () => {
       { orig: "d5", brush: "yellow" },
       { orig: "f7", brush: "yellow" },
     ]);
+  });
+
+  it("redraws chessground when its container resizes", () => {
+    render(Chessboard, {});
+    expect(observedElements.size).toBe(1);
+
+    triggerResize();
+
+    expect(mockApi.state.dom.bounds.clear).toHaveBeenCalled();
+    expect(mockApi.redrawAll).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops observing on unmount", () => {
+    const { unmount } = render(Chessboard, {});
+    unmount();
+    expect(observedElements.size).toBe(0);
   });
 });

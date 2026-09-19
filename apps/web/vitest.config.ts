@@ -1,4 +1,5 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { svelteTesting } from "@testing-library/svelte/vite";
 import { defineConfig } from "vitest/config";
 
 // Two populations, two environments:
@@ -14,7 +15,7 @@ export default defineConfig({
         test: { name: "server", environment: "node", include: ["src/**/*.test.ts"] },
       },
       {
-        plugins: [svelte({ compilerOptions: { runes: true } })],
+        plugins: [svelte({ compilerOptions: { runes: true } }), svelteTesting()],
         test: { name: "play", environment: "jsdom", include: ["test/**/*.test.ts"] },
       },
     ],

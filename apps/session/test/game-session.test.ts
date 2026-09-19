@@ -307,6 +307,54 @@ describe("GameSession over a real WebSocket", () => {
     expect((await queue.next()).type).toBe("judgment");
   });
 
+  it("reports gameOver on ready, and false again for a fresh unrelated game", async () => {
+    const gameId = `gameover-${crypto.randomUUID()}`;
+    const cookie = await setupGame(gameId, "gameover-player", "gameover-session");
+    const { ws, queue, ready } = await connectAndHello(gameId, cookie);
+    expect(ready).toMatchObject({ gameOver: false });
+
+    send(ws, { type: "game_end", result: "player_win", finalPosition: "final" });
+    await waitForClose(ws);
+
+    const { ready: readyAfterEnd } = await connectAndHello(gameId, cookie, 0);
+    expect(readyAfterEnd).toMatchObject({ gameOver: true });
+    void queue;
+  });
+
+  it("treats a repeated game_end as idempotent instead of double-finishing or double-flushing", async () => {
+    const gameId = `game-end-idempotent-${crypto.randomUUID()}`;
+    const cookie = await setupGame(gameId, "game-end-player", "game-end-session");
+    const { ws, queue } = await connectAndHello(gameId, cookie);
+
+    send(ws, { type: "move", facts: moveFacts({ ply: 1 }) });
+    expect((await queue.next()).type).toBe("judgment");
+
+    send(ws, { type: "game_end", result: "player_win", finalPosition: "final" });
+    await waitForClose(ws);
+
+    const gameAfterFirst = await env.DB.prepare("SELECT status, result, ended_at FROM games WHERE id = ?").bind(gameId).first<{
+      status: string;
+      result: string;
+      ended_at: number;
+    }>();
+    expect(gameAfterFirst).toMatchObject({ status: "finished", result: "player_win" });
+
+    // A reconnect that resends the still-queued `game_end` (e.g. because the client's socket
+    // dropped before it saw the first close) must not finish or flush the game a second time -
+    // it should just be told the game is already over.
+    const { ws: ws2 } = await connectAndHello(gameId, cookie, 1);
+    send(ws2, { type: "game_end", result: "player_win", finalPosition: "final" });
+    const closed = await waitForClose(ws2);
+    expect(closed.code).toBe(WS_CLOSE.game_over);
+
+    const gameAfterSecond = await env.DB.prepare("SELECT status, result, ended_at FROM games WHERE id = ?").bind(gameId).first<{
+      status: string;
+      result: string;
+      ended_at: number;
+    }>();
+    expect(gameAfterSecond).toEqual(gameAfterFirst);
+  });
+
   it("does not call Jev at all when the mode is off", async () => {
     const gameId = `off-${crypto.randomUUID()}`;
     const cookie = await setupGame(gameId, "off-player", "off-session");

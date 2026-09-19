@@ -236,6 +236,100 @@ describe("createGameController", () => {
     expect(socket.frames.at(-1)).toMatchObject({ type: "game_end", result: "draw" });
   });
 
+  describe("resuming after a hard reload", () => {
+    it("replays recorded moves through chess-core and lands in the right position, without resending anything", async () => {
+      const chessCore = new FakeChessCore({
+        start: { e2e4: t("e2e4", "e4", "e2", "e4", "pos1 b") },
+        "pos1 b": { e7e5: t("e7e5", "e5", "e7", "e5", "pos2 w") },
+      });
+      const adapter = new FakeEngineAdapter(new Map(), new Map());
+      adapter.resolveReady();
+      const socket = new FakeControllerSocket();
+
+      const controller = createGameController({
+        playerSide: "white",
+        opponentLevel: 3,
+        startPosition: "start",
+        socket,
+        resumeFrom: { moves: [{ ply: 1, moveId: "e2e4" }, { ply: 2, moveId: "e7e5" }] },
+        loadChessCore: async () => chessCore,
+        loadEngineAdapter: async () => adapter,
+      });
+
+      await tick();
+
+      expect(controller.status).toBe("playing");
+      expect(controller.board.fen).toBe("pos2 w");
+      expect(controller.board.turnColor).toBe("white");
+      expect(controller.moves).toEqual([
+        { ply: 1, san: "e4" },
+        { ply: 2, san: "e5" },
+      ]);
+      expect(socket.frames).toEqual([]);
+      expect(adapter.chooseOpponentMoveCalls).toEqual([]);
+    });
+
+    it("resumes correctly when it is Black to move, without triggering the fresh-game opening reply", async () => {
+      const chessCore = new FakeChessCore({
+        start: { e2e4: t("e2e4", "e4", "e2", "e4", "pos1 b") },
+      });
+      const adapter = new FakeEngineAdapter(new Map(), new Map());
+      adapter.resolveReady();
+      const socket = new FakeControllerSocket();
+
+      const controller = createGameController({
+        playerSide: "black",
+        opponentLevel: 3,
+        startPosition: "start",
+        socket,
+        resumeFrom: { moves: [{ ply: 1, moveId: "e2e4" }] },
+        loadChessCore: async () => chessCore,
+        loadEngineAdapter: async () => adapter,
+      });
+
+      await tick();
+      await tick();
+
+      expect(controller.status).toBe("playing");
+      expect(controller.board.fen).toBe("pos1 b");
+      expect(controller.board.turnColor).toBe("black");
+      expect(controller.moves).toEqual([{ ply: 1, san: "e4" }]);
+      expect(socket.frames).toEqual([]);
+      expect(adapter.chooseOpponentMoveCalls).toEqual([]);
+    });
+
+    it("opens read-only at the final position for a finished game, without resending game_end", async () => {
+      const chessCore = new FakeChessCore({
+        start: { e2e4: t("e2e4", "e4", "e2", "e4", "pos1 b") },
+        "pos1 b": { e7e5: t("e7e5", "e5", "e7", "e5", "pos2 w") },
+      });
+      const adapter = new FakeEngineAdapter(new Map(), new Map());
+      adapter.resolveReady();
+      const socket = new FakeControllerSocket();
+
+      const controller = createGameController({
+        playerSide: "white",
+        opponentLevel: 3,
+        startPosition: "start",
+        socket,
+        resumeFrom: {
+          moves: [{ ply: 1, moveId: "e2e4" }, { ply: 2, moveId: "e7e5" }],
+          finished: { result: "player_win" },
+        },
+        loadChessCore: async () => chessCore,
+        loadEngineAdapter: async () => adapter,
+      });
+
+      await tick();
+
+      expect(controller.status).toBe("ended");
+      expect(controller.result).toBe("player_win");
+      expect(controller.board.fen).toBe("pos2 w");
+      expect(controller.board.dests.size).toBe(0);
+      expect(socket.frames).toEqual([]);
+    });
+  });
+
   it("resign ends the game as a player loss and reports the current position", async () => {
     const chessCore = new FakeChessCore({});
     const adapter = new FakeEngineAdapter(new Map(), new Map());
