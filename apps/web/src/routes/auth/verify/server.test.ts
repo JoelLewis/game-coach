@@ -20,7 +20,7 @@ beforeEach(() => {
 });
 
 const fakePlatform = () => ({
-	env: { DB: db, APP_ORIGIN, EMAIL_FROM: "coach@terminal-games.com", SESSION_SECRET },
+	env: { DB: db, APP_ORIGIN, EMAIL_FROM: "coach@chess.terminal-games.com", SESSION_SECRET },
 });
 
 const call = async (token: string | null, guestPlayerId: string, guestSessionId: Uint8Array) => {

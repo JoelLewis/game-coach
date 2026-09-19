@@ -113,7 +113,7 @@ Dispatch in batches of ≤ 5 concurrent agents (first batch: A1, B, C, D1, E1, K
 ## Needed from Joel during the build
 - `wrangler login` / GitHub auth available in this shell; OK to create public repo `game-coach`.
 - Lichess and/or Chess.com usernames (for K1).
-- Sender address (e.g. `coach@terminal-games.com`) and enabling Email Sending on the zone.
+- Sender address (e.g. `coach@chess.terminal-games.com`) and enabling Email Sending on the zone.
 - ~1–2 h to label 200 moves (I3).
 
 ## Verification

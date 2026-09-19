@@ -23,7 +23,7 @@ const fakePlatform = () => ({
 		DB: db,
 		EMAIL: { send: sendEmail },
 		APP_ORIGIN,
-		EMAIL_FROM: "coach@terminal-games.com",
+		EMAIL_FROM: "coach@chess.terminal-games.com",
 		SESSION_SECRET: "test-secret",
 	},
 });
@@ -65,7 +65,7 @@ describe("POST /auth/request", () => {
 		expect(sendEmail).toHaveBeenCalledTimes(1);
 		const message = sendEmail.mock.calls[0]?.[0] as { to: string; from: string; text: string };
 		expect(message.to).toBe("a@example.com");
-		expect(message.from).toBe("coach@terminal-games.com");
+		expect(message.from).toBe("coach@chess.terminal-games.com");
 		expect(message.text).toContain(`${APP_ORIGIN}/auth/verify?token=`);
 	});
 

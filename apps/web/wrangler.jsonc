@@ -12,7 +12,7 @@
 
   "vars": {
     "APP_ORIGIN": "https://chess.terminal-games.com",
-    "EMAIL_FROM": "coach@terminal-games.com"
+    "EMAIL_FROM": "coach@chess.terminal-games.com"
   },
   // Secret: SESSION_SECRET (shared with gamecoach-session). Local: .dev.vars
 
@@ -27,6 +27,7 @@
       "migrations_dir": "../../db/migrations"
     }
   ],
-  // Cloudflare Email Sending (beta). The domain must be onboarded in the dashboard first.
+  // Cloudflare Email Sending (beta). chess.terminal-games.com is the onboarded sending
+  // domain (2026-09-18), so EMAIL_FROM must be an address on that subdomain.
   "send_email": [{ "name": "EMAIL", "remote": true }]
 }
