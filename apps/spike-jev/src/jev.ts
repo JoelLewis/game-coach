@@ -51,9 +51,19 @@ export class JevResponseError extends Error {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
+// The Workers AI binding wraps the documented body as `{state: "Completed", result}`.
+const unwrapEnvelope = (raw: unknown): unknown => {
+  if (!isRecord(raw) || !("result" in raw)) return raw;
+  if (raw.state !== "Completed") {
+    throw new JevResponseError(`run did not complete: state=${String(raw.state)}`, raw);
+  }
+  return raw.result;
+};
+
 export const parseJevResponse = (raw: unknown): JevResponse => {
-  if (!isRecord(raw)) throw new JevResponseError("response is not an object", raw);
-  const { model, answers, usage } = raw;
+  const body = unwrapEnvelope(raw);
+  if (!isRecord(body)) throw new JevResponseError("response is not an object", raw);
+  const { model, answers, usage } = body;
   if (typeof model !== "string") throw new JevResponseError("missing model", raw);
   if (!isRecord(answers)) throw new JevResponseError("missing answers", raw);
   if (

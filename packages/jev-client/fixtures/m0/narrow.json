@@ -1,0 +1,6752 @@
+[
+  {
+    "caseId": "hanging_queen_opening",
+    "latencyMs": 218,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.9,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.08,
+            "3": 0.91
+          },
+          "confidence": 0.9
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "unclear": 0,
+            "opening_prep": 0.11,
+            "tactical_oversight": 0.85,
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "calculation_depth": 0.02,
+            "positional": 0.02
+          },
+          "confidence": 0.81
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "opening_prep.opening.blunder": 0.01,
+            "opening_prep.opening.mistake": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "positional.opening.blunder": 0.02,
+            "tactical_oversight.opening.mistake": 0.09,
+            "positional.opening.mistake": 0.02,
+            "endgame_technique.opening.inaccuracy": 0,
+            "tactical_oversight.opening.blunder": 0.81,
+            "endgame_technique.opening.blunder": 0,
+            "endgame_technique.opening.mistake": 0,
+            "opening_prep.opening.inaccuracy": 0,
+            "tactical_oversight.opening.inaccuracy": 0.03
+          },
+          "confidence": 0.79
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "skewer": 0,
+            "conversion": 0,
+            "fork": 0,
+            "opposition": 0,
+            "trades": 0,
+            "pawn_structure": 0,
+            "removing_defender": 0.01,
+            "open_files": 0,
+            "trapped_piece": 0.03,
+            "overloaded_piece": 0,
+            "back_rank": 0,
+            "opening_principles": 0.66,
+            "king_safety": 0.01,
+            "defense": 0.01,
+            "passed_pawns": 0,
+            "rook_endgames": 0,
+            "discovered_attack": 0,
+            "pin": 0,
+            "calculation": 0.03,
+            "time_management": 0,
+            "hanging_piece": 0.05,
+            "mate_threat": 0.08,
+            "space_and_center": 0.11,
+            "weak_squares": 0,
+            "piece_activity": 0,
+            "king_activity_endgame": 0
+          },
+          "confidence": 0.63
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.64
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.85,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.41,
+            "1": 0.32,
+            "2": 0.27
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.55
+        }
+      },
+      "usage": {
+        "input_tokens": 2571,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "missed_scholars_mate",
+    "latencyMs": 185,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.34,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.1,
+            "2": 0.21,
+            "3": 0.61
+          },
+          "confidence": 0.34
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "time_pressure": 0,
+            "tactical_oversight": 0.91,
+            "endgame_technique": 0,
+            "unclear": 0.02,
+            "opening_prep": 0.03,
+            "calculation_depth": 0.01,
+            "positional": 0.03
+          },
+          "confidence": 0.88
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.71
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.62
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.mistake": 0.2,
+            "positional.opening.blunder": 0.02,
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.inaccuracy": 0.07,
+            "positional.opening.mistake": 0.03,
+            "tactical_oversight.opening.blunder": 0.38,
+            "opening_prep.opening.blunder": 0.01,
+            "tactical_oversight.opening.inaccuracy": 0.27,
+            "opening_prep.opening.inaccuracy": 0.01,
+            "endgame_technique.opening.mistake": 0,
+            "opening_prep.opening.mistake": 0.01,
+            "endgame_technique.opening.inaccuracy": 0
+          },
+          "confidence": 0.31
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "mate_threat",
+          "probabilities": {
+            "trades": 0,
+            "overloaded_piece": 0,
+            "rook_endgames": 0,
+            "discovered_attack": 0,
+            "pin": 0,
+            "fork": 0,
+            "removing_defender": 0.01,
+            "hanging_piece": 0.02,
+            "skewer": 0,
+            "pawn_structure": 0,
+            "back_rank": 0,
+            "trapped_piece": 0,
+            "passed_pawns": 0,
+            "opposition": 0,
+            "time_management": 0.01,
+            "king_safety": 0.02,
+            "mate_threat": 0.71,
+            "conversion": 0,
+            "open_files": 0,
+            "calculation": 0.08,
+            "weak_squares": 0,
+            "opening_principles": 0.14,
+            "king_activity_endgame": 0,
+            "piece_activity": 0,
+            "space_and_center": 0,
+            "defense": 0.01
+          },
+          "confidence": 0.69
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.18,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.26,
+            "1": 0.3,
+            "2": 0.44
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.71
+        }
+      },
+      "usage": {
+        "input_tokens": 2543,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "missed_knight_fork",
+    "latencyMs": 330,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.94,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.04,
+            "3": 0.96
+          },
+          "confidence": 0.94
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.02,
+            "tactical_oversight": 0.96,
+            "unclear": 0,
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "positional": 0.02,
+            "opening_prep": 0
+          },
+          "confidence": 0.95
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "positional.middlegame.mistake": 0.01,
+            "tactical_oversight.middlegame.inaccuracy": 0.03,
+            "positional.middlegame.inaccuracy": 0.01,
+            "tactical_oversight.middlegame.mistake": 0.05,
+            "endgame_technique.middlegame.mistake": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "tactical_oversight.middlegame.blunder": 0.89,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "positional.middlegame.blunder": 0.01,
+            "opening_prep.middlegame.mistake": 0,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.blunder": 0
+          },
+          "confidence": 0.88
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "calculation": 0.47000000000000003,
+            "time_management": 0,
+            "weak_squares": 0,
+            "passed_pawns": 0,
+            "skewer": 0.01,
+            "king_safety": 0.04,
+            "space_and_center": 0,
+            "opening_principles": 0,
+            "overloaded_piece": 0.05,
+            "opposition": 0,
+            "trapped_piece": 0,
+            "fork": 0.01,
+            "pin": 0,
+            "conversion": 0.03,
+            "removing_defender": 0.14,
+            "piece_activity": 0.01,
+            "open_files": 0.03,
+            "discovered_attack": 0.02,
+            "defense": 0.03,
+            "rook_endgames": 0,
+            "back_rank": 0.09,
+            "hanging_piece": 0.05,
+            "king_activity_endgame": 0,
+            "mate_threat": 0.01,
+            "pawn_structure": 0,
+            "trades": 0.01
+          },
+          "confidence": 0.44
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.74,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.23,
+            "2": 0.75
+          },
+          "confidence": 0.6
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.47
+        }
+      },
+      "usage": {
+        "input_tokens": 2602,
+        "output_tokens": 707
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_defended_pawn",
+    "latencyMs": 220,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.82,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.13,
+            "3": 0.85
+          },
+          "confidence": 0.82
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.19,
+            "endgame_technique": 0,
+            "time_pressure": 0,
+            "tactical_oversight": 0.75,
+            "opening_prep": 0.01,
+            "unclear": 0.01,
+            "calculation_depth": 0.04
+          },
+          "confidence": 0.72
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.58
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "endgame_technique.middlegame.blunder": 0,
+            "opening_prep.middlegame.mistake": 0,
+            "positional.middlegame.inaccuracy": 0.01,
+            "tactical_oversight.middlegame.mistake": 0.09999999999999999,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "tactical_oversight.middlegame.inaccuracy": 0.06,
+            "tactical_oversight.middlegame.blunder": 0.8,
+            "positional.middlegame.mistake": 0.01,
+            "opening_prep.middlegame.blunder": 0.01,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "positional.middlegame.blunder": 0.01
+          },
+          "confidence": 0.78
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "open_files",
+          "probabilities": {
+            "king_activity_endgame": 0,
+            "trades": 0.04,
+            "rook_endgames": 0.02,
+            "opening_principles": 0.01,
+            "overloaded_piece": 0.01,
+            "pin": 0,
+            "pawn_structure": 0,
+            "opposition": 0,
+            "passed_pawns": 0,
+            "discovered_attack": 0,
+            "defense": 0.06,
+            "back_rank": 0.01,
+            "conversion": 0,
+            "calculation": 0.2,
+            "space_and_center": 0,
+            "king_safety": 0.06,
+            "skewer": 0.01,
+            "hanging_piece": 0.17,
+            "fork": 0,
+            "time_management": 0.01,
+            "mate_threat": 0,
+            "weak_squares": 0,
+            "trapped_piece": 0.02,
+            "piece_activity": 0.03,
+            "open_files": 0.3,
+            "removing_defender": 0.05
+          },
+          "confidence": 0.27
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.47
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.18,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.12,
+            "1": 0.59,
+            "2": 0.29
+          },
+          "confidence": 0.38
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 2603,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "endgame_opposition_blunder",
+    "latencyMs": 219,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.61,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.03,
+            "2": 0.3,
+            "3": 0.66
+          },
+          "confidence": 0.61
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "endgame_technique",
+          "probabilities": {
+            "unclear": 0,
+            "calculation_depth": 0.02,
+            "positional": 0.12,
+            "endgame_technique": 0.78,
+            "time_pressure": 0,
+            "opening_prep": 0,
+            "tactical_oversight": 0.08
+          },
+          "confidence": 0.73
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.74
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.59
+        },
+        "template": {
+          "type": "choice",
+          "choice": "endgame_technique.endgame.blunder",
+          "probabilities": {
+            "tactical_oversight.endgame.blunder": 0.12,
+            "opening_prep.endgame.mistake": 0,
+            "opening_prep.endgame.blunder": 0,
+            "tactical_oversight.endgame.mistake": 0.04,
+            "positional.endgame.inaccuracy": 0.04,
+            "endgame_technique.endgame.blunder": 0.45,
+            "opening_prep.endgame.inaccuracy": 0,
+            "endgame_technique.endgame.mistake": 0.13,
+            "positional.endgame.blunder": 0.12,
+            "tactical_oversight.endgame.inaccuracy": 0.02,
+            "positional.endgame.mistake": 0.05,
+            "endgame_technique.endgame.inaccuracy": 0.03
+          },
+          "confidence": 0.4
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opposition",
+          "probabilities": {
+            "piece_activity": 0,
+            "discovered_attack": 0,
+            "trades": 0,
+            "weak_squares": 0,
+            "fork": 0,
+            "time_management": 0,
+            "passed_pawns": 0.08,
+            "pawn_structure": 0,
+            "opening_principles": 0,
+            "hanging_piece": 0,
+            "open_files": 0,
+            "pin": 0,
+            "rook_endgames": 0,
+            "defense": 0.01,
+            "calculation": 0.07,
+            "king_activity_endgame": 0.08,
+            "space_and_center": 0,
+            "conversion": 0.17,
+            "removing_defender": 0,
+            "king_safety": 0,
+            "opposition": 0.59,
+            "back_rank": 0,
+            "mate_threat": 0,
+            "trapped_piece": 0,
+            "skewer": 0,
+            "overloaded_piece": 0
+          },
+          "confidence": 0.56
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.59
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.41
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.84,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.28,
+            "1": 0.59,
+            "2": 0.13
+          },
+          "confidence": 0.38
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.64
+        }
+      },
+      "usage": {
+        "input_tokens": 2555,
+        "output_tokens": 682
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_forking_queen",
+    "latencyMs": 227,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.24,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.78,
+            "1": 0.21,
+            "2": 0.01,
+            "3": 0
+          },
+          "confidence": 0.76
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "unclear",
+          "probabilities": {
+            "endgame_technique": 0,
+            "time_pressure": 0,
+            "opening_prep": 0,
+            "positional": 0.18,
+            "tactical_oversight": 0.15,
+            "unclear": 0.64,
+            "calculation_depth": 0.03
+          },
+          "confidence": 0.57
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.46
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.inaccuracy",
+          "probabilities": {
+            "opening_prep.middlegame.blunder": 0,
+            "endgame_technique.middlegame.blunder": 0,
+            "positional.middlegame.inaccuracy": 0.4,
+            "positional.middlegame.mistake": 0.02,
+            "endgame_technique.middlegame.inaccuracy": 0.01,
+            "positional.middlegame.blunder": 0,
+            "tactical_oversight.middlegame.blunder": 0.01,
+            "tactical_oversight.middlegame.inaccuracy": 0.53,
+            "opening_prep.middlegame.mistake": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "tactical_oversight.middlegame.mistake": 0.03
+          },
+          "confidence": 0.48
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "trades",
+          "probabilities": {
+            "fork": 0.01,
+            "passed_pawns": 0,
+            "rook_endgames": 0.07,
+            "open_files": 0.14,
+            "discovered_attack": 0.01,
+            "skewer": 0.01,
+            "trades": 0.21000000000000002,
+            "king_activity_endgame": 0.01,
+            "pin": 0,
+            "piece_activity": 0.02,
+            "space_and_center": 0,
+            "defense": 0,
+            "hanging_piece": 0.01,
+            "calculation": 0.09,
+            "overloaded_piece": 0.04,
+            "conversion": 0.07,
+            "mate_threat": 0,
+            "trapped_piece": 0,
+            "king_safety": 0.05,
+            "time_management": 0.1,
+            "opposition": 0,
+            "back_rank": 0.01,
+            "weak_squares": 0,
+            "pawn_structure": 0,
+            "opening_principles": 0,
+            "removing_defender": 0.14
+          },
+          "confidence": 0.16
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.26
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.94,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.15,
+            "1": 0.76,
+            "2": 0.09
+          },
+          "confidence": 0.63
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.73
+        }
+      },
+      "usage": {
+        "input_tokens": 2600,
+        "output_tokens": 704
+      }
+    }
+  },
+  {
+    "caseId": "queen_takes_defended_pawn",
+    "latencyMs": 214,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.88,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.09,
+            "3": 0.9
+          },
+          "confidence": 0.88
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "tactical_oversight": 0.83,
+            "time_pressure": 0,
+            "positional": 0.06,
+            "calculation_depth": 0.03,
+            "unclear": 0,
+            "opening_prep": 0,
+            "endgame_technique": 0.08
+          },
+          "confidence": 0.79
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.68
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.endgame.blunder",
+          "probabilities": {
+            "opening_prep.endgame.mistake": 0,
+            "tactical_oversight.endgame.inaccuracy": 0.04,
+            "positional.endgame.blunder": 0.01,
+            "endgame_technique.endgame.inaccuracy": 0,
+            "positional.endgame.inaccuracy": 0,
+            "tactical_oversight.endgame.blunder": 0.79,
+            "endgame_technique.endgame.mistake": 0,
+            "tactical_oversight.endgame.mistake": 0.13,
+            "positional.endgame.mistake": 0,
+            "endgame_technique.endgame.blunder": 0.03,
+            "opening_prep.endgame.blunder": 0,
+            "opening_prep.endgame.inaccuracy": 0
+          },
+          "confidence": 0.76
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "discovered_attack": 0.01,
+            "king_activity_endgame": 0.03,
+            "pin": 0,
+            "trades": 0.04,
+            "hanging_piece": 0.09,
+            "conversion": 0.16,
+            "king_safety": 0,
+            "opposition": 0,
+            "removing_defender": 0.14,
+            "trapped_piece": 0.03,
+            "pawn_structure": 0,
+            "rook_endgames": 0.05,
+            "weak_squares": 0,
+            "fork": 0.01,
+            "piece_activity": 0.01,
+            "open_files": 0.03,
+            "defense": 0.03,
+            "back_rank": 0.02,
+            "calculation": 0.3,
+            "space_and_center": 0,
+            "opening_principles": 0,
+            "skewer": 0.03,
+            "mate_threat": 0,
+            "overloaded_piece": 0.02,
+            "passed_pawns": 0,
+            "time_management": 0
+          },
+          "confidence": 0.27
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.87
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.36,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.09,
+            "1": 0.46,
+            "2": 0.45
+          },
+          "confidence": 0.19
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.49
+        }
+      },
+      "usage": {
+        "input_tokens": 2562,
+        "output_tokens": 681
+      }
+    }
+  },
+  {
+    "caseId": "bishop_sac_unsound",
+    "latencyMs": 231,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.76,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.02,
+            "2": 0.16,
+            "3": 0.81
+          },
+          "confidence": 0.76
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.03,
+            "calculation_depth": 0.13,
+            "endgame_technique": 0,
+            "time_pressure": 0,
+            "unclear": 0,
+            "tactical_oversight": 0.81,
+            "opening_prep": 0.03
+          },
+          "confidence": 0.77
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.67
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.mistake": 0.1,
+            "tactical_oversight.opening.blunder": 0.81,
+            "endgame_technique.opening.inaccuracy": 0,
+            "positional.opening.blunder": 0.01,
+            "opening_prep.opening.inaccuracy": 0,
+            "endgame_technique.opening.mistake": 0,
+            "positional.opening.mistake": 0.01,
+            "opening_prep.opening.blunder": 0,
+            "endgame_technique.opening.blunder": 0,
+            "tactical_oversight.opening.inaccuracy": 0.06,
+            "opening_prep.opening.mistake": 0,
+            "positional.opening.inaccuracy": 0
+          },
+          "confidence": 0.8
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "pin": 0,
+            "overloaded_piece": 0.01,
+            "time_management": 0,
+            "opposition": 0,
+            "piece_activity": 0.01,
+            "fork": 0.01,
+            "king_activity_endgame": 0,
+            "skewer": 0.01,
+            "pawn_structure": 0,
+            "trapped_piece": 0.01,
+            "back_rank": 0,
+            "calculation": 0.23,
+            "mate_threat": 0.05,
+            "king_safety": 0.11,
+            "discovered_attack": 0.01,
+            "passed_pawns": 0,
+            "weak_squares": 0.01,
+            "space_and_center": 0.02,
+            "defense": 0.11,
+            "open_files": 0,
+            "rook_endgames": 0,
+            "removing_defender": 0.09,
+            "trades": 0.01,
+            "hanging_piece": 0.1,
+            "opening_principles": 0.21,
+            "conversion": 0
+          },
+          "confidence": 0.19
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.7
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.49,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.09,
+            "1": 0.33,
+            "2": 0.58
+          },
+          "confidence": 0.23
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.48
+        }
+      },
+      "usage": {
+        "input_tokens": 2581,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "castling_good_move",
+    "latencyMs": 199,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.96,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.15,
+            "1": 0.74,
+            "2": 0.11,
+            "3": 0
+          },
+          "confidence": 0.74
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "opening_prep",
+          "probabilities": {
+            "positional": 0.41,
+            "tactical_oversight": 0.12,
+            "unclear": 0.02,
+            "opening_prep": 0.43,
+            "endgame_technique": 0,
+            "time_pressure": 0,
+            "calculation_depth": 0.02
+          },
+          "confidence": 0.32
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.45
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "template": {
+          "type": "choice",
+          "choice": "positional.opening.inaccuracy",
+          "probabilities": {
+            "positional.opening.inaccuracy": 0.6,
+            "tactical_oversight.opening.inaccuracy": 0.16,
+            "positional.opening.blunder": 0.01,
+            "positional.opening.mistake": 0.1,
+            "opening_prep.opening.inaccuracy": 0.08,
+            "tactical_oversight.opening.mistake": 0.03,
+            "opening_prep.opening.mistake": 0.02,
+            "opening_prep.opening.blunder": 0,
+            "endgame_technique.opening.mistake": 0,
+            "endgame_technique.opening.blunder": 0,
+            "endgame_technique.opening.inaccuracy": 0,
+            "tactical_oversight.opening.blunder": 0
+          },
+          "confidence": 0.56
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "skewer": 0,
+            "open_files": 0,
+            "trades": 0,
+            "removing_defender": 0,
+            "hanging_piece": 0,
+            "calculation": 0.01,
+            "conversion": 0,
+            "defense": 0,
+            "discovered_attack": 0,
+            "king_activity_endgame": 0,
+            "piece_activity": 0,
+            "pawn_structure": 0,
+            "back_rank": 0,
+            "space_and_center": 0.34,
+            "fork": 0,
+            "opening_principles": 0.5700000000000001,
+            "passed_pawns": 0,
+            "overloaded_piece": 0,
+            "pin": 0,
+            "mate_threat": 0,
+            "trapped_piece": 0,
+            "king_safety": 0.05,
+            "weak_squares": 0,
+            "opposition": 0,
+            "rook_endgames": 0,
+            "time_management": 0.02
+          },
+          "confidence": 0.55
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.29
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.22
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.47,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.54,
+            "1": 0.45,
+            "2": 0.01
+          },
+          "confidence": 0.3
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.71
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 691
+      }
+    }
+  },
+  {
+    "caseId": "back_rank_blunder",
+    "latencyMs": 225,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.96,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0,
+            "2": 0.01,
+            "3": 0.98
+          },
+          "confidence": 0.96
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.01,
+            "tactical_oversight": 0.97,
+            "calculation_depth": 0.01,
+            "unclear": 0,
+            "endgame_technique": 0.01,
+            "time_pressure": 0,
+            "opening_prep": 0
+          },
+          "confidence": 0.97
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.58
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "tactical_oversight.middlegame.inaccuracy": 0.02,
+            "positional.middlegame.blunder": 0.01,
+            "positional.middlegame.mistake": 0,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.blunder": 0.91,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "opening_prep.middlegame.mistake": 0,
+            "positional.middlegame.inaccuracy": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "endgame_technique.middlegame.blunder": 0.03,
+            "tactical_oversight.middlegame.mistake": 0.03
+          },
+          "confidence": 0.89
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "back_rank",
+          "probabilities": {
+            "rook_endgames": 0.06,
+            "piece_activity": 0.01,
+            "trapped_piece": 0.01,
+            "weak_squares": 0,
+            "skewer": 0.01,
+            "defense": 0.04,
+            "time_management": 0,
+            "open_files": 0.06,
+            "mate_threat": 0.02,
+            "opposition": 0,
+            "trades": 0.01,
+            "conversion": 0,
+            "overloaded_piece": 0.01,
+            "calculation": 0.16,
+            "passed_pawns": 0,
+            "pawn_structure": 0,
+            "removing_defender": 0.04,
+            "back_rank": 0.46,
+            "opening_principles": 0,
+            "pin": 0,
+            "hanging_piece": 0.1,
+            "fork": 0,
+            "king_activity_endgame": 0,
+            "king_safety": 0.01,
+            "space_and_center": 0,
+            "discovered_attack": 0
+          },
+          "confidence": 0.43
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.25,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.2,
+            "1": 0.35,
+            "2": 0.45
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 2568,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "knight_hangs_on_rim",
+    "latencyMs": 225,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.92,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.06,
+            "3": 0.93
+          },
+          "confidence": 0.92
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.01,
+            "tactical_oversight": 0.91,
+            "unclear": 0,
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "positional": 0.03,
+            "opening_prep": 0.05
+          },
+          "confidence": 0.9
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.mistake": 0.05,
+            "positional.opening.mistake": 0.01,
+            "positional.opening.inaccuracy": 0,
+            "tactical_oversight.opening.inaccuracy": 0.02,
+            "endgame_technique.opening.mistake": 0,
+            "tactical_oversight.opening.blunder": 0.9,
+            "positional.opening.blunder": 0.01,
+            "opening_prep.opening.blunder": 0.01,
+            "opening_prep.opening.inaccuracy": 0,
+            "endgame_technique.opening.blunder": 0,
+            "endgame_technique.opening.inaccuracy": 0,
+            "opening_prep.opening.mistake": 0
+          },
+          "confidence": 0.88
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "calculation": 0.03,
+            "time_management": 0,
+            "weak_squares": 0,
+            "passed_pawns": 0,
+            "king_safety": 0.02,
+            "skewer": 0,
+            "pin": 0,
+            "opening_principles": 0.47000000000000003,
+            "opposition": 0,
+            "conversion": 0,
+            "trapped_piece": 0.05,
+            "fork": 0.01,
+            "space_and_center": 0,
+            "overloaded_piece": 0,
+            "removing_defender": 0.01,
+            "piece_activity": 0.05,
+            "defense": 0.01,
+            "discovered_attack": 0,
+            "open_files": 0,
+            "rook_endgames": 0,
+            "back_rank": 0,
+            "king_activity_endgame": 0,
+            "hanging_piece": 0.14,
+            "mate_threat": 0.2,
+            "pawn_structure": 0,
+            "trades": 0
+          },
+          "confidence": 0.44
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.05,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.25,
+            "1": 0.45,
+            "2": 0.3
+          },
+          "confidence": 0.17
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.52
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "black_hangs_queen",
+    "latencyMs": 263,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.6,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.03,
+            "1": 0.06,
+            "2": 0.19,
+            "3": 0.72
+          },
+          "confidence": 0.6
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.02,
+            "time_pressure": 0,
+            "opening_prep": 0.11,
+            "endgame_technique": 0,
+            "unclear": 0,
+            "positional": 0.04,
+            "tactical_oversight": 0.83
+          },
+          "confidence": 0.79
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.74
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.mistake": 0,
+            "tactical_oversight.opening.inaccuracy": 0.14,
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.mistake": 0.01,
+            "positional.opening.blunder": 0.02,
+            "opening_prep.opening.inaccuracy": 0,
+            "tactical_oversight.opening.mistake": 0.17,
+            "positional.opening.mistake": 0.02,
+            "opening_prep.opening.blunder": 0.01,
+            "endgame_technique.opening.inaccuracy": 0,
+            "tactical_oversight.opening.blunder": 0.61,
+            "positional.opening.inaccuracy": 0.02
+          },
+          "confidence": 0.57
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "defense": 0.02,
+            "open_files": 0,
+            "back_rank": 0,
+            "trapped_piece": 0.03,
+            "passed_pawns": 0,
+            "hanging_piece": 0.08,
+            "pawn_structure": 0,
+            "opening_principles": 0.65,
+            "conversion": 0,
+            "overloaded_piece": 0,
+            "king_activity_endgame": 0,
+            "trades": 0,
+            "fork": 0.01,
+            "opposition": 0,
+            "removing_defender": 0.01,
+            "piece_activity": 0.01,
+            "space_and_center": 0.01,
+            "king_safety": 0.02,
+            "mate_threat": 0.14,
+            "pin": 0,
+            "skewer": 0,
+            "rook_endgames": 0,
+            "calculation": 0.02,
+            "time_management": 0,
+            "discovered_attack": 0,
+            "weak_squares": 0
+          },
+          "confidence": 0.62
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.01,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.3,
+            "1": 0.39,
+            "2": 0.31
+          },
+          "confidence": 0.08
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.56
+        }
+      },
+      "usage": {
+        "input_tokens": 2572,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "hanging_queen_opening",
+    "latencyMs": 281,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.88,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.08,
+            "3": 0.9
+          },
+          "confidence": 0.88
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "opening_prep": 0.15,
+            "calculation_depth": 0.02,
+            "positional": 0.03,
+            "unclear": 0,
+            "tactical_oversight": 0.8
+          },
+          "confidence": 0.76
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.55
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "opening_prep.opening.blunder": 0.01,
+            "endgame_technique.opening.mistake": 0,
+            "opening_prep.opening.inaccuracy": 0,
+            "tactical_oversight.opening.mistake": 0.08,
+            "opening_prep.opening.mistake": 0,
+            "tactical_oversight.opening.inaccuracy": 0.03,
+            "positional.opening.blunder": 0.02,
+            "endgame_technique.opening.inaccuracy": 0,
+            "positional.opening.mistake": 0.02,
+            "tactical_oversight.opening.blunder": 0.83,
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.inaccuracy": 0.01
+          },
+          "confidence": 0.8
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "opening_principles": 0.72,
+            "mate_threat": 0.06,
+            "passed_pawns": 0,
+            "king_safety": 0.01,
+            "fork": 0,
+            "conversion": 0,
+            "discovered_attack": 0,
+            "skewer": 0,
+            "space_and_center": 0.06,
+            "piece_activity": 0.01,
+            "rook_endgames": 0,
+            "weak_squares": 0,
+            "king_activity_endgame": 0,
+            "trades": 0,
+            "removing_defender": 0.01,
+            "calculation": 0.03,
+            "overloaded_piece": 0,
+            "defense": 0.01,
+            "time_management": 0,
+            "open_files": 0,
+            "back_rank": 0,
+            "trapped_piece": 0.04,
+            "pin": 0,
+            "hanging_piece": 0.05,
+            "pawn_structure": 0,
+            "opposition": 0
+          },
+          "confidence": 0.7
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.67
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.86,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.41,
+            "1": 0.31,
+            "2": 0.28
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 2571,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "missed_scholars_mate",
+    "latencyMs": 194,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.43,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.07,
+            "1": 0.08,
+            "2": 0.19,
+            "3": 0.66
+          },
+          "confidence": 0.43
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.03,
+            "tactical_oversight": 0.91,
+            "endgame_technique": 0,
+            "opening_prep": 0.03,
+            "time_pressure": 0,
+            "unclear": 0.02,
+            "calculation_depth": 0.01
+          },
+          "confidence": 0.89
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.7
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.62
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.inaccuracy": 0.06,
+            "opening_prep.opening.inaccuracy": 0.01,
+            "opening_prep.opening.blunder": 0.01,
+            "endgame_technique.opening.mistake": 0,
+            "tactical_oversight.opening.blunder": 0.4,
+            "tactical_oversight.opening.inaccuracy": 0.28,
+            "positional.opening.blunder": 0.01,
+            "opening_prep.opening.mistake": 0,
+            "positional.opening.mistake": 0.03,
+            "tactical_oversight.opening.mistake": 0.2,
+            "endgame_technique.opening.inaccuracy": 0
+          },
+          "confidence": 0.34
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "mate_threat",
+          "probabilities": {
+            "back_rank": 0,
+            "removing_defender": 0.01,
+            "pin": 0,
+            "defense": 0.01,
+            "pawn_structure": 0,
+            "hanging_piece": 0.02,
+            "rook_endgames": 0,
+            "piece_activity": 0,
+            "king_activity_endgame": 0,
+            "conversion": 0,
+            "trapped_piece": 0,
+            "fork": 0,
+            "time_management": 0.01,
+            "opening_principles": 0.16,
+            "space_and_center": 0,
+            "calculation": 0.07,
+            "overloaded_piece": 0,
+            "mate_threat": 0.6900000000000001,
+            "weak_squares": 0,
+            "king_safety": 0.02,
+            "skewer": 0,
+            "discovered_attack": 0,
+            "opposition": 0,
+            "trades": 0,
+            "passed_pawns": 0,
+            "open_files": 0
+          },
+          "confidence": 0.67
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.19,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.26,
+            "1": 0.28,
+            "2": 0.46
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.71
+        }
+      },
+      "usage": {
+        "input_tokens": 2543,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "missed_knight_fork",
+    "latencyMs": 292,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.95,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.04,
+            "3": 0.96
+          },
+          "confidence": 0.95
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.01,
+            "time_pressure": 0,
+            "opening_prep": 0,
+            "positional": 0.02,
+            "unclear": 0,
+            "endgame_technique": 0,
+            "tactical_oversight": 0.97
+          },
+          "confidence": 0.95
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "tactical_oversight.middlegame.mistake": 0.06,
+            "tactical_oversight.middlegame.blunder": 0.88,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.blunder": 0,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "positional.middlegame.mistake": 0.01,
+            "endgame_technique.middlegame.mistake": 0,
+            "positional.middlegame.blunder": 0.01,
+            "positional.middlegame.inaccuracy": 0.01,
+            "opening_prep.middlegame.blunder": 0,
+            "tactical_oversight.middlegame.inaccuracy": 0.03,
+            "opening_prep.middlegame.mistake": 0
+          },
+          "confidence": 0.87
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "back_rank": 0.08,
+            "open_files": 0.02,
+            "opening_principles": 0,
+            "passed_pawns": 0,
+            "trapped_piece": 0,
+            "hanging_piece": 0.06,
+            "defense": 0.03,
+            "pawn_structure": 0,
+            "conversion": 0.03,
+            "removing_defender": 0.15000000000000002,
+            "king_activity_endgame": 0,
+            "skewer": 0.01,
+            "fork": 0.01,
+            "opposition": 0,
+            "trades": 0.01,
+            "calculation": 0.46,
+            "mate_threat": 0.02,
+            "rook_endgames": 0,
+            "piece_activity": 0.01,
+            "pin": 0,
+            "space_and_center": 0,
+            "overloaded_piece": 0.04,
+            "king_safety": 0.05,
+            "time_management": 0,
+            "discovered_attack": 0.02,
+            "weak_squares": 0
+          },
+          "confidence": 0.43
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.73,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.23,
+            "2": 0.75
+          },
+          "confidence": 0.6
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.47
+        }
+      },
+      "usage": {
+        "input_tokens": 2602,
+        "output_tokens": 707
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_defended_pawn",
+    "latencyMs": 307,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.82,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.13,
+            "3": 0.85
+          },
+          "confidence": 0.82
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "opening_prep": 0,
+            "calculation_depth": 0.05,
+            "positional": 0.25,
+            "unclear": 0.01,
+            "tactical_oversight": 0.69
+          },
+          "confidence": 0.64
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.58
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "opening_prep.middlegame.blunder": 0,
+            "tactical_oversight.middlegame.blunder": 0.72,
+            "tactical_oversight.middlegame.inaccuracy": 0.08,
+            "opening_prep.middlegame.mistake": 0,
+            "positional.middlegame.blunder": 0.03,
+            "tactical_oversight.middlegame.mistake": 0.13,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "positional.middlegame.mistake": 0.02,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "positional.middlegame.inaccuracy": 0.02,
+            "endgame_technique.middlegame.mistake": 0,
+            "endgame_technique.middlegame.blunder": 0
+          },
+          "confidence": 0.68
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "open_files",
+          "probabilities": {
+            "opening_principles": 0,
+            "mate_threat": 0,
+            "passed_pawns": 0,
+            "king_safety": 0.06,
+            "king_activity_endgame": 0,
+            "skewer": 0.01,
+            "discovered_attack": 0,
+            "conversion": 0.01,
+            "space_and_center": 0,
+            "weak_squares": 0,
+            "rook_endgames": 0.02,
+            "piece_activity": 0.03,
+            "fork": 0,
+            "trades": 0.05,
+            "removing_defender": 0.06,
+            "time_management": 0.01,
+            "overloaded_piece": 0.01,
+            "defense": 0.07,
+            "calculation": 0.14,
+            "open_files": 0.34,
+            "back_rank": 0.01,
+            "trapped_piece": 0.02,
+            "pin": 0,
+            "hanging_piece": 0.15000000000000002,
+            "pawn_structure": 0,
+            "opposition": 0
+          },
+          "confidence": 0.3
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.46
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.16,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.14,
+            "1": 0.57,
+            "2": 0.29
+          },
+          "confidence": 0.35
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.58
+        }
+      },
+      "usage": {
+        "input_tokens": 2603,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "endgame_opposition_blunder",
+    "latencyMs": 329,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.64,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.03,
+            "2": 0.26,
+            "3": 0.7
+          },
+          "confidence": 0.64
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "endgame_technique",
+          "probabilities": {
+            "calculation_depth": 0.02,
+            "unclear": 0,
+            "endgame_technique": 0.75,
+            "time_pressure": 0,
+            "opening_prep": 0,
+            "positional": 0.14,
+            "tactical_oversight": 0.09
+          },
+          "confidence": 0.69
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.58
+        },
+        "template": {
+          "type": "choice",
+          "choice": "endgame_technique.endgame.blunder",
+          "probabilities": {
+            "tactical_oversight.endgame.inaccuracy": 0.02,
+            "tactical_oversight.endgame.mistake": 0.03,
+            "opening_prep.endgame.blunder": 0,
+            "opening_prep.endgame.inaccuracy": 0,
+            "endgame_technique.endgame.mistake": 0.15000000000000002,
+            "endgame_technique.endgame.blunder": 0.5,
+            "opening_prep.endgame.mistake": 0,
+            "positional.endgame.mistake": 0.04,
+            "positional.endgame.blunder": 0.09,
+            "positional.endgame.inaccuracy": 0.03,
+            "endgame_technique.endgame.inaccuracy": 0.04,
+            "tactical_oversight.endgame.blunder": 0.1
+          },
+          "confidence": 0.45
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opposition",
+          "probabilities": {
+            "back_rank": 0,
+            "conversion": 0.14,
+            "open_files": 0,
+            "trapped_piece": 0,
+            "defense": 0.01,
+            "hanging_piece": 0,
+            "passed_pawns": 0.08,
+            "opening_principles": 0,
+            "pawn_structure": 0,
+            "removing_defender": 0,
+            "king_activity_endgame": 0.11,
+            "skewer": 0,
+            "fork": 0,
+            "opposition": 0.56,
+            "trades": 0,
+            "piece_activity": 0,
+            "mate_threat": 0,
+            "king_safety": 0,
+            "overloaded_piece": 0,
+            "pin": 0,
+            "space_and_center": 0,
+            "calculation": 0.09,
+            "rook_endgames": 0,
+            "time_management": 0,
+            "discovered_attack": 0,
+            "weak_squares": 0
+          },
+          "confidence": 0.54
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.94,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.24,
+            "1": 0.58,
+            "2": 0.18
+          },
+          "confidence": 0.38
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 2555,
+        "output_tokens": 682
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_forking_queen",
+    "latencyMs": 248,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.17,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.84,
+            "1": 0.15,
+            "2": 0.01,
+            "3": 0
+          },
+          "confidence": 0.83
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "unclear",
+          "probabilities": {
+            "calculation_depth": 0.02,
+            "endgame_technique": 0,
+            "positional": 0.15,
+            "time_pressure": 0.01,
+            "unclear": 0.7,
+            "opening_prep": 0,
+            "tactical_oversight": 0.12
+          },
+          "confidence": 0.65
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.23
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.45
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.inaccuracy",
+          "probabilities": {
+            "tactical_oversight.middlegame.mistake": 0.03,
+            "opening_prep.middlegame.mistake": 0,
+            "endgame_technique.middlegame.blunder": 0,
+            "positional.middlegame.inaccuracy": 0.4,
+            "endgame_technique.middlegame.mistake": 0,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "tactical_oversight.middlegame.blunder": 0.01,
+            "positional.middlegame.mistake": 0.02,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "tactical_oversight.middlegame.inaccuracy": 0.53,
+            "positional.middlegame.blunder": 0
+          },
+          "confidence": 0.48
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "trades",
+          "probabilities": {
+            "overloaded_piece": 0.03,
+            "piece_activity": 0.02,
+            "skewer": 0.01,
+            "defense": 0,
+            "weak_squares": 0,
+            "king_activity_endgame": 0,
+            "trades": 0.23,
+            "space_and_center": 0,
+            "pawn_structure": 0,
+            "removing_defender": 0.16,
+            "opening_principles": 0,
+            "calculation": 0.07,
+            "rook_endgames": 0.06,
+            "hanging_piece": 0.01,
+            "time_management": 0.1,
+            "trapped_piece": 0,
+            "discovered_attack": 0.01,
+            "passed_pawns": 0,
+            "opposition": 0,
+            "pin": 0,
+            "conversion": 0.07,
+            "mate_threat": 0,
+            "open_files": 0.17,
+            "king_safety": 0.04,
+            "fork": 0.01,
+            "back_rank": 0.01
+          },
+          "confidence": 0.19
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.92,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.15,
+            "1": 0.77,
+            "2": 0.08
+          },
+          "confidence": 0.65
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.75
+        }
+      },
+      "usage": {
+        "input_tokens": 2600,
+        "output_tokens": 704
+      }
+    }
+  },
+  {
+    "caseId": "queen_takes_defended_pawn",
+    "latencyMs": 273,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.91,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.07,
+            "3": 0.92
+          },
+          "confidence": 0.91
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "opening_prep": 0,
+            "time_pressure": 0,
+            "tactical_oversight": 0.84,
+            "unclear": 0,
+            "positional": 0.05,
+            "endgame_technique": 0.08,
+            "calculation_depth": 0.03
+          },
+          "confidence": 0.8
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.7
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.endgame.blunder",
+          "probabilities": {
+            "positional.endgame.mistake": 0,
+            "opening_prep.endgame.inaccuracy": 0,
+            "tactical_oversight.endgame.blunder": 0.78,
+            "endgame_technique.endgame.blunder": 0.05,
+            "opening_prep.endgame.mistake": 0,
+            "positional.endgame.blunder": 0.01,
+            "endgame_technique.endgame.mistake": 0,
+            "endgame_technique.endgame.inaccuracy": 0,
+            "opening_prep.endgame.blunder": 0,
+            "tactical_oversight.endgame.inaccuracy": 0.05,
+            "positional.endgame.inaccuracy": 0,
+            "tactical_oversight.endgame.mistake": 0.11
+          },
+          "confidence": 0.75
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "pawn_structure": 0,
+            "piece_activity": 0.01,
+            "removing_defender": 0.16,
+            "passed_pawns": 0,
+            "discovered_attack": 0.01,
+            "back_rank": 0.02,
+            "hanging_piece": 0.09,
+            "trades": 0.04,
+            "king_activity_endgame": 0.02,
+            "rook_endgames": 0.05,
+            "fork": 0.01,
+            "defense": 0.02,
+            "opening_principles": 0,
+            "mate_threat": 0,
+            "skewer": 0.04,
+            "space_and_center": 0,
+            "king_safety": 0,
+            "calculation": 0.31,
+            "opposition": 0,
+            "open_files": 0.03,
+            "time_management": 0,
+            "conversion": 0.13,
+            "trapped_piece": 0.03,
+            "pin": 0,
+            "weak_squares": 0,
+            "overloaded_piece": 0.03
+          },
+          "confidence": 0.27
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.88
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.38,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.1,
+            "1": 0.43,
+            "2": 0.47
+          },
+          "confidence": 0.08
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 2562,
+        "output_tokens": 681
+      }
+    }
+  },
+  {
+    "caseId": "bishop_sac_unsound",
+    "latencyMs": 243,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.76,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.02,
+            "2": 0.16,
+            "3": 0.8
+          },
+          "confidence": 0.76
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "opening_prep": 0.02,
+            "time_pressure": 0,
+            "unclear": 0,
+            "tactical_oversight": 0.84,
+            "positional": 0.03,
+            "calculation_depth": 0.11,
+            "endgame_technique": 0
+          },
+          "confidence": 0.8
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.mistake": 0,
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "opening_prep.opening.inaccuracy": 0,
+            "opening_prep.opening.mistake": 0,
+            "opening_prep.opening.blunder": 0,
+            "tactical_oversight.opening.inaccuracy": 0.06,
+            "positional.opening.blunder": 0.01,
+            "tactical_oversight.opening.mistake": 0.13,
+            "endgame_technique.opening.inaccuracy": 0,
+            "positional.opening.mistake": 0.01,
+            "tactical_oversight.opening.blunder": 0.78
+          },
+          "confidence": 0.75
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "overloaded_piece": 0.01,
+            "skewer": 0,
+            "calculation": 0.22,
+            "back_rank": 0,
+            "trapped_piece": 0.01,
+            "space_and_center": 0.01,
+            "piece_activity": 0,
+            "mate_threat": 0.05,
+            "king_activity_endgame": 0,
+            "removing_defender": 0.1,
+            "trades": 0.01,
+            "king_safety": 0.13,
+            "opening_principles": 0.16,
+            "fork": 0.01,
+            "weak_squares": 0,
+            "discovered_attack": 0,
+            "passed_pawns": 0,
+            "rook_endgames": 0,
+            "pin": 0,
+            "opposition": 0,
+            "conversion": 0,
+            "pawn_structure": 0,
+            "time_management": 0,
+            "open_files": 0,
+            "hanging_piece": 0.16,
+            "defense": 0.13
+          },
+          "confidence": 0.18
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.69
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.53,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.3,
+            "2": 0.62
+          },
+          "confidence": 0.3
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.49
+        }
+      },
+      "usage": {
+        "input_tokens": 2581,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "castling_good_move",
+    "latencyMs": 198,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.98,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.15,
+            "1": 0.73,
+            "2": 0.12,
+            "3": 0
+          },
+          "confidence": 0.72
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "positional",
+          "probabilities": {
+            "unclear": 0.03,
+            "calculation_depth": 0.03,
+            "endgame_technique": 0,
+            "positional": 0.48,
+            "opening_prep": 0.34,
+            "time_pressure": 0,
+            "tactical_oversight": 0.12
+          },
+          "confidence": 0.38
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "template": {
+          "type": "choice",
+          "choice": "positional.opening.inaccuracy",
+          "probabilities": {
+            "positional.opening.blunder": 0.01,
+            "positional.opening.mistake": 0.11,
+            "opening_prep.opening.blunder": 0,
+            "endgame_technique.opening.blunder": 0,
+            "tactical_oversight.opening.mistake": 0.04,
+            "positional.opening.inaccuracy": 0.64,
+            "opening_prep.opening.mistake": 0.02,
+            "tactical_oversight.opening.blunder": 0,
+            "endgame_technique.opening.mistake": 0,
+            "endgame_technique.opening.inaccuracy": 0,
+            "opening_prep.opening.inaccuracy": 0.05,
+            "tactical_oversight.opening.inaccuracy": 0.13
+          },
+          "confidence": 0.61
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "mate_threat": 0,
+            "overloaded_piece": 0,
+            "pawn_structure": 0,
+            "fork": 0,
+            "open_files": 0,
+            "calculation": 0.01,
+            "passed_pawns": 0,
+            "weak_squares": 0,
+            "opposition": 0,
+            "hanging_piece": 0,
+            "defense": 0,
+            "time_management": 0.03,
+            "skewer": 0,
+            "trapped_piece": 0,
+            "back_rank": 0,
+            "pin": 0,
+            "piece_activity": 0,
+            "rook_endgames": 0,
+            "discovered_attack": 0,
+            "king_safety": 0.08,
+            "removing_defender": 0,
+            "space_and_center": 0.37,
+            "conversion": 0,
+            "opening_principles": 0.51,
+            "king_activity_endgame": 0,
+            "trades": 0
+          },
+          "confidence": 0.48
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.32
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.28
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.26
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.48,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.54,
+            "1": 0.45,
+            "2": 0.01
+          },
+          "confidence": 0.28
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 691
+      }
+    }
+  },
+  {
+    "caseId": "back_rank_blunder",
+    "latencyMs": 168,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.93,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.02,
+            "3": 0.96
+          },
+          "confidence": 0.93
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "unclear": 0,
+            "opening_prep": 0,
+            "tactical_oversight": 0.97,
+            "calculation_depth": 0.01,
+            "positional": 0.01,
+            "endgame_technique": 0.01,
+            "time_pressure": 0
+          },
+          "confidence": 0.97
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "tactical_oversight.middlegame.blunder": 0.92,
+            "opening_prep.middlegame.blunder": 0,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "positional.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.mistake": 0.03,
+            "tactical_oversight.middlegame.inaccuracy": 0.02,
+            "positional.middlegame.blunder": 0,
+            "endgame_technique.middlegame.blunder": 0.03,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "positional.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "opening_prep.middlegame.mistake": 0
+          },
+          "confidence": 0.91
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "back_rank",
+          "probabilities": {
+            "trades": 0.01,
+            "king_safety": 0.01,
+            "pin": 0,
+            "mate_threat": 0.02,
+            "conversion": 0,
+            "calculation": 0.16,
+            "back_rank": 0.4,
+            "passed_pawns": 0,
+            "defense": 0.04,
+            "opening_principles": 0,
+            "rook_endgames": 0.07,
+            "time_management": 0,
+            "discovered_attack": 0.01,
+            "pawn_structure": 0,
+            "piece_activity": 0.02,
+            "trapped_piece": 0.02,
+            "fork": 0,
+            "skewer": 0.01,
+            "space_and_center": 0,
+            "overloaded_piece": 0.01,
+            "open_files": 0.07,
+            "opposition": 0,
+            "king_activity_endgame": 0,
+            "weak_squares": 0,
+            "hanging_piece": 0.1,
+            "removing_defender": 0.04
+          },
+          "confidence": 0.38
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.21,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.22,
+            "1": 0.35,
+            "2": 0.43
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 2568,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "knight_hangs_on_rim",
+    "latencyMs": 447,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.89,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.08,
+            "3": 0.91
+          },
+          "confidence": 0.89
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "endgame_technique": 0,
+            "tactical_oversight": 0.9,
+            "time_pressure": 0,
+            "unclear": 0,
+            "calculation_depth": 0.01,
+            "positional": 0.04,
+            "opening_prep": 0.05
+          },
+          "confidence": 0.87
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.inaccuracy": 0.04,
+            "opening_prep.opening.mistake": 0,
+            "endgame_technique.opening.blunder": 0,
+            "tactical_oversight.opening.mistake": 0.06,
+            "endgame_technique.opening.mistake": 0,
+            "endgame_technique.opening.inaccuracy": 0,
+            "opening_prep.opening.inaccuracy": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "tactical_oversight.opening.blunder": 0.86,
+            "positional.opening.mistake": 0.01,
+            "opening_prep.opening.blunder": 0.01,
+            "positional.opening.blunder": 0.01
+          },
+          "confidence": 0.84
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "fork": 0.01,
+            "hanging_piece": 0.09,
+            "king_safety": 0.02,
+            "trapped_piece": 0.04,
+            "open_files": 0,
+            "overloaded_piece": 0,
+            "opening_principles": 0.54,
+            "rook_endgames": 0,
+            "time_management": 0,
+            "pawn_structure": 0,
+            "skewer": 0,
+            "discovered_attack": 0,
+            "weak_squares": 0,
+            "pin": 0,
+            "back_rank": 0,
+            "conversion": 0,
+            "opposition": 0,
+            "passed_pawns": 0,
+            "mate_threat": 0.19,
+            "space_and_center": 0,
+            "trades": 0,
+            "removing_defender": 0.02,
+            "piece_activity": 0.04,
+            "king_activity_endgame": 0,
+            "calculation": 0.04,
+            "defense": 0.01
+          },
+          "confidence": 0.51
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.03,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.25,
+            "1": 0.46,
+            "2": 0.29
+          },
+          "confidence": 0.19
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "black_hangs_queen",
+    "latencyMs": 212,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.58,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.03,
+            "1": 0.05,
+            "2": 0.21,
+            "3": 0.71
+          },
+          "confidence": 0.58
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "unclear": 0,
+            "calculation_depth": 0.02,
+            "endgame_technique": 0,
+            "positional": 0.05,
+            "opening_prep": 0.12,
+            "time_pressure": 0,
+            "tactical_oversight": 0.81
+          },
+          "confidence": 0.78
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.55
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "positional.opening.blunder": 0.01,
+            "positional.opening.mistake": 0.03,
+            "opening_prep.opening.blunder": 0.01,
+            "endgame_technique.opening.blunder": 0,
+            "tactical_oversight.opening.mistake": 0.18,
+            "positional.opening.inaccuracy": 0.02,
+            "opening_prep.opening.mistake": 0.01,
+            "tactical_oversight.opening.blunder": 0.58,
+            "endgame_technique.opening.mistake": 0,
+            "endgame_technique.opening.inaccuracy": 0,
+            "opening_prep.opening.inaccuracy": 0,
+            "tactical_oversight.opening.inaccuracy": 0.16
+          },
+          "confidence": 0.54
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "mate_threat": 0.15000000000000002,
+            "overloaded_piece": 0,
+            "calculation": 0.03,
+            "pawn_structure": 0,
+            "open_files": 0,
+            "fork": 0.01,
+            "passed_pawns": 0,
+            "defense": 0.02,
+            "opposition": 0,
+            "hanging_piece": 0.09999999999999999,
+            "weak_squares": 0,
+            "piece_activity": 0.01,
+            "skewer": 0,
+            "rook_endgames": 0,
+            "back_rank": 0,
+            "pin": 0,
+            "time_management": 0,
+            "trapped_piece": 0.04,
+            "discovered_attack": 0,
+            "king_safety": 0.02,
+            "removing_defender": 0.01,
+            "space_and_center": 0.01,
+            "conversion": 0,
+            "opening_principles": 0.6,
+            "king_activity_endgame": 0,
+            "trades": 0
+          },
+          "confidence": 0.58
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.06,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.27,
+            "1": 0.4,
+            "2": 0.33
+          },
+          "confidence": 0.09
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 2572,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "hanging_queen_opening",
+    "latencyMs": 322,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.9,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.08,
+            "3": 0.91
+          },
+          "confidence": 0.9
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "tactical_oversight": 0.84,
+            "positional": 0.03,
+            "endgame_technique": 0,
+            "calculation_depth": 0.02,
+            "opening_prep": 0.11,
+            "unclear": 0,
+            "time_pressure": 0
+          },
+          "confidence": 0.81
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.mistake": 0,
+            "positional.opening.blunder": 0.02,
+            "opening_prep.opening.inaccuracy": 0,
+            "positional.opening.mistake": 0.01,
+            "tactical_oversight.opening.blunder": 0.84,
+            "tactical_oversight.opening.mistake": 0.08,
+            "endgame_technique.opening.inaccuracy": 0,
+            "endgame_technique.opening.mistake": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "opening_prep.opening.blunder": 0.01,
+            "tactical_oversight.opening.inaccuracy": 0.03
+          },
+          "confidence": 0.82
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "king_activity_endgame": 0,
+            "discovered_attack": 0,
+            "weak_squares": 0,
+            "pin": 0,
+            "trades": 0,
+            "opposition": 0,
+            "pawn_structure": 0,
+            "conversion": 0,
+            "piece_activity": 0.01,
+            "king_safety": 0.01,
+            "back_rank": 0,
+            "removing_defender": 0,
+            "rook_endgames": 0,
+            "defense": 0.01,
+            "space_and_center": 0.06999999999999999,
+            "calculation": 0.02,
+            "passed_pawns": 0,
+            "mate_threat": 0.06,
+            "trapped_piece": 0.04,
+            "overloaded_piece": 0,
+            "skewer": 0,
+            "fork": 0,
+            "open_files": 0,
+            "opening_principles": 0.7,
+            "time_management": 0,
+            "hanging_piece": 0.08
+          },
+          "confidence": 0.68
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.87,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.41,
+            "1": 0.31,
+            "2": 0.28
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 2571,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "missed_scholars_mate",
+    "latencyMs": 395,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.43,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.08,
+            "2": 0.17,
+            "3": 0.67
+          },
+          "confidence": 0.43
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.01,
+            "positional": 0.04,
+            "time_pressure": 0,
+            "unclear": 0.02,
+            "opening_prep": 0.04,
+            "tactical_oversight": 0.89,
+            "endgame_technique": 0
+          },
+          "confidence": 0.87
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.7
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.62
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "opening_prep.opening.inaccuracy": 0.01,
+            "opening_prep.opening.blunder": 0.01,
+            "tactical_oversight.opening.blunder": 0.45,
+            "tactical_oversight.opening.inaccuracy": 0.25,
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.mistake": 0.01,
+            "endgame_technique.opening.mistake": 0,
+            "positional.opening.mistake": 0.02,
+            "positional.opening.blunder": 0.01,
+            "tactical_oversight.opening.mistake": 0.19,
+            "positional.opening.inaccuracy": 0.05,
+            "endgame_technique.opening.inaccuracy": 0
+          },
+          "confidence": 0.39
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "mate_threat",
+          "probabilities": {
+            "king_activity_endgame": 0,
+            "hanging_piece": 0.03,
+            "open_files": 0,
+            "defense": 0.01,
+            "skewer": 0,
+            "mate_threat": 0.63,
+            "back_rank": 0,
+            "trades": 0,
+            "conversion": 0.01,
+            "weak_squares": 0,
+            "space_and_center": 0,
+            "piece_activity": 0.01,
+            "fork": 0.01,
+            "overloaded_piece": 0,
+            "removing_defender": 0.01,
+            "pawn_structure": 0,
+            "king_safety": 0.02,
+            "trapped_piece": 0,
+            "pin": 0,
+            "calculation": 0.08,
+            "discovered_attack": 0,
+            "rook_endgames": 0,
+            "opposition": 0,
+            "opening_principles": 0.18000000000000002,
+            "passed_pawns": 0,
+            "time_management": 0.01
+          },
+          "confidence": 0.6
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.54
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.88
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.17,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.28,
+            "1": 0.26,
+            "2": 0.46
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.74
+        }
+      },
+      "usage": {
+        "input_tokens": 2543,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "missed_knight_fork",
+    "latencyMs": 180,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.95,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.04,
+            "3": 0.96
+          },
+          "confidence": 0.95
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "endgame_technique": 0,
+            "tactical_oversight": 0.96,
+            "calculation_depth": 0.02,
+            "unclear": 0,
+            "positional": 0.02,
+            "time_pressure": 0,
+            "opening_prep": 0
+          },
+          "confidence": 0.95
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.71
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "tactical_oversight.middlegame.inaccuracy": 0.03,
+            "tactical_oversight.middlegame.mistake": 0.05,
+            "positional.middlegame.mistake": 0.01,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "positional.middlegame.inaccuracy": 0.01,
+            "opening_prep.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.blunder": 0.89,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "endgame_technique.middlegame.blunder": 0,
+            "positional.middlegame.blunder": 0.01
+          },
+          "confidence": 0.88
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "rook_endgames": 0,
+            "piece_activity": 0.01,
+            "trapped_piece": 0.01,
+            "weak_squares": 0,
+            "skewer": 0.01,
+            "defense": 0.02,
+            "time_management": 0,
+            "open_files": 0.02,
+            "mate_threat": 0.01,
+            "opposition": 0,
+            "trades": 0.01,
+            "conversion": 0.03,
+            "overloaded_piece": 0.05,
+            "calculation": 0.49,
+            "hanging_piece": 0.05,
+            "discovered_attack": 0.02,
+            "removing_defender": 0.15000000000000002,
+            "opening_principles": 0,
+            "passed_pawns": 0,
+            "pin": 0,
+            "pawn_structure": 0,
+            "king_safety": 0.04,
+            "king_activity_endgame": 0,
+            "space_and_center": 0,
+            "fork": 0.01,
+            "back_rank": 0.07
+          },
+          "confidence": 0.46
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.93
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.71,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.25,
+            "2": 0.73
+          },
+          "confidence": 0.56
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.46
+        }
+      },
+      "usage": {
+        "input_tokens": 2602,
+        "output_tokens": 707
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_defended_pawn",
+    "latencyMs": 217,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.84,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.12,
+            "3": 0.86
+          },
+          "confidence": 0.84
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "unclear": 0.01,
+            "tactical_oversight": 0.7,
+            "calculation_depth": 0.04,
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "positional": 0.25,
+            "opening_prep": 0
+          },
+          "confidence": 0.65
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.76
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.58
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "positional.middlegame.mistake": 0.02,
+            "tactical_oversight.middlegame.inaccuracy": 0.06,
+            "positional.middlegame.inaccuracy": 0.02,
+            "tactical_oversight.middlegame.mistake": 0.13,
+            "endgame_technique.middlegame.mistake": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "tactical_oversight.middlegame.blunder": 0.74,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "positional.middlegame.blunder": 0.03,
+            "opening_prep.middlegame.mistake": 0,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.blunder": 0
+          },
+          "confidence": 0.71
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "open_files",
+          "probabilities": {
+            "calculation": 0.17,
+            "time_management": 0.01,
+            "weak_squares": 0,
+            "passed_pawns": 0,
+            "king_safety": 0.05,
+            "skewer": 0.01,
+            "space_and_center": 0,
+            "opening_principles": 0,
+            "overloaded_piece": 0.01,
+            "conversion": 0,
+            "trapped_piece": 0.02,
+            "fork": 0,
+            "opposition": 0,
+            "pin": 0,
+            "piece_activity": 0.02,
+            "removing_defender": 0.04,
+            "defense": 0.08,
+            "discovered_attack": 0,
+            "open_files": 0.33,
+            "rook_endgames": 0.02,
+            "back_rank": 0.01,
+            "hanging_piece": 0.18000000000000002,
+            "king_activity_endgame": 0,
+            "mate_threat": 0,
+            "pawn_structure": 0,
+            "trades": 0.04
+          },
+          "confidence": 0.29
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.47
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.11,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.16,
+            "1": 0.57,
+            "2": 0.27
+          },
+          "confidence": 0.36
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.55
+        }
+      },
+      "usage": {
+        "input_tokens": 2603,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "endgame_opposition_blunder",
+    "latencyMs": 170,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.67,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.03,
+            "2": 0.24,
+            "3": 0.72
+          },
+          "confidence": 0.67
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "endgame_technique",
+          "probabilities": {
+            "time_pressure": 0,
+            "endgame_technique": 0.77,
+            "positional": 0.11,
+            "calculation_depth": 0.02,
+            "unclear": 0,
+            "tactical_oversight": 0.1,
+            "opening_prep": 0
+          },
+          "confidence": 0.72
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "template": {
+          "type": "choice",
+          "choice": "endgame_technique.endgame.blunder",
+          "probabilities": {
+            "endgame_technique.endgame.blunder": 0.53,
+            "positional.endgame.inaccuracy": 0.03,
+            "tactical_oversight.endgame.inaccuracy": 0.02,
+            "opening_prep.endgame.inaccuracy": 0,
+            "tactical_oversight.endgame.blunder": 0.14,
+            "endgame_technique.endgame.mistake": 0.1,
+            "tactical_oversight.endgame.mistake": 0.03,
+            "opening_prep.endgame.mistake": 0,
+            "positional.endgame.mistake": 0.03,
+            "endgame_technique.endgame.inaccuracy": 0.04,
+            "opening_prep.endgame.blunder": 0,
+            "positional.endgame.blunder": 0.08
+          },
+          "confidence": 0.48
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opposition",
+          "probabilities": {
+            "calculation": 0.07,
+            "hanging_piece": 0,
+            "open_files": 0,
+            "opening_principles": 0,
+            "fork": 0,
+            "king_safety": 0,
+            "piece_activity": 0,
+            "discovered_attack": 0,
+            "overloaded_piece": 0,
+            "king_activity_endgame": 0.08,
+            "trapped_piece": 0,
+            "opposition": 0.58,
+            "conversion": 0.17,
+            "space_and_center": 0,
+            "back_rank": 0,
+            "defense": 0.01,
+            "skewer": 0,
+            "passed_pawns": 0.09,
+            "trades": 0,
+            "removing_defender": 0,
+            "time_management": 0,
+            "weak_squares": 0,
+            "mate_threat": 0,
+            "rook_endgames": 0,
+            "pawn_structure": 0,
+            "pin": 0
+          },
+          "confidence": 0.55
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.64
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.9,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.26,
+            "1": 0.58,
+            "2": 0.16
+          },
+          "confidence": 0.38
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.66
+        }
+      },
+      "usage": {
+        "input_tokens": 2555,
+        "output_tokens": 682
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_forking_queen",
+    "latencyMs": 198,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.14,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.88,
+            "1": 0.11,
+            "2": 0.01,
+            "3": 0
+          },
+          "confidence": 0.86
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "unclear",
+          "probabilities": {
+            "endgame_technique": 0,
+            "calculation_depth": 0.02,
+            "tactical_oversight": 0.11,
+            "unclear": 0.75,
+            "positional": 0.12,
+            "time_pressure": 0,
+            "opening_prep": 0
+          },
+          "confidence": 0.7
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.23
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.48
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.inaccuracy",
+          "probabilities": {
+            "tactical_oversight.middlegame.mistake": 0.02,
+            "opening_prep.middlegame.mistake": 0,
+            "positional.middlegame.inaccuracy": 0.4,
+            "positional.middlegame.mistake": 0.02,
+            "tactical_oversight.middlegame.inaccuracy": 0.54,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "endgame_technique.middlegame.blunder": 0,
+            "positional.middlegame.blunder": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.blunder": 0.01,
+            "opening_prep.middlegame.inaccuracy": 0
+          },
+          "confidence": 0.49
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "trades",
+          "probabilities": {
+            "pawn_structure": 0,
+            "piece_activity": 0.02,
+            "passed_pawns": 0,
+            "removing_defender": 0.14,
+            "back_rank": 0.01,
+            "discovered_attack": 0.01,
+            "hanging_piece": 0.01,
+            "trades": 0.27,
+            "king_activity_endgame": 0.01,
+            "rook_endgames": 0.05,
+            "fork": 0.01,
+            "skewer": 0.01,
+            "opening_principles": 0,
+            "mate_threat": 0,
+            "defense": 0,
+            "space_and_center": 0,
+            "king_safety": 0.04,
+            "conversion": 0.05,
+            "opposition": 0,
+            "open_files": 0.16,
+            "time_management": 0.1,
+            "calculation": 0.07,
+            "overloaded_piece": 0.03,
+            "pin": 0,
+            "weak_squares": 0,
+            "trapped_piece": 0
+          },
+          "confidence": 0.24
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.64
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.23
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.94,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.14,
+            "1": 0.78,
+            "2": 0.08
+          },
+          "confidence": 0.67
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.74
+        }
+      },
+      "usage": {
+        "input_tokens": 2600,
+        "output_tokens": 704
+      }
+    }
+  },
+  {
+    "caseId": "queen_takes_defended_pawn",
+    "latencyMs": 212,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.9,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.08,
+            "3": 0.92
+          },
+          "confidence": 0.9
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.03,
+            "time_pressure": 0,
+            "tactical_oversight": 0.84,
+            "unclear": 0,
+            "opening_prep": 0,
+            "endgame_technique": 0.08,
+            "positional": 0.05
+          },
+          "confidence": 0.8
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.68
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.endgame.blunder",
+          "probabilities": {
+            "tactical_oversight.endgame.blunder": 0.78,
+            "opening_prep.endgame.mistake": 0,
+            "tactical_oversight.endgame.inaccuracy": 0.07,
+            "opening_prep.endgame.blunder": 0,
+            "endgame_technique.endgame.inaccuracy": 0,
+            "positional.endgame.mistake": 0,
+            "positional.endgame.blunder": 0.01,
+            "tactical_oversight.endgame.mistake": 0.11,
+            "endgame_technique.endgame.blunder": 0.03,
+            "opening_prep.endgame.inaccuracy": 0,
+            "endgame_technique.endgame.mistake": 0,
+            "positional.endgame.inaccuracy": 0
+          },
+          "confidence": 0.75
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "fork": 0.02,
+            "king_activity_endgame": 0.02,
+            "mate_threat": 0,
+            "hanging_piece": 0.09,
+            "open_files": 0.03,
+            "conversion": 0.18000000000000002,
+            "opposition": 0,
+            "discovered_attack": 0.01,
+            "defense": 0.04,
+            "passed_pawns": 0,
+            "pin": 0,
+            "time_management": 0,
+            "rook_endgames": 0.05,
+            "weak_squares": 0,
+            "trades": 0.04,
+            "removing_defender": 0.15,
+            "back_rank": 0.01,
+            "king_safety": 0,
+            "space_and_center": 0,
+            "opening_principles": 0,
+            "pawn_structure": 0,
+            "piece_activity": 0.01,
+            "calculation": 0.26,
+            "skewer": 0.03,
+            "trapped_piece": 0.03,
+            "overloaded_piece": 0.03
+          },
+          "confidence": 0.22
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.87
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.37,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.09,
+            "1": 0.44,
+            "2": 0.47000000000000003
+          },
+          "confidence": 0.06
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.48
+        }
+      },
+      "usage": {
+        "input_tokens": 2562,
+        "output_tokens": 681
+      }
+    }
+  },
+  {
+    "caseId": "bishop_sac_unsound",
+    "latencyMs": 293,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.74,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.02,
+            "2": 0.17,
+            "3": 0.79
+          },
+          "confidence": 0.74
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "tactical_oversight": 0.84,
+            "time_pressure": 0,
+            "calculation_depth": 0.11,
+            "positional": 0.03,
+            "unclear": 0,
+            "endgame_technique": 0,
+            "opening_prep": 0.02
+          },
+          "confidence": 0.8
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.65
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.inaccuracy": 0,
+            "endgame_technique.opening.mistake": 0,
+            "positional.opening.blunder": 0.01,
+            "tactical_oversight.opening.inaccuracy": 0.07,
+            "tactical_oversight.opening.mistake": 0.12,
+            "positional.opening.mistake": 0.01,
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.blunder": 0,
+            "opening_prep.opening.mistake": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "opening_prep.opening.inaccuracy": 0,
+            "tactical_oversight.opening.blunder": 0.78
+          },
+          "confidence": 0.76
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "king_safety": 0.13,
+            "mate_threat": 0.05,
+            "piece_activity": 0,
+            "time_management": 0,
+            "space_and_center": 0.01,
+            "skewer": 0.01,
+            "passed_pawns": 0,
+            "overloaded_piece": 0.01,
+            "removing_defender": 0.1,
+            "rook_endgames": 0,
+            "calculation": 0.23,
+            "king_activity_endgame": 0,
+            "opposition": 0,
+            "pin": 0,
+            "trapped_piece": 0.01,
+            "hanging_piece": 0.12,
+            "conversion": 0.01,
+            "open_files": 0,
+            "discovered_attack": 0.01,
+            "pawn_structure": 0,
+            "trades": 0.01,
+            "defense": 0.1,
+            "fork": 0.01,
+            "back_rank": 0,
+            "opening_principles": 0.19,
+            "weak_squares": 0
+          },
+          "confidence": 0.2
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.7
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.52,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.31,
+            "2": 0.61
+          },
+          "confidence": 0.28
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.49
+        }
+      },
+      "usage": {
+        "input_tokens": 2581,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "castling_good_move",
+    "latencyMs": 225,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.95,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.17,
+            "1": 0.72,
+            "2": 0.11,
+            "3": 0
+          },
+          "confidence": 0.72
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "positional",
+          "probabilities": {
+            "tactical_oversight": 0.11,
+            "positional": 0.43,
+            "endgame_technique": 0,
+            "calculation_depth": 0.03,
+            "unclear": 0.03,
+            "opening_prep": 0.4,
+            "time_pressure": 0
+          },
+          "confidence": 0.34
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.42
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "template": {
+          "type": "choice",
+          "choice": "positional.opening.inaccuracy",
+          "probabilities": {
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.mistake": 0.02,
+            "positional.opening.blunder": 0.01,
+            "opening_prep.opening.blunder": 0,
+            "positional.opening.mistake": 0.11,
+            "tactical_oversight.opening.blunder": 0.01,
+            "tactical_oversight.opening.inaccuracy": 0.15,
+            "endgame_technique.opening.inaccuracy": 0,
+            "endgame_technique.opening.mistake": 0,
+            "positional.opening.inaccuracy": 0.59,
+            "tactical_oversight.opening.mistake": 0.04,
+            "opening_prep.opening.inaccuracy": 0.07
+          },
+          "confidence": 0.54
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "king_activity_endgame": 0,
+            "discovered_attack": 0,
+            "weak_squares": 0,
+            "overloaded_piece": 0,
+            "trapped_piece": 0,
+            "opposition": 0,
+            "pawn_structure": 0,
+            "conversion": 0,
+            "piece_activity": 0,
+            "king_safety": 0.08,
+            "back_rank": 0,
+            "passed_pawns": 0,
+            "rook_endgames": 0,
+            "calculation": 0.01,
+            "space_and_center": 0.34,
+            "removing_defender": 0,
+            "defense": 0,
+            "mate_threat": 0,
+            "trades": 0,
+            "open_files": 0,
+            "skewer": 0,
+            "fork": 0,
+            "pin": 0,
+            "opening_principles": 0.54,
+            "time_management": 0.02,
+            "hanging_piece": 0
+          },
+          "confidence": 0.51
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.32
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.53,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.48,
+            "1": 0.51,
+            "2": 0.01
+          },
+          "confidence": 0.26
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.71
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 691
+      }
+    }
+  },
+  {
+    "caseId": "back_rank_blunder",
+    "latencyMs": 186,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.94,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.02,
+            "3": 0.96
+          },
+          "confidence": 0.94
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "unclear": 0,
+            "opening_prep": 0,
+            "tactical_oversight": 0.97,
+            "calculation_depth": 0.01,
+            "positional": 0.01,
+            "endgame_technique": 0.01,
+            "time_pressure": 0
+          },
+          "confidence": 0.96
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "tactical_oversight.middlegame.blunder": 0.91,
+            "opening_prep.middlegame.mistake": 0,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "positional.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.mistake": 0.03,
+            "tactical_oversight.middlegame.inaccuracy": 0.02,
+            "positional.middlegame.blunder": 0.01,
+            "endgame_technique.middlegame.blunder": 0.03,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "positional.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "opening_prep.middlegame.blunder": 0
+          },
+          "confidence": 0.89
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "back_rank",
+          "probabilities": {
+            "king_activity_endgame": 0.01,
+            "king_safety": 0.01,
+            "pin": 0,
+            "mate_threat": 0.02,
+            "conversion": 0,
+            "discovered_attack": 0.01,
+            "back_rank": 0.38,
+            "passed_pawns": 0,
+            "rook_endgames": 0.06,
+            "opening_principles": 0,
+            "calculation": 0.24,
+            "defense": 0.04,
+            "time_management": 0,
+            "overloaded_piece": 0.01,
+            "trapped_piece": 0.01,
+            "pawn_structure": 0,
+            "fork": 0,
+            "skewer": 0.01,
+            "space_and_center": 0,
+            "piece_activity": 0.01,
+            "open_files": 0.06,
+            "opposition": 0,
+            "trades": 0.01,
+            "weak_squares": 0,
+            "hanging_piece": 0.08,
+            "removing_defender": 0.04
+          },
+          "confidence": 0.34
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.26,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.19,
+            "1": 0.35,
+            "2": 0.46
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.53
+        }
+      },
+      "usage": {
+        "input_tokens": 2568,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "knight_hangs_on_rim",
+    "latencyMs": 208,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.9,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.08,
+            "3": 0.91
+          },
+          "confidence": 0.9
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "tactical_oversight": 0.91,
+            "time_pressure": 0,
+            "positional": 0.04,
+            "calculation_depth": 0.01,
+            "unclear": 0,
+            "opening_prep": 0.04,
+            "endgame_technique": 0
+          },
+          "confidence": 0.89
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.mistake": 0.06,
+            "endgame_technique.opening.mistake": 0,
+            "opening_prep.opening.mistake": 0,
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.blunder": 0.01,
+            "tactical_oversight.opening.blunder": 0.86,
+            "tactical_oversight.opening.inaccuracy": 0.04,
+            "endgame_technique.opening.inaccuracy": 0,
+            "opening_prep.opening.inaccuracy": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "positional.opening.blunder": 0.01,
+            "positional.opening.mistake": 0.01
+          },
+          "confidence": 0.84
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "hanging_piece": 0.11,
+            "king_activity_endgame": 0,
+            "pin": 0,
+            "trades": 0,
+            "discovered_attack": 0,
+            "conversion": 0,
+            "king_safety": 0.02,
+            "opposition": 0,
+            "removing_defender": 0.02,
+            "trapped_piece": 0.05,
+            "pawn_structure": 0,
+            "space_and_center": 0,
+            "weak_squares": 0,
+            "back_rank": 0,
+            "fork": 0.01,
+            "rook_endgames": 0,
+            "defense": 0.01,
+            "open_files": 0,
+            "calculation": 0.03,
+            "piece_activity": 0.06,
+            "skewer": 0,
+            "opening_principles": 0.53,
+            "mate_threat": 0.15000000000000002,
+            "overloaded_piece": 0,
+            "passed_pawns": 0,
+            "time_management": 0
+          },
+          "confidence": 0.5
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.03,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.24,
+            "1": 0.48,
+            "2": 0.28
+          },
+          "confidence": 0.22
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.55
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "black_hangs_queen",
+    "latencyMs": 249,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.7,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.04,
+            "2": 0.17,
+            "3": 0.77
+          },
+          "confidence": 0.7
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.04,
+            "tactical_oversight": 0.82,
+            "time_pressure": 0,
+            "opening_prep": 0.12,
+            "endgame_technique": 0,
+            "unclear": 0,
+            "calculation_depth": 0.02
+          },
+          "confidence": 0.79
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.74
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.blunder": 0,
+            "tactical_oversight.opening.inaccuracy": 0.12,
+            "opening_prep.opening.inaccuracy": 0,
+            "opening_prep.opening.blunder": 0.01,
+            "positional.opening.inaccuracy": 0.02,
+            "tactical_oversight.opening.blunder": 0.63,
+            "endgame_technique.opening.mistake": 0,
+            "positional.opening.mistake": 0.03,
+            "opening_prep.opening.mistake": 0.01,
+            "positional.opening.blunder": 0.02,
+            "endgame_technique.opening.inaccuracy": 0,
+            "tactical_oversight.opening.mistake": 0.16
+          },
+          "confidence": 0.6
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "back_rank": 0,
+            "removing_defender": 0.01,
+            "pin": 0,
+            "defense": 0.02,
+            "piece_activity": 0.01,
+            "hanging_piece": 0.08,
+            "rook_endgames": 0,
+            "pawn_structure": 0,
+            "king_activity_endgame": 0,
+            "conversion": 0,
+            "trapped_piece": 0.05,
+            "fork": 0.01,
+            "time_management": 0,
+            "opening_principles": 0.65,
+            "space_and_center": 0.01,
+            "calculation": 0.02,
+            "overloaded_piece": 0,
+            "mate_threat": 0.12,
+            "weak_squares": 0,
+            "king_safety": 0.02,
+            "opposition": 0,
+            "trades": 0,
+            "skewer": 0,
+            "discovered_attack": 0,
+            "passed_pawns": 0,
+            "open_files": 0
+          },
+          "confidence": 0.62
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.09,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.26,
+            "1": 0.38,
+            "2": 0.36
+          },
+          "confidence": 0.07
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.54
+        }
+      },
+      "usage": {
+        "input_tokens": 2572,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "hanging_queen_opening",
+    "latencyMs": 206,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.87,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.09,
+            "3": 0.89
+          },
+          "confidence": 0.87
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "tactical_oversight": 0.8,
+            "unclear": 0,
+            "opening_prep": 0.14,
+            "positional": 0.04,
+            "calculation_depth": 0.02
+          },
+          "confidence": 0.76
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.54
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.blunder": 0.81,
+            "tactical_oversight.opening.mistake": 0.09,
+            "endgame_technique.opening.inaccuracy": 0,
+            "tactical_oversight.opening.inaccuracy": 0.04,
+            "endgame_technique.opening.mistake": 0,
+            "opening_prep.opening.mistake": 0,
+            "opening_prep.opening.inaccuracy": 0,
+            "positional.opening.blunder": 0.01,
+            "positional.opening.inaccuracy": 0.01,
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.mistake": 0.02,
+            "opening_prep.opening.blunder": 0.01
+          },
+          "confidence": 0.8
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "open_files": 0,
+            "passed_pawns": 0,
+            "piece_activity": 0.01,
+            "conversion": 0,
+            "rook_endgames": 0,
+            "fork": 0,
+            "calculation": 0.02,
+            "pin": 0,
+            "mate_threat": 0.060000000000000005,
+            "trades": 0,
+            "trapped_piece": 0.04,
+            "defense": 0.01,
+            "opposition": 0,
+            "back_rank": 0,
+            "weak_squares": 0,
+            "hanging_piece": 0.04,
+            "opening_principles": 0.7,
+            "pawn_structure": 0,
+            "king_safety": 0.01,
+            "removing_defender": 0,
+            "skewer": 0,
+            "space_and_center": 0.11,
+            "discovered_attack": 0,
+            "time_management": 0,
+            "overloaded_piece": 0,
+            "king_activity_endgame": 0
+          },
+          "confidence": 0.68
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.76
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.68
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.9,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.39,
+            "1": 0.33,
+            "2": 0.28
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.55
+        }
+      },
+      "usage": {
+        "input_tokens": 2571,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "missed_scholars_mate",
+    "latencyMs": 330,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.55,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.06,
+            "1": 0.06,
+            "2": 0.14,
+            "3": 0.74
+          },
+          "confidence": 0.55
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.01,
+            "endgame_technique": 0,
+            "positional": 0.03,
+            "unclear": 0.01,
+            "time_pressure": 0,
+            "opening_prep": 0.02,
+            "tactical_oversight": 0.93
+          },
+          "confidence": 0.9
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.inaccuracy": 0.27,
+            "positional.opening.mistake": 0.02,
+            "endgame_technique.opening.inaccuracy": 0,
+            "opening_prep.opening.blunder": 0.01,
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.inaccuracy": 0.05,
+            "opening_prep.opening.inaccuracy": 0.01,
+            "opening_prep.opening.mistake": 0,
+            "endgame_technique.opening.mistake": 0,
+            "tactical_oversight.opening.blunder": 0.44,
+            "tactical_oversight.opening.mistake": 0.18,
+            "positional.opening.blunder": 0.02
+          },
+          "confidence": 0.38
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "mate_threat",
+          "probabilities": {
+            "skewer": 0,
+            "trades": 0,
+            "piece_activity": 0,
+            "defense": 0.01,
+            "weak_squares": 0,
+            "king_activity_endgame": 0,
+            "pawn_structure": 0,
+            "space_and_center": 0,
+            "calculation": 0.08,
+            "removing_defender": 0.01,
+            "opening_principles": 0.13,
+            "discovered_attack": 0,
+            "rook_endgames": 0,
+            "hanging_piece": 0.02,
+            "passed_pawns": 0,
+            "trapped_piece": 0,
+            "overloaded_piece": 0,
+            "time_management": 0.01,
+            "opposition": 0,
+            "pin": 0,
+            "conversion": 0,
+            "mate_threat": 0.72,
+            "king_safety": 0.02,
+            "open_files": 0,
+            "fork": 0,
+            "back_rank": 0
+          },
+          "confidence": 0.7
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.22,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.26,
+            "1": 0.26,
+            "2": 0.48
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 2543,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "missed_knight_fork",
+    "latencyMs": 233,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.94,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0,
+            "2": 0.04,
+            "3": 0.96
+          },
+          "confidence": 0.94
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "endgame_technique": 0,
+            "calculation_depth": 0.02,
+            "positional": 0.02,
+            "tactical_oversight": 0.96,
+            "time_pressure": 0,
+            "unclear": 0,
+            "opening_prep": 0
+          },
+          "confidence": 0.94
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.71
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "opening_prep.middlegame.blunder": 0,
+            "positional.middlegame.mistake": 0.01,
+            "tactical_oversight.middlegame.inaccuracy": 0.03,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "opening_prep.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.mistake": 0.07,
+            "endgame_technique.middlegame.blunder": 0,
+            "positional.middlegame.blunder": 0.01,
+            "endgame_technique.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.blunder": 0.87,
+            "positional.middlegame.inaccuracy": 0.01
+          },
+          "confidence": 0.86
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "trades": 0.02,
+            "discovered_attack": 0.02,
+            "trapped_piece": 0,
+            "weak_squares": 0,
+            "fork": 0.01,
+            "time_management": 0,
+            "passed_pawns": 0,
+            "pawn_structure": 0,
+            "opening_principles": 0,
+            "hanging_piece": 0.06,
+            "open_files": 0.02,
+            "pin": 0,
+            "rook_endgames": 0,
+            "defense": 0.02,
+            "calculation": 0.5,
+            "king_activity_endgame": 0,
+            "space_and_center": 0,
+            "conversion": 0.03,
+            "removing_defender": 0.12,
+            "opposition": 0,
+            "king_safety": 0.04,
+            "back_rank": 0.08,
+            "mate_threat": 0.01,
+            "piece_activity": 0.01,
+            "skewer": 0.01,
+            "overloaded_piece": 0.05
+          },
+          "confidence": 0.47
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.74,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.22,
+            "2": 0.76
+          },
+          "confidence": 0.61
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.46
+        }
+      },
+      "usage": {
+        "input_tokens": 2602,
+        "output_tokens": 707
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_defended_pawn",
+    "latencyMs": 204,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.83,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.01,
+            "2": 0.12,
+            "3": 0.86
+          },
+          "confidence": 0.83
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.04,
+            "positional": 0.19,
+            "opening_prep": 0,
+            "unclear": 0.01,
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "tactical_oversight": 0.76
+          },
+          "confidence": 0.72
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.76
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "tactical_oversight.middlegame.mistake": 0.14,
+            "tactical_oversight.middlegame.blunder": 0.75,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.blunder": 0,
+            "endgame_technique.middlegame.inaccuracy": 0,
+            "positional.middlegame.mistake": 0.02,
+            "endgame_technique.middlegame.mistake": 0,
+            "positional.middlegame.blunder": 0.02,
+            "opening_prep.middlegame.mistake": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "positional.middlegame.inaccuracy": 0.01,
+            "tactical_oversight.middlegame.inaccuracy": 0.06
+          },
+          "confidence": 0.72
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "open_files",
+          "probabilities": {
+            "back_rank": 0.02,
+            "open_files": 0.27,
+            "pawn_structure": 0,
+            "trapped_piece": 0.02,
+            "conversion": 0,
+            "hanging_piece": 0.2,
+            "defense": 0.07,
+            "opening_principles": 0,
+            "passed_pawns": 0,
+            "overloaded_piece": 0.02,
+            "king_activity_endgame": 0,
+            "skewer": 0.01,
+            "fork": 0,
+            "opposition": 0,
+            "trades": 0.04,
+            "piece_activity": 0.03,
+            "mate_threat": 0,
+            "king_safety": 0.05,
+            "rook_endgames": 0.02,
+            "calculation": 0.16,
+            "space_and_center": 0,
+            "pin": 0,
+            "removing_defender": 0.07,
+            "time_management": 0.01,
+            "discovered_attack": 0,
+            "weak_squares": 0
+          },
+          "confidence": 0.23
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.45
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.15,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.13,
+            "1": 0.59,
+            "2": 0.28
+          },
+          "confidence": 0.38
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.55
+        }
+      },
+      "usage": {
+        "input_tokens": 2603,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "endgame_opposition_blunder",
+    "latencyMs": 198,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.61,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.04,
+            "2": 0.27,
+            "3": 0.67
+          },
+          "confidence": 0.61
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "endgame_technique",
+          "probabilities": {
+            "endgame_technique": 0.78,
+            "time_pressure": 0,
+            "positional": 0.11,
+            "tactical_oversight": 0.08,
+            "calculation_depth": 0.03,
+            "opening_prep": 0,
+            "unclear": 0
+          },
+          "confidence": 0.73
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.59
+        },
+        "template": {
+          "type": "choice",
+          "choice": "endgame_technique.endgame.blunder",
+          "probabilities": {
+            "positional.endgame.blunder": 0.09,
+            "tactical_oversight.endgame.inaccuracy": 0.02,
+            "opening_prep.endgame.mistake": 0,
+            "endgame_technique.endgame.mistake": 0.1,
+            "endgame_technique.endgame.inaccuracy": 0.05,
+            "tactical_oversight.endgame.blunder": 0.09,
+            "endgame_technique.endgame.blunder": 0.56,
+            "tactical_oversight.endgame.mistake": 0.03,
+            "positional.endgame.mistake": 0.03,
+            "opening_prep.endgame.inaccuracy": 0,
+            "opening_prep.endgame.blunder": 0,
+            "positional.endgame.inaccuracy": 0.03
+          },
+          "confidence": 0.51
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opposition",
+          "probabilities": {
+            "overloaded_piece": 0,
+            "back_rank": 0,
+            "trades": 0,
+            "mate_threat": 0,
+            "open_files": 0,
+            "skewer": 0,
+            "weak_squares": 0,
+            "king_safety": 0,
+            "conversion": 0.16,
+            "discovered_attack": 0,
+            "opposition": 0.55,
+            "time_management": 0,
+            "pawn_structure": 0,
+            "hanging_piece": 0,
+            "trapped_piece": 0,
+            "fork": 0,
+            "piece_activity": 0,
+            "opening_principles": 0,
+            "pin": 0,
+            "king_activity_endgame": 0.09,
+            "removing_defender": 0,
+            "calculation": 0.07,
+            "space_and_center": 0,
+            "defense": 0.01,
+            "passed_pawns": 0.11,
+            "rook_endgames": 0
+          },
+          "confidence": 0.53
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.42
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.92,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.24,
+            "1": 0.6,
+            "2": 0.16
+          },
+          "confidence": 0.41
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.64
+        }
+      },
+      "usage": {
+        "input_tokens": 2555,
+        "output_tokens": 682
+      }
+    }
+  },
+  {
+    "caseId": "rook_takes_forking_queen",
+    "latencyMs": 215,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.15,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.86,
+            "1": 0.13,
+            "2": 0.01,
+            "3": 0
+          },
+          "confidence": 0.85
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "unclear",
+          "probabilities": {
+            "opening_prep": 0,
+            "unclear": 0.8,
+            "tactical_oversight": 0.1,
+            "calculation_depth": 0.01,
+            "positional": 0.08,
+            "endgame_technique": 0,
+            "time_pressure": 0
+          },
+          "confidence": 0.76
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.48
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.inaccuracy",
+          "probabilities": {
+            "tactical_oversight.middlegame.blunder": 0.01,
+            "opening_prep.middlegame.blunder": 0,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "positional.middlegame.mistake": 0.01,
+            "tactical_oversight.middlegame.mistake": 0.02,
+            "tactical_oversight.middlegame.inaccuracy": 0.54,
+            "positional.middlegame.blunder": 0,
+            "endgame_technique.middlegame.blunder": 0,
+            "endgame_technique.middlegame.inaccuracy": 0.01,
+            "positional.middlegame.inaccuracy": 0.4,
+            "endgame_technique.middlegame.mistake": 0,
+            "opening_prep.middlegame.mistake": 0
+          },
+          "confidence": 0.5
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "trades",
+          "probabilities": {
+            "king_activity_endgame": 0,
+            "king_safety": 0.04,
+            "pin": 0,
+            "mate_threat": 0,
+            "conversion": 0.08,
+            "calculation": 0.08,
+            "back_rank": 0.01,
+            "passed_pawns": 0,
+            "rook_endgames": 0.07,
+            "opening_principles": 0,
+            "time_management": 0.09,
+            "defense": 0,
+            "discovered_attack": 0.01,
+            "pawn_structure": 0,
+            "piece_activity": 0.02,
+            "trapped_piece": 0,
+            "fork": 0.01,
+            "skewer": 0.01,
+            "space_and_center": 0,
+            "overloaded_piece": 0.04,
+            "open_files": 0.15,
+            "opposition": 0,
+            "trades": 0.21000000000000002,
+            "weak_squares": 0,
+            "removing_defender": 0.17,
+            "hanging_piece": 0.01
+          },
+          "confidence": 0.17
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.64
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.92,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.16,
+            "1": 0.76,
+            "2": 0.08
+          },
+          "confidence": 0.64
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.73
+        }
+      },
+      "usage": {
+        "input_tokens": 2600,
+        "output_tokens": 704
+      }
+    }
+  },
+  {
+    "caseId": "queen_takes_defended_pawn",
+    "latencyMs": 217,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.89,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.09,
+            "3": 0.9
+          },
+          "confidence": 0.89
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "calculation_depth": 0.03,
+            "positional": 0.07,
+            "endgame_technique": 0.09,
+            "opening_prep": 0,
+            "time_pressure": 0,
+            "unclear": 0.01,
+            "tactical_oversight": 0.8
+          },
+          "confidence": 0.77
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.67
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.endgame.blunder",
+          "probabilities": {
+            "tactical_oversight.endgame.inaccuracy": 0.06,
+            "tactical_oversight.endgame.mistake": 0.14,
+            "opening_prep.endgame.blunder": 0,
+            "endgame_technique.endgame.mistake": 0.01,
+            "opening_prep.endgame.inaccuracy": 0,
+            "endgame_technique.endgame.blunder": 0.03,
+            "positional.endgame.blunder": 0.01,
+            "positional.endgame.mistake": 0.01,
+            "opening_prep.endgame.mistake": 0,
+            "positional.endgame.inaccuracy": 0,
+            "endgame_technique.endgame.inaccuracy": 0,
+            "tactical_oversight.endgame.blunder": 0.74
+          },
+          "confidence": 0.72
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "pawn_structure": 0,
+            "open_files": 0.02,
+            "defense": 0.03,
+            "trapped_piece": 0.03,
+            "passed_pawns": 0,
+            "hanging_piece": 0.08,
+            "opening_principles": 0,
+            "conversion": 0.16,
+            "back_rank": 0.02,
+            "removing_defender": 0.16,
+            "king_activity_endgame": 0.04,
+            "skewer": 0.03,
+            "fork": 0.02,
+            "opposition": 0,
+            "trades": 0.03,
+            "calculation": 0.28,
+            "mate_threat": 0,
+            "king_safety": 0.01,
+            "rook_endgames": 0.04,
+            "piece_activity": 0.02,
+            "space_and_center": 0,
+            "overloaded_piece": 0.02,
+            "pin": 0,
+            "time_management": 0,
+            "discovered_attack": 0.01,
+            "weak_squares": 0
+          },
+          "confidence": 0.25
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.85
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.3,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.12,
+            "1": 0.46,
+            "2": 0.42
+          },
+          "confidence": 0.18
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.52
+        }
+      },
+      "usage": {
+        "input_tokens": 2562,
+        "output_tokens": 681
+      }
+    }
+  },
+  {
+    "caseId": "bishop_sac_unsound",
+    "latencyMs": 198,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.74,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.02,
+            "2": 0.18,
+            "3": 0.79
+          },
+          "confidence": 0.74
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.03,
+            "unclear": 0,
+            "tactical_oversight": 0.8,
+            "endgame_technique": 0,
+            "calculation_depth": 0.14,
+            "opening_prep": 0.02,
+            "time_pressure": 0
+          },
+          "confidence": 0.76
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "tactical_oversight.opening.mistake": 0.13,
+            "positional.opening.mistake": 0.01,
+            "endgame_technique.opening.mistake": 0,
+            "tactical_oversight.opening.inaccuracy": 0.07,
+            "opening_prep.opening.inaccuracy": 0,
+            "opening_prep.opening.mistake": 0,
+            "opening_prep.opening.blunder": 0,
+            "tactical_oversight.opening.blunder": 0.77,
+            "positional.opening.blunder": 0.01,
+            "endgame_technique.opening.inaccuracy": 0
+          },
+          "confidence": 0.75
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "calculation",
+          "probabilities": {
+            "conversion": 0.01,
+            "space_and_center": 0.01,
+            "trapped_piece": 0.01,
+            "skewer": 0.01,
+            "king_safety": 0.13,
+            "overloaded_piece": 0.01,
+            "mate_threat": 0.05,
+            "defense": 0.12,
+            "discovered_attack": 0,
+            "weak_squares": 0,
+            "pawn_structure": 0,
+            "fork": 0.01,
+            "hanging_piece": 0.12,
+            "removing_defender": 0.09,
+            "back_rank": 0,
+            "pin": 0,
+            "time_management": 0,
+            "calculation": 0.22,
+            "opening_principles": 0.2,
+            "open_files": 0,
+            "rook_endgames": 0,
+            "king_activity_endgame": 0,
+            "trades": 0.01,
+            "passed_pawns": 0,
+            "opposition": 0,
+            "piece_activity": 0
+          },
+          "confidence": 0.17
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.69
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.54,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.3,
+            "2": 0.62
+          },
+          "confidence": 0.31
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 2581,
+        "output_tokens": 694
+      }
+    }
+  },
+  {
+    "caseId": "castling_good_move",
+    "latencyMs": 204,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 0.95,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.18,
+            "1": 0.7,
+            "2": 0.12,
+            "3": 0
+          },
+          "confidence": 0.7
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "positional",
+          "probabilities": {
+            "calculation_depth": 0.03,
+            "time_pressure": 0,
+            "unclear": 0.02,
+            "tactical_oversight": 0.18,
+            "positional": 0.41,
+            "opening_prep": 0.36,
+            "endgame_technique": 0
+          },
+          "confidence": 0.31
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.43
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.41
+        },
+        "template": {
+          "type": "choice",
+          "choice": "positional.opening.inaccuracy",
+          "probabilities": {
+            "endgame_technique.opening.mistake": 0,
+            "endgame_technique.opening.blunder": 0,
+            "positional.opening.inaccuracy": 0.65,
+            "opening_prep.opening.blunder": 0,
+            "positional.opening.blunder": 0.01,
+            "opening_prep.opening.inaccuracy": 0.06,
+            "endgame_technique.opening.inaccuracy": 0,
+            "tactical_oversight.opening.inaccuracy": 0.12,
+            "opening_prep.opening.mistake": 0.02,
+            "tactical_oversight.opening.mistake": 0.03,
+            "positional.opening.mistake": 0.11,
+            "tactical_oversight.opening.blunder": 0
+          },
+          "confidence": 0.6
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "overloaded_piece": 0,
+            "skewer": 0,
+            "calculation": 0.01,
+            "back_rank": 0,
+            "piece_activity": 0,
+            "space_and_center": 0.42,
+            "mate_threat": 0,
+            "trapped_piece": 0,
+            "king_activity_endgame": 0,
+            "removing_defender": 0,
+            "trades": 0,
+            "open_files": 0,
+            "opening_principles": 0.48,
+            "weak_squares": 0,
+            "rook_endgames": 0,
+            "discovered_attack": 0,
+            "fork": 0,
+            "king_safety": 0.08,
+            "pin": 0,
+            "opposition": 0,
+            "conversion": 0,
+            "pawn_structure": 0,
+            "time_management": 0.01,
+            "passed_pawns": 0,
+            "hanging_piece": 0,
+            "defense": 0
+          },
+          "confidence": 0.45
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.3
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.47,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.55,
+            "1": 0.44,
+            "2": 0.01
+          },
+          "confidence": 0.29
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 691
+      }
+    }
+  },
+  {
+    "caseId": "back_rank_blunder",
+    "latencyMs": 237,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.96,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0,
+            "2": 0.01,
+            "3": 0.98
+          },
+          "confidence": 0.96
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.01,
+            "calculation_depth": 0.01,
+            "time_pressure": 0,
+            "unclear": 0,
+            "opening_prep": 0,
+            "tactical_oversight": 0.97,
+            "endgame_technique": 0.01
+          },
+          "confidence": 0.97
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.middlegame.blunder",
+          "probabilities": {
+            "positional.middlegame.inaccuracy": 0,
+            "positional.middlegame.blunder": 0.01,
+            "tactical_oversight.middlegame.mistake": 0.03,
+            "opening_prep.middlegame.inaccuracy": 0,
+            "endgame_technique.middlegame.blunder": 0.03,
+            "opening_prep.middlegame.mistake": 0,
+            "endgame_technique.middlegame.mistake": 0,
+            "tactical_oversight.middlegame.inaccuracy": 0.02,
+            "tactical_oversight.middlegame.blunder": 0.91,
+            "positional.middlegame.mistake": 0,
+            "opening_prep.middlegame.blunder": 0,
+            "endgame_technique.middlegame.inaccuracy": 0
+          },
+          "confidence": 0.9
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "back_rank",
+          "probabilities": {
+            "king_activity_endgame": 0.01,
+            "hanging_piece": 0.13,
+            "trades": 0.01,
+            "passed_pawns": 0,
+            "skewer": 0.01,
+            "mate_threat": 0.02,
+            "back_rank": 0.33999999999999997,
+            "defense": 0.04,
+            "conversion": 0,
+            "weak_squares": 0,
+            "space_and_center": 0,
+            "piece_activity": 0.02,
+            "fork": 0,
+            "overloaded_piece": 0.02,
+            "removing_defender": 0.05,
+            "pawn_structure": 0,
+            "king_safety": 0.01,
+            "trapped_piece": 0.02,
+            "rook_endgames": 0.07,
+            "pin": 0,
+            "discovered_attack": 0.01,
+            "calculation": 0.15,
+            "opposition": 0,
+            "opening_principles": 0,
+            "open_files": 0.09,
+            "time_management": 0
+          },
+          "confidence": 0.32
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.21,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.21,
+            "1": 0.38,
+            "2": 0.41
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 2568,
+        "output_tokens": 706
+      }
+    }
+  },
+  {
+    "caseId": "knight_hangs_on_rim",
+    "latencyMs": 188,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.89,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.09,
+            "3": 0.9
+          },
+          "confidence": 0.89
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.05,
+            "endgame_technique": 0,
+            "tactical_oversight": 0.88,
+            "unclear": 0,
+            "opening_prep": 0.06,
+            "time_pressure": 0,
+            "calculation_depth": 0.01
+          },
+          "confidence": 0.86
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.blunder": 0.87,
+            "tactical_oversight.opening.mistake": 0.06,
+            "endgame_technique.opening.inaccuracy": 0,
+            "tactical_oversight.opening.inaccuracy": 0.04,
+            "endgame_technique.opening.mistake": 0,
+            "opening_prep.opening.mistake": 0,
+            "opening_prep.opening.inaccuracy": 0,
+            "positional.opening.blunder": 0.01,
+            "positional.opening.mistake": 0.01,
+            "positional.opening.inaccuracy": 0.01,
+            "opening_prep.opening.blunder": 0,
+            "endgame_technique.opening.blunder": 0
+          },
+          "confidence": 0.85
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "open_files": 0,
+            "passed_pawns": 0,
+            "piece_activity": 0.05,
+            "conversion": 0,
+            "rook_endgames": 0,
+            "fork": 0.01,
+            "calculation": 0.04,
+            "opposition": 0,
+            "mate_threat": 0.17,
+            "trapped_piece": 0.05,
+            "trades": 0,
+            "pin": 0,
+            "defense": 0.01,
+            "back_rank": 0,
+            "king_safety": 0.02,
+            "hanging_piece": 0.14,
+            "opening_principles": 0.5,
+            "removing_defender": 0.01,
+            "pawn_structure": 0,
+            "weak_squares": 0,
+            "skewer": 0,
+            "discovered_attack": 0,
+            "space_and_center": 0,
+            "time_management": 0,
+            "king_activity_endgame": 0,
+            "overloaded_piece": 0
+          },
+          "confidence": 0.47
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.95,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.29,
+            "1": 0.48,
+            "2": 0.23
+          },
+          "confidence": 0.22
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.5
+        }
+      },
+      "usage": {
+        "input_tokens": 2576,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "black_hangs_queen",
+    "latencyMs": 234,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.71,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.03,
+            "1": 0.04,
+            "2": 0.14,
+            "3": 0.79
+          },
+          "confidence": 0.71
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "tactical_oversight": 0.85,
+            "time_pressure": 0,
+            "calculation_depth": 0.02,
+            "positional": 0.03,
+            "unclear": 0,
+            "endgame_technique": 0,
+            "opening_prep": 0.1
+          },
+          "confidence": 0.82
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.76
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "endgame_technique.opening.inaccuracy": 0,
+            "positional.opening.blunder": 0.02,
+            "endgame_technique.opening.mistake": 0,
+            "tactical_oversight.opening.inaccuracy": 0.14,
+            "tactical_oversight.opening.mistake": 0.17,
+            "positional.opening.mistake": 0.03,
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.blunder": 0.01,
+            "opening_prep.opening.mistake": 0,
+            "positional.opening.inaccuracy": 0.02,
+            "tactical_oversight.opening.blunder": 0.61,
+            "opening_prep.opening.inaccuracy": 0
+          },
+          "confidence": 0.56
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "king_safety": 0.02,
+            "mate_threat": 0.11,
+            "piece_activity": 0.01,
+            "time_management": 0,
+            "space_and_center": 0.01,
+            "skewer": 0,
+            "passed_pawns": 0,
+            "overloaded_piece": 0,
+            "rook_endgames": 0,
+            "removing_defender": 0.01,
+            "calculation": 0.03,
+            "king_activity_endgame": 0,
+            "opposition": 0,
+            "fork": 0.01,
+            "trapped_piece": 0.04,
+            "conversion": 0,
+            "pawn_structure": 0,
+            "open_files": 0,
+            "discovered_attack": 0,
+            "pin": 0,
+            "opening_principles": 0.65,
+            "defense": 0.02,
+            "trades": 0,
+            "back_rank": 0,
+            "hanging_piece": 0.09,
+            "weak_squares": 0
+          },
+          "confidence": 0.62
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.76
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.74
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.12,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.24,
+            "1": 0.4,
+            "2": 0.36
+          },
+          "confidence": 0.1
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 2572,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "hanging_queen_opening",
+    "latencyMs": 238,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.91,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0,
+            "1": 0.01,
+            "2": 0.06,
+            "3": 0.93
+          },
+          "confidence": 0.91
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.03,
+            "time_pressure": 0,
+            "endgame_technique": 0,
+            "unclear": 0,
+            "tactical_oversight": 0.85,
+            "opening_prep": 0.1,
+            "calculation_depth": 0.02
+          },
+          "confidence": 0.82
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "positional.opening.blunder": 0.01,
+            "endgame_technique.opening.blunder": 0,
+            "opening_prep.opening.mistake": 0,
+            "positional.opening.inaccuracy": 0.01,
+            "opening_prep.opening.inaccuracy": 0,
+            "tactical_oversight.opening.mistake": 0.08,
+            "opening_prep.opening.blunder": 0.01,
+            "endgame_technique.opening.mistake": 0,
+            "tactical_oversight.opening.inaccuracy": 0.03,
+            "tactical_oversight.opening.blunder": 0.84,
+            "positional.opening.mistake": 0.02,
+            "endgame_technique.opening.inaccuracy": 0
+          },
+          "confidence": 0.82
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "opening_principles",
+          "probabilities": {
+            "back_rank": 0,
+            "time_management": 0,
+            "opening_principles": 0.7,
+            "conversion": 0,
+            "rook_endgames": 0,
+            "skewer": 0,
+            "discovered_attack": 0,
+            "removing_defender": 0.01,
+            "opposition": 0,
+            "open_files": 0,
+            "fork": 0,
+            "piece_activity": 0.01,
+            "trapped_piece": 0.04,
+            "king_activity_endgame": 0,
+            "king_safety": 0.01,
+            "trades": 0,
+            "defense": 0.01,
+            "hanging_piece": 0.06,
+            "calculation": 0.03,
+            "overloaded_piece": 0,
+            "pin": 0,
+            "weak_squares": 0,
+            "passed_pawns": 0,
+            "mate_threat": 0.05,
+            "space_and_center": 0.08,
+            "pawn_structure": 0
+          },
+          "confidence": 0.67
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.66
+        },
+        "complexity": {
+          "type": "score",
+          "score": 0.88,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.39999999999999997,
+            "1": 0.31,
+            "2": 0.29
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      },
+      "usage": {
+        "input_tokens": 2571,
+        "output_tokens": 695
+      }
+    }
+  },
+  {
+    "caseId": "missed_scholars_mate",
+    "latencyMs": 225,
+    "response": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "severity": {
+          "type": "score",
+          "score": 2.49,
+          "legend": {
+            "0": "fine",
+            "1": "inaccuracy",
+            "2": "mistake",
+            "3": "blunder"
+          },
+          "probabilities": {
+            "0": 0.07,
+            "1": 0.07,
+            "2": 0.15,
+            "3": 0.71
+          },
+          "confidence": 0.49
+        },
+        "error_class": {
+          "type": "choice",
+          "choice": "tactical_oversight",
+          "probabilities": {
+            "positional": 0.02,
+            "endgame_technique": 0,
+            "unclear": 0.01,
+            "time_pressure": 0,
+            "opening_prep": 0.02,
+            "tactical_oversight": 0.93,
+            "calculation_depth": 0.01
+          },
+          "confidence": 0.91
+        },
+        "interrupt_now": {
+          "type": "noul",
+          "noul": 0.68
+        },
+        "teachable": {
+          "type": "noul",
+          "noul": 0.62
+        },
+        "template": {
+          "type": "choice",
+          "choice": "tactical_oversight.opening.blunder",
+          "probabilities": {
+            "tactical_oversight.opening.mistake": 0.17,
+            "opening_prep.opening.blunder": 0.01,
+            "tactical_oversight.opening.blunder": 0.41,
+            "tactical_oversight.opening.inaccuracy": 0.28,
+            "positional.opening.mistake": 0.02,
+            "endgame_technique.opening.inaccuracy": 0,
+            "positional.opening.blunder": 0.02,
+            "endgame_technique.opening.blunder": 0,
+            "endgame_technique.opening.mistake": 0,
+            "opening_prep.opening.mistake": 0.01,
+            "opening_prep.opening.inaccuracy": 0.02,
+            "positional.opening.inaccuracy": 0.06
+          },
+          "confidence": 0.35
+        },
+        "theme": {
+          "type": "choice",
+          "choice": "mate_threat",
+          "probabilities": {
+            "rook_endgames": 0,
+            "trades": 0,
+            "king_activity_endgame": 0,
+            "opening_principles": 0.16,
+            "overloaded_piece": 0,
+            "pin": 0,
+            "pawn_structure": 0,
+            "defense": 0.01,
+            "passed_pawns": 0,
+            "discovered_attack": 0,
+            "opposition": 0,
+            "back_rank": 0,
+            "conversion": 0.01,
+            "calculation": 0.07,
+            "space_and_center": 0,
+            "time_management": 0.01,
+            "skewer": 0,
+            "hanging_piece": 0.02,
+            "fork": 0,
+            "king_safety": 0.02,
+            "mate_threat": 0.67,
+            "weak_squares": 0,
+            "trapped_piece": 0,
+            "piece_activity": 0.01,
+            "open_files": 0,
+            "removing_defender": 0.01
+          },
+          "confidence": 0.65
+        },
+        "repeat_pattern": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "good_move": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "missed_tactic": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "complexity": {
+          "type": "score",
+          "score": 1.15,
+          "legend": {
+            "0": "simple",
+            "1": "moderate",
+            "2": "sharp"
+          },
+          "probabilities": {
+            "0": 0.29,
+            "1": 0.27,
+            "2": 0.44
+          },
+          "confidence": 0
+        },
+        "confidence_override": {
+          "type": "noul",
+          "noul": 0.72
+        }
+      },
+      "usage": {
+        "input_tokens": 2543,
+        "output_tokens": 694
+      }
+    }
+  }
+]
