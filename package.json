@@ -1,0 +1,22 @@
+{
+  "name": "game-coach",
+  "private": true,
+  "version": "0.0.0",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "lint": "pnpm -r --if-present lint",
+    "spike:dev": "pnpm --filter @game-coach/spike-jev dev",
+    "spike:deploy": "pnpm --filter @game-coach/spike-jev deploy",
+    "spike:bench": "pnpm --filter @game-coach/spike-jev bench"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

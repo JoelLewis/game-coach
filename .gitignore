@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.svelte-kit/
+/target/
+crates/*/pkg/
+
+# Cloudflare
+.wrangler/
+.dev.vars
+worker-configuration.d.ts
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Env
+.env
+.env.*
+
+# Git worktrees
+.worktrees/
+
+# Test artifacts
+playwright-report/
+test-results/
+coverage/
+
+# Calibration working data (labeled sets are published to R2, not git)
+tools/calibration/data/

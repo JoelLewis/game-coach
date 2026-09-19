@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "worker-configuration.d.ts",
+    "src/**/*.ts",
+    "scripts/**/*.ts"
+  ]
+}

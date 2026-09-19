@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = ["crates/chess-core"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+license = "GPL-3.0-only"
+repository = "https://github.com/JoelLewis/game-coach"
+
+[workspace.lints.clippy]
+all = "warn"
+
+[profile.release]
+opt-level = "s"
+lto = true

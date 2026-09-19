@@ -1,0 +1,449 @@
+[
+  {
+    "id": "hanging_queen_opening",
+    "phase": "opening",
+    "fenBefore": "rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+    "playerMoveUci": "d1h5",
+    "playerMoveSan": "Qh5",
+    "bestUci": "e4e5",
+    "pv": [
+      "e4e5",
+      "f6d5",
+      "d2d4",
+      "d7d6",
+      "c2c4",
+      "d5b6"
+    ],
+    "refutationPv": [
+      "f6h5",
+      "g2g4",
+      "h5f6",
+      "b1c3",
+      "f6g4",
+      "g1f3"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 71
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": -730
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "h5",
+      "queen"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "missed_scholars_mate",
+    "phase": "opening",
+    "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+    "playerMoveUci": "b1c3",
+    "playerMoveSan": "Nc3",
+    "bestUci": "h5f7",
+    "pv": [
+      "h5f7"
+    ],
+    "refutationPv": [
+      "g7g6",
+      "h5f3",
+      "g8f6",
+      "g1e2",
+      "f8g7",
+      "d2d3"
+    ],
+    "evalBefore": {
+      "type": "mate",
+      "moves": 1
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": 8
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "f7",
+      "mate",
+      "Qxf7"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "missed_knight_fork",
+    "phase": "middlegame",
+    "fenBefore": "6k1/pp6/3q1r2/8/4N3/8/PP6/3RK3 w - - 0 30",
+    "playerMoveUci": "a2a3",
+    "playerMoveSan": "a3",
+    "bestUci": "d1d6",
+    "pv": [
+      "d1d6",
+      "f6f4",
+      "e4c3",
+      "g8f7",
+      "e1d1",
+      "f4h4"
+    ],
+    "refutationPv": [
+      "f6f1",
+      "e1f1",
+      "d6d1",
+      "f1g2",
+      "d1e2",
+      "e4f2"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 462
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": -761
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "d6",
+      "fork",
+      "queen"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "rook_takes_defended_pawn",
+    "phase": "middlegame",
+    "fenBefore": "r4rk1/ppp2ppp/8/8/8/8/1PP2PPP/R4RK1 w - - 0 15",
+    "playerMoveUci": "a1a7",
+    "playerMoveSan": "Rxa7",
+    "bestUci": "g2g3",
+    "pv": [
+      "g2g3",
+      "f8d8",
+      "f1e1",
+      "g8f8",
+      "e1e4",
+      "d8d7"
+    ],
+    "refutationPv": [
+      "a8a7",
+      "f1d1",
+      "a7a8",
+      "g2g3",
+      "f8d8",
+      "d1e1"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": -147
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": -629
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "a7"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "endgame_opposition_blunder",
+    "phase": "endgame",
+    "fenBefore": "8/8/8/3k4/8/2K5/3P4/8 w - - 0 50",
+    "playerMoveUci": "d2d4",
+    "playerMoveSan": "d4",
+    "bestUci": "c3d3",
+    "pv": [
+      "c3d3",
+      "d5d6",
+      "d3d4",
+      "d6e6",
+      "d4c5",
+      "e6e7"
+    ],
+    "refutationPv": [
+      "d5c6",
+      "c3c4",
+      "c6d6",
+      "c4d3",
+      "d6d7",
+      "d3e2"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 535
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": 3
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "d3",
+      "d4"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "rook_takes_forking_queen",
+    "phase": "middlegame",
+    "fenBefore": "6k1/pp6/3q1r2/8/4N3/8/PP6/3RK3 w - - 0 30",
+    "playerMoveUci": "d1d6",
+    "playerMoveSan": "Rxd6",
+    "bestUci": "d1d6",
+    "pv": [
+      "d1d6",
+      "f6f4",
+      "e4c3",
+      "f4b4",
+      "d6d2",
+      "g8f7"
+    ],
+    "refutationPv": [
+      "f6f4",
+      "e4c3",
+      "g8f8",
+      "e1d1",
+      "f4h4",
+      "d1c2"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 460
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": 450
+    },
+    "classification": "best",
+    "mustMentionAny": [
+      "d6",
+      "queen"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "queen_takes_defended_pawn",
+    "phase": "endgame",
+    "fenBefore": "1r2k3/1p6/8/8/8/8/1Q6/4K3 w - - 0 1",
+    "playerMoveUci": "b2b7",
+    "playerMoveSan": "Qxb7",
+    "bestUci": "b2h8",
+    "pv": [
+      "b2h8",
+      "e8d7",
+      "h8b8",
+      "d7e7",
+      "b8b7",
+      "e7f6"
+    ],
+    "refutationPv": [
+      "b8b7",
+      "e1d2",
+      "b7b3",
+      "d2c2",
+      "b3h3",
+      "c2d2"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 557
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": -490
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "b7"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "bishop_sac_unsound",
+    "phase": "opening",
+    "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+    "playerMoveUci": "c4f7",
+    "playerMoveSan": "Bxf7+",
+    "bestUci": "d2d4",
+    "pv": [
+      "d2d4",
+      "d7d6",
+      "c2c3",
+      "d8f6",
+      "b1a3",
+      "f6g6"
+    ],
+    "refutationPv": [
+      "e8f7",
+      "d2d4",
+      "e5d4",
+      "b2b4",
+      "f8b4",
+      "c2c3"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 125
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": -316
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "f7"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "castling_good_move",
+    "phase": "opening",
+    "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+    "playerMoveUci": "e1g1",
+    "playerMoveSan": "O-O",
+    "bestUci": "d2d4",
+    "pv": [
+      "d2d4",
+      "e5d4",
+      "e1g1",
+      "d7d6",
+      "f3d4",
+      "c6d4"
+    ],
+    "refutationPv": [
+      "f8e7",
+      "d2d4",
+      "d7d6",
+      "d4d5",
+      "c6b8",
+      "c4d3"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 112
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": 85
+    },
+    "classification": "good",
+    "mustMentionAny": [
+      "castl",
+      "O-O",
+      "king"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "back_rank_blunder",
+    "phase": "middlegame",
+    "fenBefore": "2r3k1/pp3ppp/8/8/8/8/PP3PPP/R5K1 w - - 0 20",
+    "playerMoveUci": "a1c1",
+    "playerMoveSan": "Rc1",
+    "bestUci": "a1e1",
+    "pv": [
+      "a1e1",
+      "g8f8",
+      "g1f1",
+      "c8c2",
+      "e1e2",
+      "c2c1"
+    ],
+    "refutationPv": [
+      "c8c1"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": -21
+    },
+    "evalAfter": {
+      "type": "mate",
+      "moves": -1
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "back rank",
+      "back-rank",
+      "mate",
+      "c1"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "knight_hangs_on_rim",
+    "phase": "opening",
+    "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+    "playerMoveUci": "f3h4",
+    "playerMoveSan": "Nh4",
+    "bestUci": "f1b5",
+    "pv": [
+      "f1b5",
+      "a7a6",
+      "b5a4",
+      "g8f6",
+      "e1g1",
+      "f6e4"
+    ],
+    "refutationPv": [
+      "d8h4",
+      "b1c3",
+      "c6d4",
+      "c3d5",
+      "h4e4",
+      "d5e3"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 30
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": -500
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "h4"
+    ],
+    "mustNotMention": []
+  },
+  {
+    "id": "black_hangs_queen",
+    "phase": "opening",
+    "fenBefore": "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+    "playerMoveUci": "d8h4",
+    "playerMoveSan": "Qh4",
+    "bestUci": "g8f6",
+    "pv": [
+      "g8f6",
+      "d2d4",
+      "e5d4",
+      "e4e5",
+      "f6e4",
+      "d1d4"
+    ],
+    "refutationPv": [
+      "f3h4",
+      "b8c6",
+      "d2d3",
+      "g8f6",
+      "b1c3",
+      "c6d4"
+    ],
+    "evalBefore": {
+      "type": "cp",
+      "value": 36
+    },
+    "evalAfter": {
+      "type": "cp",
+      "value": 776
+    },
+    "classification": "blunder",
+    "mustMentionAny": [
+      "h4",
+      "queen"
+    ],
+    "mustNotMention": []
+  }
+]

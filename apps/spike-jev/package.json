@@ -1,0 +1,19 @@
+{
+  "name": "@game-coach/spike-jev",
+  "private": true,
+  "version": "0.0.0",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "wrangler types && tsc -p tsconfig.json",
+    "bench": "node --experimental-strip-types scripts/bench.ts",
+    "types": "wrangler types"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.134.0"
+  }
+}

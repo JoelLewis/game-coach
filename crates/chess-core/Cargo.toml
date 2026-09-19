@@ -1,0 +1,13 @@
+[package]
+name = "chess-core"
+description = "Browser-side chess truth for GameCoach: legality, SAN/PGN, feature extraction, cp-loss classification"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[lints]
+workspace = true
