@@ -14,7 +14,7 @@ This plan scaffolds a monorepo and builds **M0 (hard gate) → M1 ‖ M2**, with
 | Identity | Guest first (signed cookie → `players` row); magic link via Cloudflare Email Sending (beta, Workers Paid, `send_email` binding → `env.EMAIL.send`) upgrades and merges. |
 | Rust | `chess-core` crate → WASM, **browser only** (dests, SAN/PGN, features, cp-loss classification), ported from teach-chess. All server code is TypeScript; nothing re-derived server side. |
 | License / repo | GPL-3.0, public GitHub repo, GitHub Actions CI + `wrangler deploy`. |
-| Calibration set | Pipeline pre-labels (Claude proposes), Joel accepts/corrects in a labeling page. |
+| Calibration set | **Public games only** (decided 2026-09-18: Joel's Lichess account has 4 unrated games, and his ChessMentor database is not to be read). Sources: Lichess studies with NAG annotations and public club-level (1000-1800) games that carry Lichess server analysis. Pipeline pre-labels (Claude proposes), Joel accepts/corrects every label in the labeling page. |
 | Delegation | Contracts first, then fan-out. Codex also owns **all image generation**. |
 
 ### PRD corrections (found in exploration/design)
@@ -112,7 +112,6 @@ Dispatch in batches of ≤ 5 concurrent agents (first batch: A1, B, C, D1, E1, K
 
 ## Needed from Joel during the build
 - `wrangler login` / GitHub auth available in this shell; OK to create public repo `game-coach`.
-- Lichess and/or Chess.com usernames (for K1).
 - Sender address (e.g. `coach@chess.terminal-games.com`) and enabling Email Sending on the zone.
 - ~1–2 h to label 200 moves (I3).
 
