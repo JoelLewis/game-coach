@@ -106,7 +106,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.2.0
-        version: 3.2.7(@types/node@22.20.3)(jiti@2.7.0)(lightningcss@1.33.0)
+        version: 3.2.7(@types/node@22.20.3)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.33.0)
 
   packages/chess-adapter:
     dependencies:
@@ -125,7 +125,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.2.0
-        version: 3.2.7(@types/node@22.20.3)(jiti@2.7.0)(lightningcss@1.33.0)
+        version: 3.2.7(@types/node@22.20.3)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.33.0)
 
   packages/coaching-core:
     dependencies:
