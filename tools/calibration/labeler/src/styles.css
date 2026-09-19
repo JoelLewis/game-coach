@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap");
+
+/* "Contact sheet in a darkroom": a warm-black review desk built for one person
+   staring at a few hundred positions in a row. Ink-on-paper reads for text,
+   a rubber-stamp amber marks anything still a proposal, nothing glows. */
+:root {
+  --bg: oklch(17.5% 0.015 55);
+  --surface: oklch(21.5% 0.017 55);
+  --surface-raised: oklch(25.5% 0.019 58);
+  --border: oklch(32% 0.02 55);
+  --border-soft: oklch(27% 0.018 55);
+
+  --ink: oklch(93% 0.014 80);
+  --ink-dim: oklch(74% 0.018 75);
+  --ink-faint: oklch(54% 0.016 70);
+
+  --accent-proposal: oklch(78% 0.15 75);
+  --accent-proposal-bg: oklch(78% 0.15 75 / 12%);
+  --accent-good: oklch(74% 0.12 155);
+  --accent-info: oklch(75% 0.11 235);
+  --accent-danger: oklch(66% 0.19 25);
+  --accent-warning: oklch(80% 0.15 85);
+
+  --sev-0: oklch(72% 0.1 165);
+  --sev-1: oklch(80% 0.13 95);
+  --sev-2: oklch(72% 0.17 55);
+  --sev-3: oklch(62% 0.2 25);
+
+  --font-display: "Fraunces", "Iowan Old Style", serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --radius-sm: 5px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-md: 0 10px 30px -8px oklch(0% 0 0 / 0.5);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+::selection {
+  background: var(--accent-proposal-bg);
+}

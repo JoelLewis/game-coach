@@ -245,19 +245,40 @@ importers:
       '@game-coach/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@lichess-org/chessground':
+        specifier: ^9.1.1
+        version: 9.10.3
       chess.js:
         specifier: ^1.4.0
         version: 1.4.0
+      svelte:
+        specifier: ^5.57.0
+        version: 5.57.0
       valibot:
         specifier: ^1.1.0
         version: 1.5.0(typescript@5.9.3)
     devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.3.0
+        version: 7.3.0(svelte@5.57.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.28.1)(jiti@2.7.0))
+      '@testing-library/svelte':
+        specifier: ^5.3.1
+        version: 5.4.2(svelte@5.57.0)(vite@8.3.0(@types/node@22.20.3)(esbuild@0.28.1)(jiti@2.7.0))(vitest@3.2.7(@types/node@22.20.3)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.33.0))
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.3
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
+      svelte-check:
+        specifier: ^4.7.6
+        version: 4.7.6(picomatch@4.0.7)(svelte@5.57.0)(typescript@5.9.3)
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
+      vite:
+        specifier: ^8.0.0
+        version: 8.3.0(@types/node@22.20.3)(esbuild@0.28.1)(jiti@2.7.0)
       vitest:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@22.20.3)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.33.0)
