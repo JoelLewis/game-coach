@@ -3,3 +3,11 @@ node_modules
 .wrangler
 .dev.vars
 src/worker-configuration.d.ts
+
+# Stockfish lite engine builds, copied from node_modules/stockfish by scripts/copy-engine.mjs
+# (prebuild/predev). GPL-3.0 binaries from an npm package, not source we own.
+static/engine/
+
+# Playwright
+/playwright-report/
+/test-results/

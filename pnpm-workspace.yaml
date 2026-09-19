@@ -7,3 +7,5 @@ allowBuilds:
   esbuild: true
   sharp: false
   workerd: true
+  # Its postinstall only symlinks the full 94 MB build; we copy the lite builds from bin/ ourselves.
+  stockfish: false

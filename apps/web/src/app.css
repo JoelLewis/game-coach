@@ -1,1 +1,36 @@
-@import 'tailwindcss';
+/* "The Study" design system — import order matters for cascading (see
+   packages/ui-study/README.md). Tailwind comes last: everything it can't already do
+   (utility spacing, layout, responsive variants) layers on top of the tokens/reset below. */
+@import "@game-coach/ui-study/styles/base.css";
+@import "@game-coach/ui-study/styles/tokens.css";
+@import "@game-coach/ui-study/styles/fonts.css";
+@import "@game-coach/ui-study/styles/board-themes.css";
+@import "@game-coach/ui-study/styles/study-surfaces.css";
+@import "@game-coach/ui-study/styles/grid-surface.css";
+@import "tailwindcss";
+
+/* The Study's base.css hides overflow on <body> for the original fixed-panel desktop app.
+   The web app scrolls a single content column instead, so individual routes opt into it. */
+body {
+  background: var(--cm-bg-app);
+  overflow-y: auto;
+  min-height: 100dvh;
+}
+
+/* Tailwind's preflight resets button/input font inheritance; The Study's tokens should win. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* 44px is the touch-target floor (WCAG 2.5.5 / Apple HIG); apply it once, everywhere. */
+button,
+[role="button"],
+input,
+select,
+a.tap-target {
+  min-height: 44px;
+}
