@@ -3,9 +3,12 @@
 // `sessionId` is 32 random bytes. D1 never sees the raw id, only sha256(sessionId)
 // (see crypto-utils.sha256Hex / players.ts). Verification uses crypto.subtle.verify,
 // which compares the HMAC in constant time.
+import type { Cookies } from "@sveltejs/kit";
+import { SESSION_COOKIE, SESSION_TTL_SECONDS } from "@game-coach/contracts/ws-protocol";
 import { base64UrlToBytes, bytesToBase64Url } from "./crypto-utils.ts";
 
 export const SESSION_ID_BYTES = 32;
+const COOKIE_PATH = "/";
 
 const textEncoder = new TextEncoder();
 
@@ -44,4 +47,17 @@ export const verifySessionCookie = async (cookieValue: string, secret: string): 
 	const key = await importHmacKey(secret, "verify");
 	const valid = await crypto.subtle.verify("HMAC", key, signature as BufferSource, sessionId as BufferSource);
 	return valid ? sessionId : null;
+};
+
+// Shared cookie-setting shape used by every place that issues a session cookie (hooks.server.ts's
+// refresh, guest minting, magic-link verification), so the attributes (HttpOnly, SameSite=Lax,
+// Path=/, TTL) can't drift between them.
+export const setSessionCookie = async (cookies: Cookies, sessionId: Uint8Array, secret: string): Promise<void> => {
+	const cookieValue = await signSessionCookie(sessionId, secret);
+	cookies.set(SESSION_COOKIE, cookieValue, {
+		path: COOKIE_PATH,
+		httpOnly: true,
+		sameSite: "lax",
+		maxAge: SESSION_TTL_SECONDS,
+	});
 };

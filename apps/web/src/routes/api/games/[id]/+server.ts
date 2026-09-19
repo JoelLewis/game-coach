@@ -8,6 +8,10 @@ import type { RequestHandler } from "./$types";
 export const GET: RequestHandler = async ({ params, platform, locals }) => {
 	if (!platform) error(500, "platform unavailable");
 
+	// GET never mints a guest (F03): an identity-less request cannot own any game, so there's no
+	// point asking the RPC.
+	if (!locals.playerId) error(403, "forbidden");
+
 	const session = asSessionRpc(platform.env.SESSION);
 	const result = await session.getGameSummary(locals.playerId, params.id);
 	if (!result.ok) error(sessionRpcErrorStatus(result.error), result.error);

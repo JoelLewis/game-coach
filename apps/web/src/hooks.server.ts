@@ -1,47 +1,59 @@
 // Runs for every dynamic request (pages and +server.ts endpoints; static assets never reach
-// the Worker at all, see static/_headers). Establishes `locals.playerId`/`playerKind`,
-// enforces the JSON CSRF check, and sets the security headers every response needs.
+// the Worker at all, see static/_headers). Resolves an existing session into
+// `locals.playerId`/`playerKind` (never mints one -- see src/lib/server/guest-session.ts, F03),
+// enforces Origin on state-changing requests, validates required config, and guarantees the
+// baseline security headers on every response this hook produces, including its own errors
+// (F11) and its own controlled failure responses (F12).
 import type { Handle } from "@sveltejs/kit";
 import { building } from "$app/environment";
 import { SESSION_COOKIE, SESSION_TTL_SECONDS } from "@game-coach/contracts/ws-protocol";
-import { signSessionCookie, verifySessionCookie } from "./lib/server/cookie.ts";
+import { validateEnvConfig } from "./lib/server/config.ts";
+import { verifySessionCookie } from "./lib/server/cookie.ts";
 import { sha256Hex } from "./lib/server/crypto-utils.ts";
-import { isAllowedJsonOrigin } from "./lib/server/origin.ts";
-import { createGuestPlayerAndSession, resolveSession, touchSession } from "./lib/server/players.ts";
-import { applySecurityHeaders } from "./lib/server/security-headers.ts";
-
-const wantsHtml = (request: Request): boolean => (request.headers.get("accept") ?? "").includes("text/html");
-
-// A guest identity is created lazily: eagerly on page navigations (so client-side calls
-// already carry a cookie), and defensively on any state-changing request that arrives
-// without one. A bare GET to a JSON endpoint with no cookie gets no identity — its ownership
-// checks then simply find nothing to match, which is the correct "not found" outcome.
-const shouldCreateGuest = (request: Request): boolean => request.method !== "GET" || wantsHtml(request);
+import { isSameOriginRequest } from "./lib/server/origin.ts";
+import { maybeTouchSession, resolveSession } from "./lib/server/players.ts";
+import { applyAuthResponseHeaders, applySecurityHeaders } from "./lib/server/security-headers.ts";
 
 const COOKIE_PATH = "/";
 
-export const handle: Handle = async ({ event, resolve }) => {
+const decorate = (response: Response, isAuthRoute: boolean): Response => {
+	applySecurityHeaders(response);
+	if (isAuthRoute) applyAuthResponseHeaders(response);
+	return response;
+};
+
+const fail = (status: number, message: string, isAuthRoute: boolean): Response => decorate(new Response(message, { status }), isAuthRoute);
+
+const handleInner: Handle = async ({ event, resolve }) => {
+	const isAuthRoute = event.url.pathname.startsWith("/auth/");
+
 	// SvelteKit executes hooks while analysing/prerendering the app at build time, when there
 	// is no real client and no platform bindings. Nothing here applies; just render.
 	if (building) {
-		event.locals.playerId = "";
-		event.locals.playerKind = "guest";
-		return resolve(event);
+		event.locals.playerId = null;
+		event.locals.playerKind = null;
+		return decorate(await resolve(event), isAuthRoute);
 	}
 
 	const platform = event.platform;
-	const appOrigin = platform?.env.APP_ORIGIN;
-	// SvelteKit's built-in CSRF guard only covers form content types; JSON needs its own check.
-	if (appOrigin && !isAllowedJsonOrigin(event.request, appOrigin)) {
-		return applySecurityHeaders(new Response("cross-site request blocked", { status: 403 }));
-	}
-
 	if (!platform) {
 		// Only possible outside `wrangler dev` / production (e.g. `vite dev` without the
 		// platform proxy). No bindings, so no identity; still serve the page.
-		event.locals.playerId = "";
-		event.locals.playerKind = "guest";
-		return applySecurityHeaders(await resolve(event));
+		event.locals.playerId = null;
+		event.locals.playerKind = null;
+		return decorate(await resolve(event), isAuthRoute);
+	}
+
+	// F12: validate required configuration BEFORE any identity read or write. A misconfigured
+	// deploy must fail the same, safe way for every request, not commit a guest/session and then
+	// blow up signing its cookie.
+	const configResult = validateEnvConfig(platform.env);
+	if (!configResult.ok) return fail(503, "service unavailable", isAuthRoute);
+
+	// F04: Origin is required on every state-changing request regardless of Content-Type, before
+	// any identity read/write.
+	if (!isSameOriginRequest(event.request, platform.env.APP_ORIGIN)) {
+		return fail(403, "cross-site request blocked", isAuthRoute);
 	}
 
 	const db = platform.env.DB;
@@ -49,7 +61,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const now = Date.now();
 
 	const rawCookie = event.cookies.get(SESSION_COOKIE);
-	let resolved: { playerId: string; playerKind: "guest" | "account" } | null = null;
+	let resolved: { playerId: string; playerKind: "guest" | "account"; expiresAt: number } | null = null;
 	let sessionIdHash: string | null = null;
 
 	if (rawCookie) {
@@ -63,30 +75,36 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (resolved && sessionIdHash) {
 		event.locals.playerId = resolved.playerId;
 		event.locals.playerKind = resolved.playerKind;
-		await touchSession(db, sessionIdHash, now + SESSION_TTL_SECONDS * 1000);
+		// F03: only rewrite expires_at once the session is past its half-life, not on every
+		// request.
+		await maybeTouchSession(db, sessionIdHash, resolved.expiresAt, now);
 		event.cookies.set(SESSION_COOKIE, rawCookie as string, {
 			path: COOKIE_PATH,
 			httpOnly: true,
 			sameSite: "lax",
 			maxAge: SESSION_TTL_SECONDS,
 		});
-	} else if (shouldCreateGuest(event.request)) {
-		const guest = await createGuestPlayerAndSession(db, now);
-		event.locals.playerId = guest.playerId;
-		event.locals.playerKind = "guest";
-		const cookieValue = await signSessionCookie(guest.sessionId, secret);
-		event.cookies.set(SESSION_COOKIE, cookieValue, {
-			path: COOKIE_PATH,
-			httpOnly: true,
-			sameSite: "lax",
-			maxAge: SESSION_TTL_SECONDS,
-		});
 	} else {
+		// F03: no guest is minted here, for any request shape. A stale/invalid cookie is cleared;
+		// an absent one is simply left absent. `ensureGuestPlayer` (src/lib/server/guest-session.ts)
+		// mints one only inside the two POST handlers that actually need an identity.
 		if (rawCookie) event.cookies.delete(SESSION_COOKIE, { path: COOKIE_PATH });
-		event.locals.playerId = "";
-		event.locals.playerKind = "guest";
+		event.locals.playerId = null;
+		event.locals.playerKind = null;
 	}
 
-	const response = await resolve(event);
-	return applySecurityHeaders(response);
+	return decorate(await resolve(event), isAuthRoute);
+};
+
+// F11: baseline headers must cover every response this hook produces, including ones it never
+// reaches `resolve()` to build (a thrown error from the identity/config logic above). Wrap the
+// whole body so nothing escapes undecorated.
+export const handle: Handle = async (input) => {
+	try {
+		return await handleInner(input);
+	} catch {
+		// Never let an unexpected failure here escape without headers, and never surface
+		// internals (stack traces, error messages that might mention a token) to the client.
+		return decorate(new Response("internal error", { status: 500 }), input.event.url.pathname.startsWith("/auth/"));
+	}
 };

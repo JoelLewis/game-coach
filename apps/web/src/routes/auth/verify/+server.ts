@@ -1,48 +1,56 @@
-// GET ?token=... consumes a magic-link token, promotes/merges the guest into an account, and
-// rotates the session. Redirects rather than returning JSON: this is a link the browser
-// navigates to directly from the user's inbox.
-import { error, redirect } from "@sveltejs/kit";
-import { SESSION_COOKIE, SESSION_TTL_SECONDS } from "@game-coach/contracts/ws-protocol";
-import { signSessionCookie, verifySessionCookie } from "../../../lib/server/cookie.ts";
+// POST { token } -> consumes the magic-link token and completes the identity transition (see
+// src/lib/server/players.ts's `completeVerification` for the F01/F02/F08 rules). Deliberately
+// has NO GET handler: the emailed link (`#token=...`, a URL fragment) is never sent to the
+// server at all, and this route's GET is served by +page.svelte -- a plain confirmation page
+// that reads the fragment client-side and POSTs it here from the same origin (F05). That also
+// means SvelteKit's auto-generated HEAD (which would otherwise proxy to a GET handler) can't
+// consume anything either, since there's no GET handler here to proxy to.
+import { json } from "@sveltejs/kit";
+import * as v from "valibot";
+import { SESSION_COOKIE } from "@game-coach/contracts/ws-protocol";
+import { setSessionCookie, verifySessionCookie } from "../../../lib/server/cookie.ts";
 import { sha256Hex } from "../../../lib/server/crypto-utils.ts";
-import { consumeMagicLinkToken, rotateSession, upgradeOrMerge } from "../../../lib/server/players.ts";
+import { isJsonContentType } from "../../../lib/server/origin.ts";
+import { applyAuthResponseHeaders } from "../../../lib/server/security-headers.ts";
+import { VerificationFailedError, completeVerification, consumeMagicLinkToken } from "../../../lib/server/players.ts";
 import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async ({ url, platform, locals, cookies }) => {
-	if (!platform) error(500, "platform unavailable");
+const VerifyBodySchema = v.object({ token: v.pipe(v.string(), v.minLength(1), v.maxLength(2048)) });
 
-	const token = url.searchParams.get("token");
-	if (!token) redirect(303, "/auth/expired");
+const fail = (status: number, error: string) => applyAuthResponseHeaders(json({ ok: false, error }, { status }));
+
+export const POST: RequestHandler = async ({ request, platform, cookies }) => {
+	if (!platform) return fail(500, "platform_unavailable");
+	if (!isJsonContentType(request)) return fail(400, "expected application/json");
+
+	let body: unknown;
+	try {
+		body = await request.json();
+	} catch {
+		return fail(400, "invalid_body");
+	}
+	const parsed = v.safeParse(VerifyBodySchema, body);
+	if (!parsed.success) return fail(400, "invalid_body");
 
 	const now = Date.now();
 	const db = platform.env.DB;
-	// Never log `token` or the request URL: the token is a bearer credential.
-	const consumed = await consumeMagicLinkToken(db, token, now);
-	if (!consumed) redirect(303, "/auth/expired");
 
-	// The token records which guest requested it; that's the guest to promote/merge, even if
-	// this GET is happening on a different device than the one that asked for the link (in
-	// which case `locals.playerId` here is an unrelated, throwaway guest hooks.server.ts just
-	// created for this navigation).
-	const guestPlayerId = consumed.guestPlayerId ?? locals.playerId;
-	const { playerId } = await upgradeOrMerge(db, consumed.email, guestPlayerId, now);
+	// Never log `token` or the request body: the token is a bearer credential.
+	const consumed = await consumeMagicLinkToken(db, parsed.output.token, now);
+	if (!consumed) return fail(400, "expired_or_invalid");
 
-	// hooks.server.ts already gave this request a valid session cookie (creating a guest one
-	// if it didn't have one). Rotate it: new session id for the resolved player, old row gone
-	// so the pre-verification session id can't be reused.
 	const rawCookie = cookies.get(SESSION_COOKIE);
-	const currentSessionId = rawCookie ? await verifySessionCookie(rawCookie, platform.env.SESSION_SECRET) : null;
-	if (!currentSessionId) error(500, "missing session");
-	const oldSessionIdHash = await sha256Hex(currentSessionId);
+	const viewerSessionId = rawCookie ? await verifySessionCookie(rawCookie, platform.env.SESSION_SECRET) : null;
+	const viewerSessionIdHash = viewerSessionId ? await sha256Hex(viewerSessionId) : null;
 
-	const rotated = await rotateSession(db, oldSessionIdHash, playerId, now);
-	const cookieValue = await signSessionCookie(rotated.sessionId, platform.env.SESSION_SECRET);
-	cookies.set(SESSION_COOKIE, cookieValue, {
-		path: "/",
-		httpOnly: true,
-		sameSite: "lax",
-		maxAge: SESSION_TTL_SECONDS,
-	});
-
-	redirect(303, "/");
+	try {
+		const outcome = await completeVerification(db, consumed, viewerSessionIdHash, now);
+		await setSessionCookie(cookies, outcome.sessionId, platform.env.SESSION_SECRET);
+		return applyAuthResponseHeaders(json({ ok: true }, { status: 200 }));
+	} catch (err) {
+		// F08: never let this escape as an unhandled 500. The token is already consumed (single
+		// use, so it can't be replayed either way); report a clean, generic failure instead.
+		if (err instanceof VerificationFailedError) return fail(409, "verification_failed");
+		throw err;
+	}
 };

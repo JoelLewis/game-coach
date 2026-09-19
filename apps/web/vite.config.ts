@@ -11,7 +11,29 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter()
+			adapter: adapter(),
+			// F10/F11: SvelteKit generates and applies this itself (nonce for dynamically
+			// rendered pages, hash for prerendered ones -- 'auto' picks per page), stamping the
+			// same value onto both the header and its own inline bootstrap script. The static
+			// header this used to be (src/lib/server/security-headers.ts) could never do that,
+			// and so either blocked hydration or had to allow unrestricted inline scripts.
+			csp: {
+				mode: 'auto',
+				directives: {
+					'default-src': ['self'],
+					// 'wasm-unsafe-eval' allows WebAssembly.instantiate without allowing JS eval.
+					'script-src': ['self', 'wasm-unsafe-eval'],
+					'worker-src': ['self', 'blob:'],
+					'connect-src': ['self'],
+					'img-src': ['self', 'data:'],
+					'style-src': ['self', 'unsafe-inline'],
+					'font-src': ['self'],
+					'object-src': ['none'],
+					'base-uri': ['self'],
+					'form-action': ['self'],
+					'frame-ancestors': ['none']
+				}
+			}
 		})
 	],
 	server: {

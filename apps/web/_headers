@@ -1,8 +1,12 @@
 # hooks.server.ts sets these for every dynamic response; static assets bypass the Worker
 # entirely (see src/lib/server/security-headers.ts), so they need the same headers here.
 # Stockfish's multi-threaded WASM build requires the page to be cross-origin isolated.
+# X-Frame-Options is the frame-ancestors-equivalent for these static responses: SvelteKit's own
+# generated CSP (vite.config.ts) sets frame-ancestors 'none' on dynamic responses, but that
+# directive is ignored on prerendered pages served this way (F11).
 /*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY

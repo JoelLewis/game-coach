@@ -5,7 +5,9 @@
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_als"],
   "assets": { "binding": "ASSETS", "directory": ".svelte-kit/cloudflare" },
-  "observability": { "enabled": true },
+  // F09: magic links carry their token in the URL fragment now (never sent to the server), but
+  // this still guards any query string that does reach a request/trace against being retained.
+  "observability": { "enabled": true, "redact_query_string": true },
 
   // Routes, not a Custom Domain: see apps/session/wrangler.jsonc. Enabled at integration (I1).
   // "routes": [{ "pattern": "chess.terminal-games.com/*", "zone_name": "terminal-games.com" }],
@@ -18,6 +20,13 @@
 
   "services": [
     { "binding": "SESSION", "service": "gamecoach-session", "entrypoint": "SessionEntrypoint" }
+  ],
+  // F03: edge/IP admission control in front of the two endpoints that mint a guest identity
+  // (POST /auth/request, POST /api/games), ahead of any D1 write they do. Best-effort/eventually
+  // consistent per Cloudflare's docs -- a backstop, not the only control (see
+  // src/lib/server/players.ts's per-email/per-guest counters for the rest).
+  "ratelimits": [
+    { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 30, "period": 60 } }
   ],
   "d1_databases": [
     {

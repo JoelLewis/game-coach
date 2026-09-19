@@ -5,6 +5,10 @@ export type MagicLinkEmail = { subject: string; text: string; html: string };
 const escapeHtml = (value: string): string =>
 	value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+// F05/F09: the token now travels in the URL fragment, not the query string. A fragment is never
+// sent to the server (so it never reaches Workers logs, Referer headers, or link-scanning
+// prefetchers) and is only visible to script running on the page the browser actually navigates
+// to -- see src/routes/auth/verify/+page.svelte, which reads it client-side and POSTs it.
 export const buildMagicLinkEmail = (verifyUrl: string): MagicLinkEmail => {
 	const subject = "Your GameCoach sign-in link";
 	const text = [

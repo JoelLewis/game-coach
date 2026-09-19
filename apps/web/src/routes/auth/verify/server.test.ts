@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { signSessionCookie } from "../../../lib/server/cookie.ts";
+import { signSessionCookie, verifySessionCookie } from "../../../lib/server/cookie.ts";
 import { sha256Hex } from "../../../lib/server/crypto-utils.ts";
 import { createFakeCookies, createFakeEvent, invokeHandler } from "../../../lib/server/testing/fake-event.ts";
 import { createGuestPlayerAndSession, createMagicLinkToken } from "../../../lib/server/players.ts";
 import { SqliteD1 } from "../../../lib/server/testing/sqlite-d1.ts";
-import { GET } from "./+server.ts";
+import * as verifyModule from "./+server.ts";
+import { POST } from "./+server.ts";
 
 const APP_ORIGIN = "https://chess.terminal-games.com";
-const SESSION_SECRET = "test-secret";
+const SESSION_SECRET = "test-secret-that-is-at-least-32-bytes-long";
 
 let db: SqliteD1;
 
@@ -19,96 +20,140 @@ beforeEach(() => {
 	db = new SqliteD1();
 });
 
-const fakePlatform = () => ({
-	env: { DB: db, APP_ORIGIN, EMAIL_FROM: "coach@chess.terminal-games.com", SESSION_SECRET },
-});
+const fakePlatform = () => ({ env: { DB: db, APP_ORIGIN, EMAIL_FROM: "coach@chess.terminal-games.com", SESSION_SECRET } });
 
-const call = async (token: string | null, guestPlayerId: string, guestSessionId: Uint8Array) => {
-	const cookieValue = await signSessionCookie(guestSessionId, SESSION_SECRET);
-	const url = token ? `${APP_ORIGIN}/auth/verify?token=${encodeURIComponent(token)}` : `${APP_ORIGIN}/auth/verify`;
+const call = async (token: string | undefined, viewerCookie?: string) => {
 	const event = createFakeEvent({
-		url,
+		method: "POST",
+		url: `${APP_ORIGIN}/auth/verify`,
+		jsonBody: token === undefined ? {} : { token },
 		platform: fakePlatform(),
-		locals: { playerId: guestPlayerId, playerKind: "guest" },
-		cookies: createFakeCookies({ gc_session: cookieValue }),
+		locals: {},
+		cookies: createFakeCookies(viewerCookie ? { gc_session: viewerCookie } : {}),
 	});
-	return invokeHandler(GET, event);
+	return invokeHandler(POST, event);
 };
 
-describe("GET /auth/verify", () => {
-	it("consumes the token, promotes the guest, rotates the session, and redirects to /", async () => {
+describe("POST /auth/verify", () => {
+	// F05: there must be no GET handler at all -- the confirmation page (+page.svelte) serves
+	// GET, and it never sends the token anywhere on load. A GET handler existing here would mean
+	// the token could reach the server (and thus logs, scanners, prefetchers) via the query
+	// string again.
+	it("F05: exports no GET handler", () => {
+		expect((verifyModule as Record<string, unknown>).GET).toBeUndefined();
+	});
+
+	it("consumes the token, promotes the guest verifying from its own browser, and signs in", async () => {
 		const guest = await createGuestPlayerAndSession(db, NOW);
 		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
 		if (!created.ok) throw new Error("unreachable");
+		const viewerCookie = await signSessionCookie(guest.sessionId, SESSION_SECRET);
 
-		const response = await call(created.token, guest.playerId, guest.sessionId);
+		const response = await call(created.token, viewerCookie);
+		expect(response.status).toBe(200);
+		expect(await response.json()).toEqual({ ok: true });
 
-		expect(response.status).toBe(303);
-		expect(response.headers.get("location")).toBe("/");
-
-		const player = await db
-			.prepare("SELECT kind FROM players WHERE id = ?")
-			.bind(guest.playerId)
-			.first<{ kind: string }>();
+		const player = await db.prepare("SELECT kind FROM players WHERE id = ?").bind(guest.playerId).first<{ kind: string }>();
 		expect(player?.kind).toBe("account");
-
-		// The pre-verification session id must no longer resolve to anything.
-		const oldHash = await sha256Hex(guest.sessionId);
-		expect(await db.prepare("SELECT * FROM sessions WHERE id_hash = ?").bind(oldHash).first()).toBeNull();
-
-		// A brand new session row for the (now-account) player must exist.
-		const sessions = await db
-			.prepare("SELECT * FROM sessions WHERE player_id = ?")
-			.bind(guest.playerId)
-			.all();
-		expect(sessions.results).toHaveLength(1);
 	});
 
-	it("merges into an existing account and redirects there too", async () => {
+	it("sets a fresh session cookie that verifies against SESSION_SECRET", async () => {
 		const guest = await createGuestPlayerAndSession(db, NOW);
-		const account = await createGuestPlayerAndSession(db, NOW);
-		await db.prepare("UPDATE players SET kind = 'account' WHERE id = ?").bind(account.playerId).run();
+		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
+		if (!created.ok) throw new Error("unreachable");
+		const viewerCookie = await signSessionCookie(guest.sessionId, SESSION_SECRET);
+
+		const cookies = createFakeCookies({ gc_session: viewerCookie });
+		const event = createFakeEvent({
+			method: "POST",
+			url: `${APP_ORIGIN}/auth/verify`,
+			jsonBody: { token: created.token },
+			platform: fakePlatform(),
+			locals: {},
+			cookies,
+		});
+		await invokeHandler(POST, event);
+
+		const newCookie = cookies.get("gc_session");
+		expect(newCookie).toBeDefined();
+		expect(newCookie).not.toBe(viewerCookie);
+		expect(await verifySessionCookie(newCookie as string, SESSION_SECRET)).not.toBeNull();
+	});
+
+	it("responds 400 for a missing token", async () => {
+		const response = await call(undefined);
+		expect(response.status).toBe(400);
+	});
+
+	it("responds 400 for an already-used token", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
+		if (!created.ok) throw new Error("unreachable");
+
+		await call(created.token);
+		const response = await call(created.token);
+		expect(response.status).toBe(400);
+		expect(await response.json()).toEqual({ ok: false, error: "expired_or_invalid" });
+	});
+
+	// F09: no-store/no-referrer on every response from this endpoint, success or failure.
+	it("F09: sets Cache-Control: no-store and Referrer-Policy: no-referrer on success and failure", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
+		if (!created.ok) throw new Error("unreachable");
+
+		const ok = await call(created.token);
+		expect(ok.headers.get("Cache-Control")).toBe("no-store");
+		expect(ok.headers.get("Referrer-Policy")).toBe("no-referrer");
+
+		const bad = await call("garbage-token");
+		expect(bad.headers.get("Cache-Control")).toBe("no-store");
+		expect(bad.headers.get("Referrer-Policy")).toBe("no-referrer");
+	});
+
+	// F01: the critical exploit reproduction at the HTTP layer. The attacker's guest cookie must
+	// never end up resolving to the victim's account, even though the attacker's own
+	// guest_player_id is recorded on the token they requested.
+	it("F01: an attacker's retained guest session never gains the victim's account", async () => {
+		const attackerGuest = await createGuestPlayerAndSession(db, NOW);
+		const created = await createMagicLinkToken(db, "victim@example.com", attackerGuest.playerId, NOW);
+		if (!created.ok) throw new Error("unreachable");
+
+		// The victim verifies with no session cookie at all (the realistic case post-F03).
+		const response = await call(created.token);
+		expect(response.status).toBe(200);
+
+		const attackerRow = await db
+			.prepare("SELECT kind, merged_into FROM players WHERE id = ?")
+			.bind(attackerGuest.playerId)
+			.first<{ kind: string; merged_into: string | null }>();
+		expect(attackerRow?.kind).toBe("guest");
+		expect(attackerRow?.merged_into).toBeNull();
+
+		// The attacker's own (retained) session must still resolve only to their own guest.
+		const attackerSessionHash = await sha256Hex(attackerGuest.sessionId);
+		const attackerSession = await db.prepare("SELECT player_id FROM sessions WHERE id_hash = ?").bind(attackerSessionHash).first<{
+			player_id: string;
+		}>();
+		expect(attackerSession?.player_id).toBe(attackerGuest.playerId);
+	});
+
+	it("F08: a genuinely broken verification is reported as a clean 409, not an unhandled 500", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		const a = await createGuestPlayerAndSession(db, NOW);
+		const b = await createGuestPlayerAndSession(db, NOW);
+		await db.prepare("UPDATE players SET kind = 'account' WHERE id = ?").bind(a.playerId).run();
 		await db
-			.prepare("INSERT INTO accounts (id, email, player_id, created_at) VALUES ('acc1', 'a@example.com', ?, ?)")
-			.bind(account.playerId, NOW)
+			.prepare("INSERT INTO accounts (id, email, player_id, created_at) VALUES ('acc1', 'broken@example.com', ?, ?)")
+			.bind(a.playerId, NOW)
 			.run();
+		await db.prepare("UPDATE players SET merged_into = ? WHERE id = ?").bind(b.playerId, a.playerId).run();
+		await db.prepare("UPDATE players SET merged_into = ? WHERE id = ?").bind(a.playerId, b.playerId).run();
 
-		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
+		const created = await createMagicLinkToken(db, "broken@example.com", guest.playerId, NOW);
 		if (!created.ok) throw new Error("unreachable");
 
-		const response = await call(created.token, guest.playerId, guest.sessionId);
-		expect(response.status).toBe(303);
-
-		// The account already had its own session (from its own createGuestPlayerAndSession
-		// fixture above); verifying adds a second, rotated one for the merged-in guest.
-		const sessions = await db
-			.prepare("SELECT * FROM sessions WHERE player_id = ?")
-			.bind(account.playerId)
-			.all();
-		expect(sessions.results).toHaveLength(2);
-
-		const oldGuestHash = await sha256Hex(guest.sessionId);
-		expect(await db.prepare("SELECT * FROM sessions WHERE id_hash = ?").bind(oldGuestHash).first()).toBeNull();
-	});
-
-	it("redirects to /auth/expired for a missing token", async () => {
-		const guest = await createGuestPlayerAndSession(db, NOW);
-		const response = await call(null, guest.playerId, guest.sessionId);
-		expect(response.status).toBe(303);
-		expect(response.headers.get("location")).toBe("/auth/expired");
-	});
-
-	it("redirects to /auth/expired for an already-used token", async () => {
-		const guest = await createGuestPlayerAndSession(db, NOW);
-		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
-		if (!created.ok) throw new Error("unreachable");
-
-		await call(created.token, guest.playerId, guest.sessionId);
-		// The session cookie has rotated server-side; verifying again with the stale cookie
-		// still exercises the "already used" branch (the token itself is the thing consumed).
-		const secondGuestSession = await createGuestPlayerAndSession(db, NOW);
-		const response = await call(created.token, secondGuestSession.playerId, secondGuestSession.sessionId);
-		expect(response.status).toBe(303);
-		expect(response.headers.get("location")).toBe("/auth/expired");
+		const response = await call(created.token);
+		expect(response.status).toBe(409);
 	});
 });
