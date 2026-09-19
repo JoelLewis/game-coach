@@ -1,0 +1,14 @@
+/*
+ * Study theme surface treatment — board baize border.
+ * Uses box-shadow rings on chessground's .cg-wrap to create a
+ * walnut frame → green baize → walnut outer ring effect.
+ * Box-shadows don't affect layout, so no dimension changes.
+ */
+[data-theme="study"] .cg-wrap {
+  border-radius: 2px;
+  box-shadow:
+    0 0 0 3px var(--cm-study-walnut),
+    0 0 0 8px var(--cm-study-baize),
+    0 0 0 10px var(--cm-study-walnut),
+    3px 6px 20px rgba(139, 109, 71, 0.25);
+}

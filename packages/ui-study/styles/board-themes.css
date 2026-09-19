@@ -1,0 +1,63 @@
+/*
+ * Chessground board theme overrides per [data-theme].
+ *
+ * chessground uses global CSS (no shadow DOM), so we override via cascade.
+ * The brown.css import provides the default board; these rules layer on top.
+ */
+
+/* ─── Study theme board (warm wood — default, inherits brown.css) ──── */
+
+[data-theme="study"] cg-board square.last-move {
+  background-color: var(--cm-board-last-move);
+}
+
+[data-theme="study"] cg-board square.selected {
+  background-color: var(--cm-board-selected);
+}
+
+/* ─── Grid theme board (dark neon) ──────────────────────────────── */
+
+/* Dark board with faint grid lines */
+[data-theme="grid"] cg-board {
+  background-color: var(--cm-bg-surface-alt);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3E%3Cg id='a'%3E%3Cg id='b'%3E%3Cg id='c'%3E%3Cg id='d'%3E%3Crect width='1' height='1' id='e' opacity='0'/%3E%3Cuse x='1' y='1' href='%23e'/%3E%3Crect y='1' width='1' height='1' id='f' fill='%2300e5ff' opacity='0.05'/%3E%3Cuse x='1' y='-1' href='%23f'/%3E%3C/g%3E%3Cuse x='2' href='%23d'/%3E%3C/g%3E%3Cuse x='4' href='%23c'/%3E%3C/g%3E%3Cuse y='2' href='%23b'/%3E%3C/g%3E%3Cuse y='4' href='%23a'/%3E%3C/svg%3E");
+}
+
+[data-theme="grid"] cg-board square.last-move {
+  background-color: var(--cm-board-last-move);
+}
+
+[data-theme="grid"] cg-board square.selected {
+  background-color: var(--cm-board-selected);
+}
+
+[data-theme="grid"] cg-board square.check {
+  background: var(--cm-board-check);
+}
+
+[data-theme="grid"] cg-board square.move-dest {
+  background: radial-gradient(var(--cm-board-move-dest) 22%, transparent 0);
+}
+
+[data-theme="grid"] cg-board square.move-dest:hover {
+  background: var(--cm-board-move-dest-hover);
+}
+
+[data-theme="grid"] cg-board square.oc.move-dest {
+  background: radial-gradient(transparent 0%, transparent 80%, var(--cm-board-move-dest) 80%);
+}
+
+/* Grid theme coord labels */
+[data-theme="grid"] .orientation-white .ranks :nth-child(odd),
+[data-theme="grid"] .orientation-white .files :nth-child(even),
+[data-theme="grid"] .orientation-black .ranks :nth-child(even),
+[data-theme="grid"] .orientation-black .files :nth-child(odd) {
+  color: var(--cm-board-coords-dark);
+}
+
+[data-theme="grid"] .orientation-white .ranks :nth-child(even),
+[data-theme="grid"] .orientation-white .files :nth-child(odd),
+[data-theme="grid"] .orientation-black .ranks :nth-child(odd),
+[data-theme="grid"] .orientation-black .files :nth-child(even) {
+  color: var(--cm-board-coords-light);
+}
