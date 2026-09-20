@@ -6,6 +6,7 @@ import {
   checkGameOwnership,
   isAllowedOrigin,
   resolvePlayerId,
+  resolvePlayerKind,
   verifySessionCookie,
 } from "../src/auth.ts";
 import { WS_CLOSE } from "@game-coach/contracts/ws-protocol";
@@ -112,18 +113,45 @@ describe("checkGameOwnership", () => {
   });
 });
 
+describe("resolvePlayerKind", () => {
+  it("returns the player's kind", async () => {
+    await seedPlayer(env.DB, "kind-guest-1", "guest");
+    await seedPlayer(env.DB, "kind-account-1", "account");
+    expect(await resolvePlayerKind(env.DB, "kind-guest-1")).toBe("guest");
+    expect(await resolvePlayerKind(env.DB, "kind-account-1")).toBe("account");
+  });
+
+  it("returns undefined for an unknown player", async () => {
+    expect(await resolvePlayerKind(env.DB, "no-such-player")).toBeUndefined();
+  });
+});
+
 describe("authenticateWsRequest", () => {
   const gameUrl = "https://chess.terminal-games.com/ws/game/game-full-1";
 
-  it("succeeds end to end for a valid origin, cookie and game ownership", async () => {
-    await seedPlayer(env.DB, "player-full-1");
+  it("succeeds end to end for a valid origin, cookie and game ownership, and resolves the player's kind", async () => {
+    await seedPlayer(env.DB, "player-full-1", "guest");
     await seedSession(env.DB, "sess-full-1", "player-full-1");
     await seedGame(env.DB, "game-full-1", "player-full-1");
     const cookie = `gc_session=${await signSessionCookie("sess-full-1", "test-session-secret-at-least-32-bytes-long")}`;
     const request = new Request(gameUrl, { headers: { Origin: "https://chess.terminal-games.com", Cookie: cookie } });
 
     const result = await authenticateWsRequest(request, env, "game-full-1");
-    expect(result).toEqual({ ok: true, playerId: "player-full-1" });
+    expect(result).toEqual({ ok: true, playerId: "player-full-1", playerKind: "guest" });
+  });
+
+  it("resolves an account player's kind too, after following a merge", async () => {
+    await seedPlayer(env.DB, "account-full-1", "account");
+    await seedPlayer(env.DB, "guest-merged-full-1", "guest", "account-full-1");
+    await seedSession(env.DB, "sess-full-merged-1", "guest-merged-full-1");
+    await seedGame(env.DB, "game-full-merged-1", "account-full-1");
+    const cookie = `gc_session=${await signSessionCookie("sess-full-merged-1", "test-session-secret-at-least-32-bytes-long")}`;
+    const request = new Request("https://chess.terminal-games.com/ws/game/game-full-merged-1", {
+      headers: { Origin: "https://chess.terminal-games.com", Cookie: cookie },
+    });
+
+    const result = await authenticateWsRequest(request, env, "game-full-merged-1");
+    expect(result).toEqual({ ok: true, playerId: "account-full-1", playerKind: "account" });
   });
 
   it("rejects a bad origin with WS_CLOSE.unauthorized", async () => {

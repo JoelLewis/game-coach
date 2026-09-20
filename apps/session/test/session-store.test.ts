@@ -90,34 +90,42 @@ describe("session-store", () => {
     expect(meta?.lastJevCallAt).toBe(5_000);
   });
 
-  it("accumulates pending Jev usage and snapshot-resets it atomically", async () => {
-    const result = await withStore("store-usage", (sql) => {
-      init(sql);
-      store.recordJevUsage(sql, 100);
-      store.recordJevUsage(sql, 50);
-      const before = store.getMeta(sql);
-      const snapshot = store.snapshotAndResetPendingUsage(sql);
-      const after = store.getMeta(sql);
-      return { before, snapshot, after };
+  describe("usage outbox (A08, 2026-09-20)", () => {
+    it("recordJevUsage persists an outbox row per call, not a running counter", async () => {
+      const rows = await withStore("store-usage-outbox", (sql) => {
+        init(sql);
+        store.recordJevUsage(sql, "usage-1", "2026-09-20", 100, 1_000);
+        store.recordJevUsage(sql, "usage-2", "2026-09-20", 50, 2_000);
+        return store.getUnflushedUsageOutbox(sql);
+      });
+      expect(rows).toEqual([
+        { id: "usage-1", day: "2026-09-20", jevCalls: 1, jevInputTokens: 100 },
+        { id: "usage-2", day: "2026-09-20", jevCalls: 1, jevInputTokens: 50 },
+      ]);
     });
-    expect(result.before?.pendingJevCalls).toBe(2);
-    expect(result.before?.pendingJevInputTokens).toBe(150);
-    expect(result.snapshot).toEqual({ jevCalls: 2, jevInputTokens: 150 });
-    expect(result.after?.pendingJevCalls).toBe(0);
-    expect(result.after?.pendingJevInputTokens).toBe(0);
-  });
 
-  it("restores a snapshot additively on addBackPendingUsage", async () => {
-    const meta = await withStore("store-usage-restore", (sql) => {
-      init(sql);
-      store.recordJevUsage(sql, 100);
-      const snapshot = store.snapshotAndResetPendingUsage(sql);
-      store.recordJevUsage(sql, 25); // usage recorded while a flush was "in flight"
-      store.addBackPendingUsage(sql, snapshot);
-      return store.getMeta(sql);
+    it("markUsageOutboxFlushed removes only the acknowledged ids from the unflushed set", async () => {
+      const result = await withStore("store-usage-outbox-ack", (sql) => {
+        init(sql);
+        store.recordJevUsage(sql, "usage-a", "2026-09-20", 10, 1_000);
+        store.recordJevUsage(sql, "usage-b", "2026-09-20", 20, 2_000);
+        store.markUsageOutboxFlushed(sql, ["usage-a"]);
+        return store.getUnflushedUsageOutbox(sql);
+      });
+      expect(result).toEqual([{ id: "usage-b", day: "2026-09-20", jevCalls: 1, jevInputTokens: 20 }]);
     });
-    expect(meta?.pendingJevCalls).toBe(2);
-    expect(meta?.pendingJevInputTokens).toBe(125);
+
+    it("a duplicate id is not a distinct row a second flush could double-count", async () => {
+      // recordJevUsage always receives a fresh id in production (crypto.randomUUID()); this just
+      // documents that the outbox's own idempotency boundary is the D1-side apply, not a DO-side
+      // unique constraint surprise - inserting the same id twice would throw here, which is the
+      // desired behaviour (the caller must never reuse an id for two different deltas).
+      await withStore("store-usage-outbox-dup", (sql) => {
+        init(sql);
+        store.recordJevUsage(sql, "dup-id", "2026-09-20", 10, 1_000);
+        expect(() => store.recordJevUsage(sql, "dup-id", "2026-09-20", 5, 2_000)).toThrow();
+      });
+    });
   });
 
   it("records a judgment and a coach event, and returns recent events newest-ply-last", async () => {
@@ -412,6 +420,10 @@ describe("session-store", () => {
         "shadow_decision_json",
         "shadow_latency_ms",
         "shadow_input_tokens",
+        "version",
+        "shadow_state_hash",
+        "shadow_model",
+        "shadow_transport",
       ]);
       // The pre-existing row is untouched apart from the new columns: it predates this
       // migration, so it was necessarily a Jev decision, and its flushed state is preserved.
@@ -428,6 +440,196 @@ describe("session-store", () => {
         return sql.exec<{ decided_by: string }>("SELECT decided_by FROM judgments WHERE ply = 1").one();
       });
       expect(result.decided_by).toBe("engine_facts");
+    });
+  });
+
+  describe("A05: identity adoption and socket generation", () => {
+    it("updateIdentity overwrites the stored player id/kind", async () => {
+      const meta = await withStore("store-identity", (sql) => {
+        init(sql);
+        store.updateIdentity(sql, "account-1", "account");
+        return store.getMeta(sql);
+      });
+      expect(meta?.playerId).toBe("account-1");
+      expect(meta?.playerKind).toBe("account");
+    });
+
+    it("nextSocketGeneration increments monotonically from zero", async () => {
+      const generations = await withStore("store-generation", (sql) => {
+        init(sql);
+        return [store.getMeta(sql)?.socketGeneration, store.nextSocketGeneration(sql), store.nextSocketGeneration(sql)];
+      });
+      expect(generations).toEqual([0, 1, 2]);
+    });
+  });
+
+  describe("A03: per-connection rate limiting", () => {
+    it("allows up to the burst size instantly, then denies until tokens refill", async () => {
+      const result = await withStore("store-rate-burst", (sql) => {
+        init(sql);
+        const now = 10_000_000;
+        // Burst of 20 must all be allowed with no time passing.
+        const allowedInBurst = Array.from({ length: store.RATE_LIMIT.burst }, () => store.checkRateLimit(sql, now).allowed);
+        const nextOneDenied = store.checkRateLimit(sql, now);
+        // One second later, exactly refillPerSecond (5) more tokens are available.
+        const afterOneSecond = Array.from({ length: store.RATE_LIMIT.refillPerSecond }, () =>
+          store.checkRateLimit(sql, now + 1000).allowed,
+        );
+        const deniedAgain = store.checkRateLimit(sql, now + 1000);
+        return { allowedInBurst, nextOneDenied, afterOneSecond, deniedAgain };
+      });
+      expect(result.allowedInBurst.every(Boolean)).toBe(true);
+      expect(result.nextOneDenied.allowed).toBe(false);
+      expect(result.afterOneSecond.every(Boolean)).toBe(true);
+      expect(result.deniedAgain.allowed).toBe(false);
+    });
+
+    it("flags sustained offenders for closing once violations reach the threshold", async () => {
+      const result = await withStore("store-rate-close", (sql) => {
+        init(sql);
+        const now = 20_000_000;
+        for (let i = 0; i < store.RATE_LIMIT.burst; i++) store.checkRateLimit(sql, now);
+        let last: store.RateLimitResult = { allowed: true, shouldClose: false };
+        for (let i = 0; i < store.RATE_LIMIT.violationsBeforeClose; i++) last = store.checkRateLimit(sql, now);
+        return last;
+      });
+      expect(result.allowed).toBe(false);
+      expect(result.shouldClose).toBe(true);
+    });
+
+    it("checkHelloThrottle enforces an independent 1/s cap", async () => {
+      const result = await withStore("store-hello-throttle", (sql) => {
+        init(sql);
+        const now = 30_000_000;
+        const first = store.checkHelloThrottle(sql, now);
+        const immediatelyAfter = store.checkHelloThrottle(sql, now + 100);
+        const afterOneSecond = store.checkHelloThrottle(sql, now + 1000);
+        return { first, immediatelyAfter, afterOneSecond };
+      });
+      expect(result).toEqual({ first: true, immediatelyAfter: false, afterOneSecond: true });
+    });
+  });
+
+  describe("A06/A07: flush retry bookkeeping", () => {
+    it("recordFlushFailure backs off exponentially up to the cap", () => {
+      expect(store.flushBackoffMs(0)).toBe(1_000);
+      expect(store.flushBackoffMs(1)).toBe(2_000);
+      expect(store.flushBackoffMs(2)).toBe(4_000);
+      expect(store.flushBackoffMs(10)).toBe(store.FLUSH_RETRY.capMs);
+    });
+
+    it("recordFlushFailure persists an increasing retry count and next-retry deadline", async () => {
+      const result = await withStore("store-flush-retry", (sql) => {
+        init(sql);
+        const first = store.recordFlushFailure(sql, 1_000_000);
+        const second = store.recordFlushFailure(sql, 1_002_000);
+        return { first, second, meta: store.getMeta(sql) };
+      });
+      expect(result.first.gaveUp).toBe(false);
+      expect(result.first.nextRetryAt).toBe(1_000_000 + store.flushBackoffMs(0));
+      expect(result.second.retryCount).toBe(2);
+      expect(result.second.nextRetryAt).toBe(1_002_000 + store.flushBackoffMs(1));
+      expect(result.meta?.flushRetryCount).toBe(2);
+      expect(result.meta?.flushRetryStartedAt).toBe(1_000_000);
+    });
+
+    it("gives up after ~24h of continuous failure and stops proposing a retry deadline", async () => {
+      const result = await withStore("store-flush-giveup", (sql) => {
+        init(sql);
+        store.recordFlushFailure(sql, 0);
+        return store.recordFlushFailure(sql, store.FLUSH_RETRY.giveUpAfterMs + 1);
+      });
+      expect(result.gaveUp).toBe(true);
+      expect(result.nextRetryAt).toBeNull();
+    });
+
+    it("clearFlushRetry resets the retry state", async () => {
+      const meta = await withStore("store-flush-clear", (sql) => {
+        init(sql);
+        store.recordFlushFailure(sql, 1_000);
+        store.clearFlushRetry(sql);
+        return store.getMeta(sql);
+      });
+      expect(meta).toMatchObject({ flushRetryCount: 0, flushRetryStartedAt: null, nextFlushRetryAt: null });
+    });
+
+    it("setTerminalFlushDone marks the game as having durably reached D1", async () => {
+      const meta = await withStore("store-terminal-done", (sql) => {
+        init(sql);
+        store.setTerminalFlushDone(sql);
+        return store.getMeta(sql);
+      });
+      expect(meta?.terminalFlushDone).toBe(true);
+    });
+  });
+
+  describe("A06: version-guarded flush acknowledgement", () => {
+    it("markFlushed does not acknowledge a judgment whose version moved since it was snapshotted", async () => {
+      const result = await withStore("store-version-guard", (sql) => {
+        init(sql);
+        store.recordPlayerMove(sql, moveFacts({ ply: 1 }), 1);
+        store.recordJudgment(sql, engineFactsRecord(1));
+        const snapshot = store.getUnflushed(sql);
+
+        // A shadow completion lands "mid-flight": it bumps the row's version and marks it dirty
+        // again before the in-flight flush's acknowledgement (keyed to the stale snapshot) runs.
+        store.recordShadowResult(sql, {
+          ply: 1,
+          status: "ok",
+          answers: {} as never,
+          decision: {} as never,
+          latencyMs: 1,
+          inputTokens: 1,
+        });
+
+        store.markFlushed(sql, snapshot, 1); // acknowledges the stale (pre-shadow) version
+        return store.getUnflushed(sql);
+      });
+      // The row must still show up as unflushed: the stale acknowledgement was a no-op.
+      expect(result.judgments).toHaveLength(1);
+      expect(result.judgments[0]?.shadowStatus).toBe("ok");
+    });
+  });
+
+  describe("A09: shadow audit columns", () => {
+    it("recordShadowResult persists the shadow state hash, model and transport alongside the shadow decision", async () => {
+      const row = await withStore("store-shadow-audit", (sql) => {
+        init(sql);
+        store.recordPlayerMove(sql, moveFacts({ ply: 1 }), 1);
+        store.recordJudgment(sql, engineFactsRecord(1));
+        store.recordShadowResult(sql, {
+          ply: 1,
+          status: "ok",
+          answers: {} as never,
+          decision: {} as never,
+          latencyMs: 5,
+          inputTokens: 10,
+          stateHash: "a".repeat(64),
+          model: "heuristic-0",
+          transport: "fixture",
+        });
+        return sql
+          .exec<{ shadow_state_hash: string; shadow_model: string; shadow_transport: string }>(
+            "SELECT shadow_state_hash, shadow_model, shadow_transport FROM judgments WHERE ply = 1",
+          )
+          .one();
+      });
+      expect(row).toEqual({ shadow_state_hash: "a".repeat(64), shadow_model: "heuristic-0", shadow_transport: "fixture" });
+    });
+
+    it("leaves the shadow audit columns NULL for a budget/unavailable status (no judged result to attribute)", async () => {
+      const row = await withStore("store-shadow-audit-none", (sql) => {
+        init(sql);
+        store.recordPlayerMove(sql, moveFacts({ ply: 1 }), 1);
+        store.recordJudgment(sql, engineFactsRecord(1));
+        store.recordShadowResult(sql, { ply: 1, status: "budget", answers: undefined, decision: undefined, latencyMs: undefined, inputTokens: undefined });
+        return sql
+          .exec<{ shadow_state_hash: string | null; shadow_model: string | null; shadow_transport: string | null }>(
+            "SELECT shadow_state_hash, shadow_model, shadow_transport FROM judgments WHERE ply = 1",
+          )
+          .one();
+      });
+      expect(row).toEqual({ shadow_state_hash: null, shadow_model: null, shadow_transport: null });
     });
   });
 });

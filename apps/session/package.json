@@ -9,7 +9,7 @@
     "deploy": "wrangler deploy",
     "types": "wrangler types",
     "typecheck": "wrangler types && tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests && vitest run --passWithNoTests --config vitest.shadow.config.ts"
+    "test": "vitest run --passWithNoTests && vitest run --passWithNoTests --config vitest.shadow.config.ts && vitest run --passWithNoTests --config vitest.shadow-workers-ai.config.ts"
   },
   "dependencies": {
     "@game-coach/coaching-core": "workspace:*",

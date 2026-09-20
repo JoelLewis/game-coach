@@ -145,6 +145,19 @@ question from "did the player miss a tactic". Decision (Joel, 2026-09-19): the l
 - **Kill rule.** After one redesign of the question set plus a fresh round of human labels, if no
   question shows a win on error class or teachability (the two things engine facts alone cannot
   answer), remove Jev, `judge-jev-shadow.ts`, `BudgetGate` and the shadow columns entirely.
+- **Real-spend interlock (2026-09-20, A01/A02/A09).** The 2026-09-20 security re-review
+  (`docs/reviews/2026-09-20-session-and-auth-rereview.md`) found that `BudgetGate` reservations do
+  not cover retries or input tokens and have no dated caps (A01, A02), and that a stored shadow
+  result has no archived-state hash/model/transport linking it back to its R2 artifact (A09).
+  Because Jev is already demoted to shadow-only and may be removed outright per the kill rule
+  above, the fix is not a budget/leases rebuild - it is to make real spend impossible by
+  construction until that accounting is rebuilt: `game-session.ts`'s constructor and
+  `#getJevMode()` treat `JEV_MODE=shadow` with `JEV_TRANSPORT=workers_ai` exactly as
+  `JEV_MODE=off` (no reservation, no model call), logging one error per DO start when this
+  triggers. Shadow mode with the `fixture` transport (every test in this repo) is unaffected. A09's
+  cheap part is fixed independently: `shadow_state_hash`/`shadow_model`/`shadow_transport`
+  (`db/migrations/0004_session_row_versions.sql`) are now persisted whenever a shadow result is
+  actually stored.
 
 ## Verification
 - Per package: cargo tests + `wasm-pack test --node`; vitest (schema round-trips, `decide()` tables, replay determinism, metrics with known answers); vitest-pool-workers for session (rehydrate after simulated eviction, budget denial, bad-ply rejection, D1 batch contents); svelte-check + Playwright for web.

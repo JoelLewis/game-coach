@@ -45,12 +45,30 @@ const EXPECTED_COLUMNS: Record<string, string[]> = {
     "shadow_decision_json",
     "shadow_latency_ms",
     "shadow_input_tokens",
+    // db/migrations/0004_session_row_versions.sql (R1 security-review fixes, A06/A09).
+    "version",
+    "shadow_state_hash",
+    "shadow_model",
+    "shadow_transport",
   ],
-  coaching_events: ["id", "game_id", "ply", "kind", "template_id", "theme_id", "text", "source", "helpful", "created_at"],
+  coaching_events: [
+    "id",
+    "game_id",
+    "ply",
+    "kind",
+    "template_id",
+    "theme_id",
+    "text",
+    "source",
+    "helpful",
+    "created_at",
+    "version",
+  ],
   accounts: ["id", "email", "player_id", "created_at"],
   magic_link_tokens: ["token_hash", "email", "guest_player_id", "expires_at", "used_at"],
   sessions: ["id_hash", "player_id", "expires_at", "created_at"],
   usage_daily: ["player_id", "day", "games", "jev_calls", "jev_input_tokens", "writer_calls"],
+  usage_outbox_applied: ["id", "player_id", "day", "jev_calls", "jev_input_tokens", "applied_at"],
 };
 
 describe("db/migrations applied in order", () => {
@@ -71,6 +89,46 @@ describe("db/migrations applied in order", () => {
     const db = freshDb();
     expect(() => db.exec("INSERT INTO players VALUES ('p1', 'robot', NULL, 0)")).toThrow();
     db.exec("INSERT INTO players VALUES ('p1', 'guest', NULL, 0)");
+    db.close();
+  });
+
+  it("0004_session_row_versions.sql: judgments/coaching_events default version to 1, shadow audit columns start NULL", () => {
+    const db = freshDb();
+    db.exec("INSERT INTO players VALUES ('p1', 'guest', NULL, 0)");
+    db.exec(
+      `INSERT INTO games (id, player_id, game, source, status, result, config_json, r2_key, last_ply, started_at, ended_at)
+        VALUES ('g1', 'p1', 'chess', 'played', 'live', NULL, '{}', NULL, 0, 0, NULL)`,
+    );
+    db.exec(
+      `INSERT INTO judgments (game_id, ply, jev_model, transport, state_hash, answers_json, decision_json, action_taken, latency_ms, input_tokens, created_at)
+        VALUES ('g1', 1, 'none', 'none', 'h', '{}', '{}', 'queued', 0, 0, 0)`,
+    );
+    db.exec(
+      `INSERT INTO coaching_events (id, game_id, ply, kind, template_id, theme_id, text, source, helpful, created_at)
+        VALUES ('e1', 'g1', 1, 'interrupt', 't1', 'th1', 'x', 'template', NULL, 0)`,
+    );
+    const judgment = db
+      .prepare("SELECT version, shadow_state_hash, shadow_model, shadow_transport FROM judgments WHERE game_id = 'g1' AND ply = 1")
+      .get();
+    expect(judgment).toEqual({ version: 1, shadow_state_hash: null, shadow_model: null, shadow_transport: null });
+    const event = db.prepare("SELECT version FROM coaching_events WHERE id = 'e1'").get();
+    expect(event).toEqual({ version: 1 });
+    db.close();
+  });
+
+  it("0004_session_row_versions.sql: usage_outbox_applied dedupes by id (A08)", () => {
+    const db = freshDb();
+    db.exec("INSERT INTO players VALUES ('p1', 'guest', NULL, 0)");
+    db.exec(
+      `INSERT INTO usage_outbox_applied (id, player_id, day, jev_calls, jev_input_tokens, applied_at)
+        VALUES ('u1', 'p1', '2026-09-20', 1, 100, 0)`,
+    );
+    expect(() =>
+      db.exec(
+        `INSERT INTO usage_outbox_applied (id, player_id, day, jev_calls, jev_input_tokens, applied_at)
+          VALUES ('u1', 'p1', '2026-09-20', 1, 100, 0)`,
+      ),
+    ).toThrow();
     db.close();
   });
 
