@@ -1,5 +1,6 @@
 import path from "node:path";
 import { defineWorkersConfig, readD1Migrations } from "@cloudflare/vitest-pool-workers/config";
+import { configDefaults } from "vitest/config";
 
 export default defineWorkersConfig(async () => {
   const migrationsPath = path.join(import.meta.dirname, "..", "..", "db", "migrations");
@@ -7,6 +8,11 @@ export default defineWorkersConfig(async () => {
 
   return {
     test: {
+      // test/game-session-shadow.test.ts needs JEV_MODE="shadow" (wrangler.jsonc's default is
+      // "off"), which a wrangler var can't differ by test file within one pool-workers config -
+      // it runs under vitest.shadow.config.ts instead (see that file and package.json's `test`
+      // script, which runs both).
+      exclude: [...configDefaults.exclude, "test/game-session-shadow.test.ts"],
       setupFiles: ["./test/apply-migrations.ts"],
       poolOptions: {
         workers: {

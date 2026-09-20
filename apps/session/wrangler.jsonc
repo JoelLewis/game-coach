@@ -13,7 +13,12 @@
   "vars": {
     "APP_ORIGIN": "https://chess.terminal-games.com",
     // "workers_ai" in production; "fixture" replays/heuristics with no AI spend.
-    "JEV_TRANSPORT": "fixture"
+    "JEV_TRANSPORT": "fixture",
+    // The live coach is code-only (judge-facts.ts); Jev only ever runs in the shadow, logged and
+    // never shown to the player. "off" (default): no shadow calls at all. "shadow": every
+    // player move also gets a shadow Jev call, under the same BudgetGate rules as before, after
+    // the player's frames are sent. See docs/build-plan.md, "Jev in shadow mode".
+    "JEV_MODE": "off"
   },
   // Secret: SESSION_SECRET (shared with gamecoach-web). Local: .dev.vars
 

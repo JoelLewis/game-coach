@@ -42,6 +42,7 @@ export const decide = (answers: JevAnswers, thresholds: ThresholdConfig, context
       missedTactic,
       lowConfidence: false,
       reasons: ["mode=off"],
+      decidedBy: "jev",
     };
   }
 
@@ -118,5 +119,6 @@ export const decide = (answers: JevAnswers, thresholds: ThresholdConfig, context
     missedTactic,
     lowConfidence,
     reasons,
+    decidedBy: "jev",
   };
 };

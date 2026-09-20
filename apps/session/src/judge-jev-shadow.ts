@@ -1,24 +1,27 @@
-// Pure orchestration of one player move through the Jev decision layer: state block -> template
-// pre-filter -> Jev request -> transport.judge -> decide() -> template fill. No storage, no
-// WebSocket I/O - the caller (game-session.ts) persists results and pushes frames. This is what
-// makes the coaching logic itself testable without a Durable Object.
+// Pure orchestration of one player move through the JEV DECISION LAYER, run only in SHADOW mode
+// (2026-09-19, see docs/build-plan.md "Jev in shadow mode"): state block -> template pre-filter
+// -> Jev request -> transport.judge -> decide() -> template fill. No storage, no WebSocket I/O -
+// the caller (game-session.ts) persists the shadow result against the same judgment row and
+// never shows any of it to the player. The live path is judge-facts-live.ts instead, which never
+// reaches this file.
 import type { GameKind, MoveFacts } from "@game-coach/contracts/engine";
 import type { ThresholdConfig, DecisionContext, Decision } from "@game-coach/contracts/decision";
 import { practicalLossFor } from "@game-coach/contracts/practical-loss";
 import { JevError, stateHash, type JevAnswers, type JevTransport } from "@game-coach/contracts/jev";
 import { STATE_TOKEN_BUDGET, type StateBlock } from "@game-coach/contracts/state-block";
 import type { RatingBand, ErrorClass } from "@game-coach/contracts/taxonomy";
-import type { Template, TemplateLibrary } from "@game-coach/contracts/templates";
+import type { TemplateLibrary } from "@game-coach/contracts/templates";
 import type { CoachEvent } from "@game-coach/contracts/ws-protocol";
 import { buildStateBlock, fitToBudget } from "@game-coach/coaching-core/state-block";
 import { buildJevRequest, assertRequestWithinBudget } from "@game-coach/coaching-core/jev-request";
 import { selectTemplateCandidates } from "@game-coach/coaching-core/template-candidates";
 import { decide } from "@game-coach/coaching-core/decide";
 import { fillTemplate, slotValuesFromFacts, MissingSlotError } from "@game-coach/coaching-core/template-fill";
+import { selectSpokenTemplate, type SpokenKind } from "@game-coach/coaching-core/spoken-template";
 import { buildCoachEvent } from "@game-coach/coaching-core/coach-event";
 import type { ThemeMap } from "./templates-source.ts";
 
-export type JudgeMovePlayer = {
+export type JudgeJevShadowPlayer = {
   ratingBand: RatingBand;
   errorClassRates: Partial<Record<ErrorClass, number>>;
   gamesInProfile: number;
@@ -26,13 +29,13 @@ export type JudgeMovePlayer = {
   movesSinceLastCoachingEvent: number;
 };
 
-export type JudgeMoveInput = {
+export type JudgeJevShadowInput = {
   facts: MoveFacts;
   game: GameKind;
   timeControl: string;
   boardSize: number | null;
   thresholds: ThresholdConfig;
-  player: JudgeMovePlayer;
+  player: JudgeJevShadowPlayer;
   clock: { medianMoveTimeMs: number | null; remainingMs: number | null };
   // practicalLoss is computed here from the engine facts, so no caller can forget or fake it.
   context: Omit<DecisionContext, "practicalLoss">;
@@ -41,7 +44,7 @@ export type JudgeMoveInput = {
   idFactory: () => string;
 };
 
-export type JudgedMove = {
+export type JevShadowJudged = {
   kind: "judged";
   decision: Decision;
   answers: JevAnswers;
@@ -54,7 +57,7 @@ export type JudgedMove = {
   coachEvent: CoachEvent | undefined;
 };
 
-export type JudgeMoveResult = JudgedMove | { kind: "unavailable"; error: JevError };
+export type JevShadowResult = JevShadowJudged | { kind: "unavailable"; error: JevError };
 
 // Only Jev's designated error type reaches the caller; everything else (a thrown
 // StateBlockTooLargeError, JevRequestTooLargeError, NoTemplateCandidatesError, ...) means the
@@ -62,54 +65,30 @@ export type JudgeMoveResult = JudgedMove | { kind: "unavailable"; error: JevErro
 const asJevError = (error: unknown): JevError =>
   error instanceof JevError ? error : new JevError("bad_response", "Could not build a Jev request", error);
 
-type SpokenKind = "error" | "praise";
-
-const tryFill = (template: Template, values: ReturnType<typeof slotValuesFromFacts>): string | undefined => {
-  try {
-    return fillTemplate(template, values);
-  } catch (error) {
-    if (error instanceof MissingSlotError) return undefined;
-    throw error;
-  }
-};
-
-// How well an error template fits what decide() concluded, for when Jev's own pick cannot be used.
-const errorFitScore = (template: Template, decision: Decision, phase: MoveFacts["phase"]): number =>
-  (template.errorClass === decision.errorClass ? 4 : 0) +
-  (template.severities.includes(decision.severity) ? 2 : 0) +
-  (template.phase === phase ? 1 : 0);
-
-const errorFallbacks = (library: TemplateLibrary, decision: Decision, phase: MoveFacts["phase"]): Template[] =>
-  library.templates
-    .filter((t) => t.kind === "error" && (t.phase === phase || t.phase === "any") && t.severities.includes(decision.severity))
-    .map((template, index) => ({ template, index, score: errorFitScore(template, decision, phase) }))
-    .sort((a, b) => b.score - a.score || a.index - b.index)
-    .map(({ template }) => template);
-
 // The coach only speaks with a template whose kind matches what it is doing. Template choice was
-// Jev's weakest answer in M0, so its pick is a suggestion: an interrupt falls back to the
-// best-fitting error template, and praise with anything but a praise template is dropped, because
-// a mixed signal is not worth breaking the player's silence for.
+// Jev's weakest answer in M0, so its pick is a suggestion, never a licence to say something that
+// does not fit: prefer Jev's own choice when it already matches `kind` and its slots fill, else
+// fall back to coaching-core's kind-matched ranking (the same one the live, code-only judge
+// uses), and only stay silent when nothing at all fits.
 const resolveSpokenTemplate = (
   library: TemplateLibrary,
   decision: Decision,
   facts: MoveFacts,
   kind: SpokenKind,
-): { template: Template; text: string } | undefined => {
+): { template: (typeof library.templates)[number]; text: string } | undefined => {
   const values = slotValuesFromFacts(facts);
   const chosen = library.templates.find((t) => t.id === decision.templateId);
-  const candidates = [
-    ...(chosen !== undefined && chosen.kind === kind ? [chosen] : []),
-    ...(kind === "error" ? errorFallbacks(library, decision, facts.phase) : []),
-  ];
-  for (const template of candidates) {
-    const text = tryFill(template, values);
-    if (text !== undefined) return { template, text };
+  if (chosen !== undefined && chosen.kind === kind) {
+    try {
+      return { template: chosen, text: fillTemplate(chosen, values) };
+    } catch (error) {
+      if (!(error instanceof MissingSlotError)) throw error;
+    }
   }
-  return undefined;
+  return selectSpokenTemplate(library, { kind, errorClass: decision.errorClass, severity: decision.severity, phase: facts.phase }, values);
 };
 
-export const judgeMove = async (input: JudgeMoveInput, transport: JevTransport): Promise<JudgeMoveResult> => {
+export const judgeJevShadow = async (input: JudgeJevShadowInput, transport: JevTransport): Promise<JevShadowResult> => {
   let stateBlock: StateBlock;
   try {
     const raw = buildStateBlock({

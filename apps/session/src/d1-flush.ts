@@ -50,8 +50,9 @@ export const flushToD1 = async (db: D1Database, input: FlushInput): Promise<void
       db
         .prepare(
           `INSERT OR REPLACE INTO judgments
-            (game_id, ply, jev_model, transport, state_hash, answers_json, decision_json, action_taken, latency_ms, input_tokens, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (game_id, ply, jev_model, transport, state_hash, answers_json, decision_json, action_taken, latency_ms, input_tokens, created_at,
+             decided_by, practical_loss, shadow_status, shadow_answers_json, shadow_decision_json, shadow_latency_ms, shadow_input_tokens)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .bind(
           input.gameId,
@@ -65,6 +66,13 @@ export const flushToD1 = async (db: D1Database, input: FlushInput): Promise<void
           judgment.latencyMs,
           judgment.inputTokens,
           judgment.createdAt,
+          judgment.decidedBy,
+          judgment.practicalLoss,
+          judgment.shadowStatus,
+          judgment.shadowAnswersJson,
+          judgment.shadowDecisionJson,
+          judgment.shadowLatencyMs,
+          judgment.shadowInputTokens,
         ),
     );
   }
