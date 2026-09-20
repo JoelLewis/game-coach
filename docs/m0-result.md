@@ -74,3 +74,23 @@ Caveats: the pool is sampled 75% engine-errors by design, so fire rates here are
 `decide()` now refuses to interrupt, report low confidence, or call the writer for a move that lost less than `minPracticalLoss` in winning chances (Lichess's curve, `packages/contracts/src/practical-loss.ts`). The default is 0.10, Lichess's own "mistake" boundary, chosen on principle and not tuned on this pool. On the preview it takes the rule from 170 fires at 24% precision to 50 fires at 76% precision with 90% recall; 0.12 would give 86% / 86%. The session computes the loss from engine facts itself, so a caller cannot omit it.
 
 The same number **alone**, with no model, matched the proposals' severity 85.6% exactly and 99.7% within one level (Jev: 19.1% / 51.2%). Open question for after labeling: compute severity in code and keep Jev for what engines cannot do (error class, theme, teachability, template fit).
+
+## First open-ground-truth measurement: Lichess puzzle set (2026-09-19)
+300 puzzles from the CC0 Lichess puzzle database (all 12 mappable themes, erring players 1000-1800, usernames pseudonymised), two moves each: the real blunder that allowed the tactic, and the opponent's real reply (found the tactic 206 times, missed it 94). Labels come from the database and from real play, not from a person or an LLM. 600 production-shaped requests through `jev-1.13.0`: p50 230 ms, p95 355 ms, $0.045. Upstream `2018: Invalid User Credentials` failures arrive in bursts after a few hundred sequential calls and clear with back-off; the production transport's single retry may be too thin for a burst.
+
+| Question | Result | Reading |
+| --- | --- | --- |
+| `good_move` | median 0.66 when the player found the tactic vs 0.10 otherwise; at 0.5: 99.4% precision, 87.4% recall; at the PRD's 0.8: fired 9 of 600 | Works. The threshold was wrong, not the question. |
+| `error_class` | 364 of 394 tactical errors classed `tactical_oversight` (92%) | Works (one class only tested). |
+| `missed_tactic` | median 0.91 when missed vs **0.78 when found**; best precision 66% at 0.9 | Answers "was there a tactic?", not "did the player miss it?". |
+| `theme` | top-1 31.8%, top-3 51.5% (chance 3.8%); collapses to `hanging_piece`; discovered_attack 0/44, trapped_piece 0/46, skewer 1/56 | Not usable for drill selection as asked. |
+| severity / interrupt on found tactics | non-fine on 87 of 206, `interrupt_now` >= 0.7 on 22 | The practical-loss gate already blocks these (loss is ~0). |
+
+Severity and `interruptWorthy` on this set are derived by formula and are NOT used to judge those questions.
+
+### Where this points
+The pattern across both pools is consistent: Jev is good at **fuzzy classification of a move it is told about** (what kind of error, was this move good) and poor at anything that is really an **engine fact** (how much it cost, whether the best move was played). So:
+- compute in code from engine facts: severity (practical loss), missed tactic (played move is not the engine's first choice AND the best line's advantage is large AND the loss is real), the interrupt gate;
+- keep Jev for: `error_class`, `good_move` (threshold ~0.5-0.6, to be set on held-out data), `teachable`, template fit;
+- `theme`: either derive from the Rust motif detector (`tactics_*` features already name pins, forks, skewers, back-rank threats) with Jev as a tie-breaker, or rewrite the theme criteria so they discriminate; measure both on this set, which is free to re-run.
+This keeps the PRD's principles intact: engine owns truth, Jev owns judgment, code owns the workflow. It narrows "judgment" to what the data says Jev can judge.
