@@ -149,4 +149,32 @@ describe("POST /auth/request", () => {
 		expect(response.headers.get("Cache-Control")).toBe("no-store");
 		expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
 	});
+
+	// B06: the streamed byte cap runs before JSON parsing, independent of any per-field length
+	// limit the schema would otherwise enforce.
+	it("B06: rejects an oversized body with 413 before sending any email", async () => {
+		const event = createFakeEvent({
+			method: "POST",
+			url: `${APP_ORIGIN}/auth/request`,
+			jsonBody: { email: "a@example.com", junk: "x".repeat(16 * 1024) },
+			platform: fakePlatform(),
+			locals: { playerId: GUEST_ID, playerKind: "guest" as const },
+			cookies: createFakeCookies(),
+		});
+		const response = await invokeHandler(POST, event);
+		expect(response.status).toBe(413);
+		expect(sendEmail).not.toHaveBeenCalled();
+	});
+
+	// B03: the global daily guest-mint cap is exhausted before a token can even be created.
+	it("B03: returns a controlled 503 once the guest-mint daily cap is exhausted, without sending email", async () => {
+		const cappedPlatform = fakePlatform({ GUEST_MINT_DAILY_CAP: "1" });
+		const first = await call("first@example.com", { playerId: null, platform: cappedPlatform });
+		expect(first.status).toBe(202);
+		sendEmail.mockClear();
+
+		const second = await call("second@example.com", { playerId: null, platform: cappedPlatform });
+		expect(second.status).toBe(503);
+		expect(sendEmail).not.toHaveBeenCalled();
+	});
 });

@@ -4,11 +4,12 @@
 // front of any D1 write (also F03).
 import { error, json } from "@sveltejs/kit";
 import * as v from "valibot";
+import { readJsonBody } from "../../../lib/server/http-body.ts";
 import { isJsonContentType } from "../../../lib/server/origin.ts";
 import { isIpRateLimited } from "../../../lib/server/rate-limit.ts";
 import { applyAuthResponseHeaders } from "../../../lib/server/security-headers.ts";
 import { buildMagicLinkEmail } from "../../../lib/server/magic-link-email.ts";
-import { cleanupExpiredAuthRows, createMagicLinkToken } from "../../../lib/server/players.ts";
+import { GuestMintCapExceededError, cleanupExpiredAuthRows, createMagicLinkToken } from "../../../lib/server/players.ts";
 import { ensureGuestPlayer } from "../../../lib/server/guest-session.ts";
 import type { RequestHandler } from "./$types";
 
@@ -31,20 +32,25 @@ export const POST: RequestHandler = async ({ request, platform, locals, cookies,
 		return applyAuthResponseHeaders(json({ error: "rate_limited" }, { status: 429 }));
 	}
 
-	let body: unknown;
-	try {
-		body = await request.json();
-	} catch {
-		error(400, "invalid JSON body");
-	}
+	// B06: a streamed byte cap runs before any JSON parsing, independent of Content-Length.
+	const bodyResult = await readJsonBody(request);
+	if (!bodyResult.ok) error(bodyResult.reason === "too_large" ? 413 : 400, "invalid JSON body");
 
-	const parsed = v.safeParse(RequestBodySchema, body);
+	const parsed = v.safeParse(RequestBodySchema, bodyResult.body);
 	if (!parsed.success) error(400, "invalid email");
 	const { email } = parsed.output;
 
 	const now = Date.now();
 	const db = platform.env.DB;
-	const guestPlayerId = await ensureGuestPlayer(db, platform.env.SESSION_SECRET, cookies, locals, now);
+	let guestPlayerId: string;
+	try {
+		guestPlayerId = await ensureGuestPlayer(db, platform.env.SESSION_SECRET, cookies, locals, now, platform.env.GUEST_MINT_DAILY_CAP);
+	} catch (err) {
+		// B03: the global daily guest-mint cap is exhausted. Fail closed with a controlled 503,
+		// before any per-email token write.
+		if (err instanceof GuestMintCapExceededError) return applyAuthResponseHeaders(json({ error: "unavailable" }, { status: 503 }));
+		throw err;
+	}
 	const result = await createMagicLinkToken(db, email, guestPlayerId, now);
 
 	if (result.ok) {

@@ -22,7 +22,19 @@ const decorate = (response: Response, isAuthRoute: boolean): Response => {
 	return response;
 };
 
-const fail = (status: number, message: string, isAuthRoute: boolean): Response => decorate(new Response(message, { status }), isAuthRoute);
+// F11: the hook's own controlled failure responses (config/Origin rejections, and the outer
+// catch-all below) never go through `resolve()`, so they never get SvelteKit's own generated CSP
+// either. A response with no CSP at all is framable and can load/execute anything; lock these
+// down completely rather than leaving them bare. SvelteKit's own form-CSRF 403 (a different
+// failure, produced by its request pipeline before hooks even run) can't be decorated from here
+// at all -- this only ever covers responses this file itself builds.
+const LOCKDOWN_CSP = "default-src 'none'; frame-ancestors 'none'";
+
+const fail = (status: number, message: string, isAuthRoute: boolean): Response => {
+	const response = decorate(new Response(message, { status }), isAuthRoute);
+	response.headers.set("Content-Security-Policy", LOCKDOWN_CSP);
+	return response;
+};
 
 const handleInner: Handle = async ({ event, resolve }) => {
 	const isAuthRoute = event.url.pathname.startsWith("/auth/");
@@ -105,6 +117,6 @@ export const handle: Handle = async (input) => {
 	} catch {
 		// Never let an unexpected failure here escape without headers, and never surface
 		// internals (stack traces, error messages that might mention a token) to the client.
-		return decorate(new Response("internal error", { status: 500 }), input.event.url.pathname.startsWith("/auth/"));
+		return fail(500, "internal error", input.event.url.pathname.startsWith("/auth/"));
 	}
 };
