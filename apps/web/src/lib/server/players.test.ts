@@ -5,6 +5,8 @@ import { sha256Hex } from "./crypto-utils.ts";
 import type { D1Like } from "./d1-types.ts";
 import { SqliteD1 } from "./testing/sqlite-d1.ts";
 import {
+	DEFAULT_GUEST_MINT_DAILY_CAP,
+	GuestMintCapExceededError,
 	MAX_LIVE_TOKENS_PER_WINDOW,
 	VerificationFailedError,
 	cleanupExpiredAuthRows,
@@ -53,6 +55,43 @@ describe("createGuestPlayerAndSession", () => {
 			.bind(sessionIdHash)
 			.first<{ player_id: string }>();
 		expect(session?.player_id).toBe(playerId);
+	});
+
+	// B03: a global per-day admission counter, independent of the per-IP rate limiter, so
+	// distributed traffic below any single IP's limit still can't mint guests unboundedly.
+	it("B03: mints freely while under the configured daily cap", async () => {
+		for (let i = 0; i < 3; i += 1) {
+			const guest = await createGuestPlayerAndSession(db, NOW, 3);
+			expect(guest.playerId).toBeTruthy();
+		}
+		const counter = await db.prepare("SELECT count FROM guest_mint_daily WHERE day = ?").bind("2026-09-18").first<{ count: number }>();
+		expect(counter?.count).toBe(3);
+	});
+
+	it("B03: throws GuestMintCapExceededError once the daily cap is reached, without creating a player", async () => {
+		for (let i = 0; i < 2; i += 1) await createGuestPlayerAndSession(db, NOW, 2);
+
+		await expect(createGuestPlayerAndSession(db, NOW, 2)).rejects.toThrow(GuestMintCapExceededError);
+
+		const players = await db.prepare("SELECT * FROM players").all();
+		expect(players.results).toHaveLength(2);
+		const counter = await db.prepare("SELECT count FROM guest_mint_daily WHERE day = ?").bind("2026-09-18").first<{ count: number }>();
+		expect(counter?.count).toBe(2); // the rejected attempt never incremented the counter further
+	});
+
+	it("B03: resets the cap on a new UTC day", async () => {
+		await createGuestPlayerAndSession(db, NOW, 1);
+		await expect(createGuestPlayerAndSession(db, NOW, 1)).rejects.toThrow(GuestMintCapExceededError);
+
+		const nextDay = NOW + 24 * 60 * 60 * 1000;
+		const guest = await createGuestPlayerAndSession(db, nextDay, 1);
+		expect(guest.playerId).toBeTruthy();
+	});
+
+	it("B03: uses DEFAULT_GUEST_MINT_DAILY_CAP when no cap is passed", async () => {
+		expect(DEFAULT_GUEST_MINT_DAILY_CAP).toBeGreaterThan(0);
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		expect(guest.playerId).toBeTruthy();
 	});
 });
 
@@ -548,5 +587,109 @@ describe("completeVerification", () => {
 		expect(game?.player_id).toBe("winner");
 		const loser = await db.prepare("SELECT kind, merged_into FROM players WHERE id = ?").bind(guest.playerId).first<{ kind: string; merged_into: string | null }>();
 		expect(loser).toEqual({ kind: "guest", merged_into: "winner" });
+	});
+
+	// B01: two tokens for DIFFERENT new emails, both naming the SAME live guest, both pass
+	// eligibility before either commits. The old bug: the second verification's accounts insert
+	// only checked "is the candidate currently kind = 'account'" -- true regardless of who made it
+	// so -- letting it attach its own email to a player the first verification had just claimed.
+	// The in-memory adapter never truly interleaves two `Promise.all`ed calls (see the file-level
+	// note on players.test.ts's existing race test), so the interleaving is forced deterministically:
+	// B's ENTIRE verification is run to completion from inside A's db.batch, i.e. exactly between
+	// A's stale eligibility/email reads and A's own batch.
+	it("B01: two verifications naming the same guest for different new emails never both attach an email to it", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		const tokenA = await createMagicLinkToken(db, "alpha@example.com", guest.playerId, NOW);
+		const tokenB = await createMagicLinkToken(db, "beta@example.com", guest.playerId, NOW);
+		if (!tokenA.ok || !tokenB.ok) throw new Error("unreachable");
+		const consumedA = await consumeMagicLinkToken(db, tokenA.token, NOW);
+		const consumedB = await consumeMagicLinkToken(db, tokenB.token, NOW);
+		if (!consumedA || !consumedB) throw new Error("unreachable");
+		const viewerHash = await sha256Hex(guest.sessionId);
+
+		let raced = false;
+		const racingDbForA: D1Like = {
+			prepare: (sql) => db.prepare(sql),
+			batch: async (statements) => {
+				if (!raced) {
+					raced = true;
+					// B's whole verification commits here, strictly between A's stale reads and A's
+					// own batch call.
+					await completeVerification(db, consumedB, viewerHash, NOW);
+				}
+				return db.batch(statements);
+			},
+		};
+
+		// B wins the race (it fully committed first, from inside A's batch call). A must not also
+		// attach "alpha@example.com" to the same player -- it fails cleanly instead (one of the two
+		// outcomes the brief accepts; the other is "signs into a separate fresh account", which
+		// isn't reachable here because both requests were built against the very same eligible
+		// guest).
+		await expect(completeVerification(racingDbForA, consumedA, viewerHash, NOW)).rejects.toThrow(VerificationFailedError);
+
+		const accountsForGuest = await db
+			.prepare("SELECT email FROM accounts WHERE player_id = ?")
+			.bind(guest.playerId)
+			.all<{ email: string }>();
+		expect(accountsForGuest.results).toHaveLength(1);
+		expect(accountsForGuest.results[0]?.email).toBe("beta@example.com");
+
+		const alphaAccount = await db.prepare("SELECT * FROM accounts WHERE email = 'alpha@example.com'").all();
+		expect(alphaAccount.results).toHaveLength(0);
+
+		const player = await db.prepare("SELECT kind FROM players WHERE id = ?").bind(guest.playerId).first<{ kind: string }>();
+		expect(player?.kind).toBe("account");
+	});
+
+	// The storage-level backstop for B01: even a broken guard above could never make this succeed.
+	it("the accounts(player_id) unique index rejects a second email for the same player", async () => {
+		const player = await createGuestPlayerAndSession(db, NOW);
+		await db.prepare("UPDATE players SET kind = 'account' WHERE id = ?").bind(player.playerId).run();
+		await db
+			.prepare("INSERT INTO accounts (id, email, player_id, created_at) VALUES ('acc-1', 'first@example.com', ?, ?)")
+			.bind(player.playerId, NOW)
+			.run();
+
+		expect(() => db.exec(`INSERT INTO accounts (id, email, player_id, created_at) VALUES ('acc-2', 'second@example.com', '${player.playerId}', ${NOW})`)).toThrow();
+	});
+
+	// B02: promotion/account-creation and revocation/session-issuance used to be separate batches,
+	// so a failure between them left a burnt token, a promoted player, and still-live old sessions
+	// for it. Now they're one batch; a failure anywhere inside it must roll back everything,
+	// leaving no window where the old guest cookie resolves to an account.
+	it("B02: a failure anywhere inside the single identity-transition batch leaves nothing committed", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		const token = await createMagicLinkToken(db, "b02@example.com", guest.playerId, NOW);
+		if (!token.ok) throw new Error("unreachable");
+		const consumed = await consumeMagicLinkToken(db, token.token, NOW);
+		if (!consumed) throw new Error("unreachable");
+
+		// Force the real, underlying multi-statement batch to fail partway through (a bogus final
+		// statement), so this exercises the SqliteD1 adapter's actual BEGIN/COMMIT/ROLLBACK, not
+		// just a stub that never touches the database at all.
+		const failingDb: D1Like = {
+			prepare: (sql) => db.prepare(sql),
+			batch: (statements) => db.batch([...statements, db.prepare("SELECT * FROM this_table_does_not_exist")]),
+		};
+
+		await expect(completeVerification(failingDb, consumed, await sha256Hex(guest.sessionId), NOW)).rejects.toThrow(VerificationFailedError);
+
+		// Token consumption is accepted to fail closed on its own (a burnt token with no effect;
+		// the user requests a new link) -- but nothing else may have partially applied.
+		const player = await db
+			.prepare("SELECT kind, merged_into FROM players WHERE id = ?")
+			.bind(guest.playerId)
+			.first<{ kind: string; merged_into: string | null }>();
+		expect(player).toEqual({ kind: "guest", merged_into: null });
+
+		const accounts = await db.prepare("SELECT * FROM accounts WHERE email = 'b02@example.com'").all();
+		expect(accounts.results).toHaveLength(0);
+
+		// The exact B02 defect: the old guest cookie must still resolve as a guest, never having
+		// been left in a state where it briefly points at a promoted-but-unrevoked player.
+		const resolved = await resolveSession(db, await sha256Hex(guest.sessionId), NOW);
+		expect(resolved?.playerKind).toBe("guest");
+		expect(resolved?.playerId).toBe(guest.playerId);
 	});
 });

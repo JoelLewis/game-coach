@@ -10,7 +10,9 @@ import * as v from "valibot";
 import { SESSION_COOKIE } from "@game-coach/contracts/ws-protocol";
 import { setSessionCookie, verifySessionCookie } from "../../../lib/server/cookie.ts";
 import { sha256Hex } from "../../../lib/server/crypto-utils.ts";
+import { readJsonBody } from "../../../lib/server/http-body.ts";
 import { isJsonContentType } from "../../../lib/server/origin.ts";
+import { isIpRateLimited } from "../../../lib/server/rate-limit.ts";
 import { applyAuthResponseHeaders } from "../../../lib/server/security-headers.ts";
 import { VerificationFailedError, completeVerification, consumeMagicLinkToken } from "../../../lib/server/players.ts";
 import type { RequestHandler } from "./$types";
@@ -19,17 +21,20 @@ const VerifyBodySchema = v.object({ token: v.pipe(v.string(), v.minLength(1), v.
 
 const fail = (status: number, error: string) => applyAuthResponseHeaders(json({ ok: false, error }, { status }));
 
-export const POST: RequestHandler = async ({ request, platform, cookies }) => {
+// B06: verification previously had no admission control at all -- any non-browser client
+// supplying the expected Origin could reach token-consumption parsing without ever holding a
+// session or a valid token. The IP limiter now sits in front of this route (and its sibling
+// preview endpoint) exactly like the two guest-minting POSTs already had.
+export const POST: RequestHandler = async ({ request, platform, cookies, getClientAddress }) => {
 	if (!platform) return fail(500, "platform_unavailable");
 	if (!isJsonContentType(request)) return fail(400, "expected application/json");
 
-	let body: unknown;
-	try {
-		body = await request.json();
-	} catch {
-		return fail(400, "invalid_body");
-	}
-	const parsed = v.safeParse(VerifyBodySchema, body);
+	if (await isIpRateLimited(platform.env.RATE_LIMITER, getClientAddress())) return fail(429, "rate_limited");
+
+	// B06: a streamed byte cap runs before any JSON parsing, independent of Content-Length.
+	const bodyResult = await readJsonBody(request);
+	if (!bodyResult.ok) return fail(bodyResult.reason === "too_large" ? 413 : 400, "invalid_body");
+	const parsed = v.safeParse(VerifyBodySchema, bodyResult.body);
 	if (!parsed.success) return fail(400, "invalid_body");
 
 	const now = Date.now();

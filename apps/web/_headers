@@ -4,9 +4,19 @@
 # X-Frame-Options is the frame-ancestors-equivalent for these static responses: SvelteKit's own
 # generated CSP (vite.config.ts) sets frame-ancestors 'none' on dynamic responses, but that
 # directive is ignored on prerendered pages served this way (F11).
+#
+# Content-Security-Policy here is a conservative fallback, not a substitute for vite.config.ts's
+# per-page nonce/hash CSP: a static header can't carry a nonce or a per-page hash, so it allows
+# 'unsafe-inline' for script/style rather than either breaking a prerendered page's own inline
+# hydration bootstrap or shipping no policy at all here. Browsers enforce every applicable CSP
+# together (the strictest intersection), so a prerendered page's own hash-based <meta> CSP (which
+# SvelteKit emits directly into the HTML in 'auto' mode) still constrains it beyond what this
+# header alone would; this header's job is everything this header alone CAN constrain on a static
+# response: no framing, no plugins, no foreign script/style/connect origins.
 /*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'

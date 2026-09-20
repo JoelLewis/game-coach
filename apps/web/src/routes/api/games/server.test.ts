@@ -102,4 +102,42 @@ describe("POST /api/games", () => {
 		const players = await db.prepare("SELECT * FROM players").all();
 		expect(players.results).toHaveLength(0);
 	});
+
+	// B06: the streamed byte cap runs before JSON parsing.
+	it("B06: rejects an oversized body with 413 before calling the RPC", async () => {
+		const createGame = vi.fn();
+		const event = createFakeEvent({
+			method: "POST",
+			url: `${APP_ORIGIN}/api/games`,
+			jsonBody: { ...VALID_CONFIG, junk: "x".repeat(16 * 1024) },
+			platform: { env: { SESSION: { createGame }, DB: db, SESSION_SECRET, RATE_LIMITER: undefined } },
+			locals: { playerId: "p1", playerKind: "guest" as const },
+			cookies: createFakeCookies(),
+		});
+		const response = await invokeHandler(POST, event);
+		expect(response.status).toBe(413);
+		expect(createGame).not.toHaveBeenCalled();
+	});
+
+	// B03: the global daily guest-mint cap is exhausted before the RPC is ever called.
+	it("B03: returns a controlled 503 once the guest-mint daily cap is exhausted", async () => {
+		const createGame = vi.fn(async () => ({ ok: true as const, value: { gameId: "g1" } }));
+		const platform = { env: { SESSION: { createGame }, DB: db, SESSION_SECRET, RATE_LIMITER: undefined, GUEST_MINT_DAILY_CAP: "1" } };
+		const callWithPlatform = () => {
+			const event = createFakeEvent({
+				method: "POST",
+				url: `${APP_ORIGIN}/api/games`,
+				jsonBody: VALID_CONFIG,
+				platform,
+				locals: { playerId: null, playerKind: null },
+				cookies: createFakeCookies(),
+			});
+			return invokeHandler(POST, event);
+		};
+
+		expect((await callWithPlatform()).status).toBe(201);
+		const second = await callWithPlatform();
+		expect(second.status).toBe(503);
+		expect(createGame).toHaveBeenCalledTimes(1);
+	});
 });

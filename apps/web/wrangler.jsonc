@@ -15,9 +15,16 @@
 
   "vars": {
     "APP_ORIGIN": "https://chess.terminal-games.com",
-    "EMAIL_FROM": "coach@chess.terminal-games.com"
+    "EMAIL_FROM": "coach@chess.terminal-games.com",
+    // B03: global per-UTC-day cap on guest minting (players.ts createGuestPlayerAndSession),
+    // independent of the per-IP RATE_LIMITER below. A D1 counter, not a Worker limit, so it
+    // holds across every instance/region.
+    "GUEST_MINT_DAILY_CAP": "5000"
   },
   // Secret: SESSION_SECRET (shared with gamecoach-session). Local: .dev.vars
+  // Dev-only escape hatch, never set here: ALLOW_MISSING_RATE_LIMITER=true in a gitignored
+  // .dev.vars lets `wrangler dev`/`vite dev` run without provisioning the ratelimits binding
+  // below (see src/lib/server/config.ts). Never set in a deployed environment's vars.
 
   "services": [
     { "binding": "SESSION", "service": "gamecoach-session", "entrypoint": "SessionEntrypoint" }

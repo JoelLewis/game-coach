@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { signSessionCookie, verifySessionCookie } from "../../../lib/server/cookie.ts";
 import { sha256Hex } from "../../../lib/server/crypto-utils.ts";
 import { createFakeCookies, createFakeEvent, invokeHandler } from "../../../lib/server/testing/fake-event.ts";
-import { createGuestPlayerAndSession, createMagicLinkToken } from "../../../lib/server/players.ts";
+import { consumeMagicLinkToken, createGuestPlayerAndSession, createMagicLinkToken } from "../../../lib/server/players.ts";
 import { SqliteD1 } from "../../../lib/server/testing/sqlite-d1.ts";
 import * as verifyModule from "./+server.ts";
 import { POST } from "./+server.ts";
@@ -136,6 +136,48 @@ describe("POST /auth/verify", () => {
 			player_id: string;
 		}>();
 		expect(attackerSession?.player_id).toBe(attackerGuest.playerId);
+	});
+
+	// B06: a streamed byte cap runs before JSON parsing.
+	it("B06: rejects an oversized body with 413 before consuming any token", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
+		if (!created.ok) throw new Error("unreachable");
+
+		const event = createFakeEvent({
+			method: "POST",
+			url: `${APP_ORIGIN}/auth/verify`,
+			jsonBody: { token: created.token, junk: "x".repeat(16 * 1024) },
+			platform: fakePlatform(),
+			locals: {},
+			cookies: createFakeCookies(),
+		});
+		const response = await invokeHandler(POST, event);
+		expect(response.status).toBe(413);
+
+		// The token must still be consumable afterwards -- the oversized body was rejected before
+		// touching it.
+		expect(await consumeMagicLinkToken(db, created.token, NOW + 1)).not.toBeNull();
+	});
+
+	// B06: the IP rate limiter now sits in front of this endpoint too.
+	it("B06: rejects a rate-limited IP before consuming any token", async () => {
+		const guest = await createGuestPlayerAndSession(db, NOW);
+		const created = await createMagicLinkToken(db, "a@example.com", guest.playerId, NOW);
+		if (!created.ok) throw new Error("unreachable");
+		const limiter = { limit: async () => ({ success: false }) };
+
+		const event = createFakeEvent({
+			method: "POST",
+			url: `${APP_ORIGIN}/auth/verify`,
+			jsonBody: { token: created.token },
+			platform: { env: { DB: db, APP_ORIGIN, EMAIL_FROM: "coach@chess.terminal-games.com", SESSION_SECRET, RATE_LIMITER: limiter } },
+			locals: {},
+			cookies: createFakeCookies(),
+		});
+		const response = await invokeHandler(POST, event);
+		expect(response.status).toBe(429);
+		expect(await consumeMagicLinkToken(db, created.token, NOW + 1)).not.toBeNull();
 	});
 
 	it("F08: a genuinely broken verification is reported as a clean 409, not an unhandled 500", async () => {

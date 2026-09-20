@@ -15,7 +15,11 @@ beforeEach(() => {
 	db = new SqliteD1();
 });
 
-const fakePlatform = (env: Record<string, unknown> = {}) => ({ env: { DB: db, APP_ORIGIN, SESSION_SECRET, ...env } });
+// B03: RATE_LIMITER is required config now (see config.test.ts / config.ts), so every test that
+// doesn't specifically exercise its absence needs a stand-in binding present.
+const RATE_LIMITER = { limit: async () => ({ success: true }) };
+
+const fakePlatform = (env: Record<string, unknown> = {}) => ({ env: { DB: db, APP_ORIGIN, SESSION_SECRET, RATE_LIMITER, ...env } });
 
 const run = async (options: {
 	method?: string;
@@ -145,6 +149,54 @@ describe("handle", () => {
 	it("F12: returns a 503 when APP_ORIGIN is missing", async () => {
 		const { response } = await run({ accept: "text/html", platform: fakePlatform({ APP_ORIGIN: undefined }) });
 		expect(response.status).toBe(503);
+	});
+
+	// B03: a missing rate limiter binding must fail closed like any other missing required config,
+	// not silently behave as "always allowed".
+	it("B03: returns a 503 with security headers when RATE_LIMITER is missing, without touching the DB", async () => {
+		const { response } = await run({ accept: "text/html", platform: fakePlatform({ RATE_LIMITER: undefined }) });
+		expect(response.status).toBe(503);
+		expect(response.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
+		const players = await db.prepare("SELECT * FROM players").all();
+		expect(players.results).toHaveLength(0);
+	});
+
+	it("B03: allows a missing RATE_LIMITER when ALLOW_MISSING_RATE_LIMITER is exactly 'true'", async () => {
+		const { response } = await run({
+			accept: "text/html",
+			platform: fakePlatform({ RATE_LIMITER: undefined, ALLOW_MISSING_RATE_LIMITER: "true" }),
+		});
+		expect(response.status).not.toBe(503);
+	});
+
+	// F11: the hook's own controlled failure responses must deny framing and disallow everything
+	// else, not just carry the general baseline headers.
+	it("F11: locks down CSP/frame-ancestors on its own 503 responses", async () => {
+		const { response } = await run({ accept: "text/html", platform: fakePlatform({ RATE_LIMITER: undefined }) });
+		expect(response.status).toBe(503);
+		expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'none'; frame-ancestors 'none'");
+	});
+
+	it("F11: locks down CSP/frame-ancestors on its own 403 responses", async () => {
+		const { response } = await run({ method: "POST", origin: "https://evil.example" });
+		expect(response.status).toBe(403);
+		expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'none'; frame-ancestors 'none'");
+	});
+
+	it("F11: locks down CSP/frame-ancestors on its own 500 responses", async () => {
+		const throwingDb = {
+			prepare: () => {
+				throw new Error("boom");
+			},
+			batch: async () => {
+				throw new Error("boom");
+			},
+		};
+		const cookieValue = await signSessionCookie(crypto.getRandomValues(new Uint8Array(32)), SESSION_SECRET);
+		const { response } = await run({ accept: "text/html", cookieValue, platform: fakePlatform({ DB: throwingDb }) });
+		expect(response.status).toBe(500);
+		expect(response.headers.get("Content-Security-Policy")).toBe("default-src 'none'; frame-ancestors 'none'");
+		expect(response.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
 	});
 
 	// F09: auth routes get stricter headers than the general baseline.
