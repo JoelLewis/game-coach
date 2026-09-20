@@ -11,14 +11,15 @@
   },
   "scripts": {
     "ensure-chess-core": "pnpm --filter @game-coach/chess-core run ensure-build",
-    "typecheck": "pnpm run ensure-chess-core && tsc -p score/tsconfig.json && tsc -p ingest/tsconfig.json && tsc -p build/tsconfig.json && svelte-check --tsconfig labeler/tsconfig.json",
-    "test": "pnpm run ensure-chess-core && vitest run score ingest build && vitest run --config labeler/vitest.config.ts && vitest run --config labeler/vitest.ui.config.ts",
+    "typecheck": "pnpm run ensure-chess-core && tsc -p score/tsconfig.json && tsc -p ingest/tsconfig.json && tsc -p build/tsconfig.json && tsc -p puzzles/tsconfig.json && svelte-check --tsconfig labeler/tsconfig.json",
+    "test": "pnpm run ensure-chess-core && vitest run score ingest build puzzles && vitest run --config labeler/vitest.config.ts && vitest run --config labeler/vitest.ui.config.ts",
     "score": "node --experimental-strip-types score/run.ts",
     "ingest": "node --experimental-strip-types ingest/cli.ts",
     "label": "vite build --config labeler/vite.config.ts && node --experimental-strip-types labeler/server.ts",
     "build-set": "node --experimental-strip-types build/build-set.ts",
     "apply-proposals": "node --experimental-strip-types build/apply-proposals.ts",
-    "export-requests": "node --experimental-strip-types build/export-requests.ts"
+    "export-requests": "node --experimental-strip-types build/export-requests.ts",
+    "puzzles": "node --experimental-strip-types puzzles/cli.ts"
   },
   "dependencies": {
     "@game-coach/chess-core": "workspace:*",
