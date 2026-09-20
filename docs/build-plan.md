@@ -156,7 +156,7 @@ question from "did the player miss a tactic". Decision (Joel, 2026-09-19): the l
   `JEV_MODE=off` (no reservation, no model call), logging one error per DO start when this
   triggers. Shadow mode with the `fixture` transport (every test in this repo) is unaffected. A09's
   cheap part is fixed independently: `shadow_state_hash`/`shadow_model`/`shadow_transport`
-  (`db/migrations/0004_session_row_versions.sql`) are now persisted whenever a shadow result is
+  (`db/migrations/0005_session_row_versions.sql`) are now persisted whenever a shadow result is
   actually stored.
 
 ## Verification

@@ -136,7 +136,7 @@ const upgradeToShadowJudgments = (sql: SqlStorage): void => {
   setSchemaVersion(sql, 1);
 };
 
-// Migration 2 (2026-09-20, R1 security-review fixes - db/migrations/0004_session_row_versions.sql
+// Migration 2 (2026-09-20, R1 security-review fixes - db/migrations/0005_session_row_versions.sql
 // is the D1 counterpart for the judgments/coaching_events version and shadow audit columns; the
 // remaining columns/tables below (socket generation, flush retry, rate limiting, usage outbox)
 // are DO-local only, with no D1 equivalent).

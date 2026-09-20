@@ -45,7 +45,7 @@ const EXPECTED_COLUMNS: Record<string, string[]> = {
     "shadow_decision_json",
     "shadow_latency_ms",
     "shadow_input_tokens",
-    // db/migrations/0004_session_row_versions.sql (R1 security-review fixes, A06/A09).
+    // db/migrations/0005_session_row_versions.sql (R1 security-review fixes, A06/A09).
     "version",
     "shadow_state_hash",
     "shadow_model",
@@ -92,7 +92,7 @@ describe("db/migrations applied in order", () => {
     db.close();
   });
 
-  it("0004_session_row_versions.sql: judgments/coaching_events default version to 1, shadow audit columns start NULL", () => {
+  it("0005_session_row_versions.sql: judgments/coaching_events default version to 1, shadow audit columns start NULL", () => {
     const db = freshDb();
     db.exec("INSERT INTO players VALUES ('p1', 'guest', NULL, 0)");
     db.exec(
@@ -116,7 +116,7 @@ describe("db/migrations applied in order", () => {
     db.close();
   });
 
-  it("0004_session_row_versions.sql: usage_outbox_applied dedupes by id (A08)", () => {
+  it("0005_session_row_versions.sql: usage_outbox_applied dedupes by id (A08)", () => {
     const db = freshDb();
     db.exec("INSERT INTO players VALUES ('p1', 'guest', NULL, 0)");
     db.exec(
