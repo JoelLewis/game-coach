@@ -18,7 +18,8 @@
         "played",
         "piece",
         "square"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.opening.mistake_pin",
@@ -35,7 +36,8 @@
       "slots": [
         "played",
         "piece"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.opening.blunder_fork",
@@ -52,6 +54,82 @@
       "slots": [
         "played",
         "best_move",
+        "swing"
+      ],
+      "requiresEvidence": true
+    },
+    {
+      "id": "tactical_oversight.opening.mistake_hanging_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "opening",
+      "severities": [
+        2
+      ],
+      "themeId": "hanging_piece",
+      "requiresEvidence": true,
+      "description": "A piece hangs in the opening for a real material loss.",
+      "text": "{played} leaves {piece} hanging for real material. {best_move} kept it defended and kept your development on track.",
+      "slots": [
+        "played",
+        "piece",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.opening.blunder_hanging_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "opening",
+      "severities": [
+        3
+      ],
+      "themeId": "hanging_piece",
+      "requiresEvidence": true,
+      "description": "A piece hangs outright in the opening for a costly blunder.",
+      "text": "{played} hangs {piece} outright this early. You gave up {swing} for a piece that had a safe square available.",
+      "slots": [
+        "played",
+        "piece",
+        "swing"
+      ]
+    },
+    {
+      "id": "tactical_oversight.opening.mistake_fork",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "opening",
+      "severities": [
+        2
+      ],
+      "themeId": "fork",
+      "requiresEvidence": true,
+      "description": "A fork in the opening wins material at a real cost.",
+      "text": "{played} walks into a fork that wins material back for your opponent. {best_move} kept your pieces out of the double attack.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.opening.blunder_pin",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "opening",
+      "severities": [
+        3
+      ],
+      "themeId": "pin",
+      "requiresEvidence": true,
+      "description": "A pin in the opening costs a piece outright.",
+      "text": "{played} lets your opponent pin {piece} and win it outright. That single pin cost you {swing} before move fifteen.",
+      "slots": [
+        "played",
+        "piece",
         "swing"
       ]
     },
@@ -71,7 +149,8 @@
         "piece",
         "square",
         "played"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.middlegame.inaccuracy_discovered_attack",
@@ -87,7 +166,8 @@
       "text": "Moving {piece} opened a discovered attack you did not need to allow. Watch what lines open up before you move a piece off its file or diagonal.",
       "slots": [
         "piece"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.middlegame.mistake_overloaded_piece",
@@ -105,7 +185,8 @@
         "piece",
         "square",
         "played"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.middlegame.mistake_removing_defender",
@@ -122,7 +203,8 @@
       "slots": [
         "played",
         "target_square"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.middlegame.mistake_skewer",
@@ -139,7 +221,8 @@
       "slots": [
         "played",
         "best_move"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.middlegame.blunder_back_rank",
@@ -156,7 +239,8 @@
       "slots": [
         "played",
         "swing"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.middlegame.blunder_mate_threat",
@@ -173,7 +257,8 @@
       "slots": [
         "played",
         "best_move"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.middlegame.blunder_trapped_piece",
@@ -191,6 +276,120 @@
         "piece",
         "square",
         "played",
+        "swing"
+      ],
+      "requiresEvidence": true
+    },
+    {
+      "id": "tactical_oversight.middlegame.mistake_hanging_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "hanging_piece",
+      "requiresEvidence": true,
+      "description": "A piece hangs in the middlegame for a real material loss.",
+      "text": "{played} leaves {piece} on {square} hanging in the middle of the game. {best_move} kept it defended.",
+      "slots": [
+        "played",
+        "piece",
+        "square",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.blunder_hanging_piece",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "hanging_piece",
+      "requiresEvidence": true,
+      "description": "A piece hangs outright in the middlegame for a costly blunder.",
+      "text": "{played} hangs {piece} outright in the middlegame. You gave up {swing} for a piece that had a safe square.",
+      "slots": [
+        "played",
+        "piece",
+        "swing"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.mistake_fork",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "fork",
+      "requiresEvidence": true,
+      "description": "A fork in the middlegame wins material at a real cost.",
+      "text": "{played} allows a fork that wins material back in the middlegame. {best_move} kept your pieces apart and out of the double attack.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.blunder_fork",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "fork",
+      "requiresEvidence": true,
+      "description": "A fork in the middlegame wins material outright, a costly blunder.",
+      "text": "{played} walks straight into a fork that wins material outright. You gave up {swing} to a double attack you could have avoided.",
+      "slots": [
+        "played",
+        "swing"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.mistake_pin",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        2
+      ],
+      "themeId": "pin",
+      "requiresEvidence": true,
+      "description": "A pin in the middlegame costs real material or tempo.",
+      "text": "{played} lets your opponent pin {piece} to something more valuable. {best_move} kept the pin from ever landing.",
+      "slots": [
+        "played",
+        "piece",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.middlegame.blunder_pin",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "middlegame",
+      "severities": [
+        3
+      ],
+      "themeId": "pin",
+      "requiresEvidence": true,
+      "description": "A pin in the middlegame costs a piece outright.",
+      "text": "{played} lets your opponent pin {piece} and win it outright in the middlegame. That cost you {swing} in a few moves.",
+      "slots": [
+        "played",
+        "piece",
         "swing"
       ]
     },
@@ -210,7 +409,8 @@
         "piece",
         "square",
         "played"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.endgame.mistake_fork",
@@ -227,7 +427,8 @@
       "slots": [
         "played",
         "best_move"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.endgame.blunder_skewer",
@@ -244,7 +445,8 @@
       "slots": [
         "played",
         "swing"
-      ]
+      ],
+      "requiresEvidence": true
     },
     {
       "id": "tactical_oversight.endgame.blunder_pin",
@@ -261,6 +463,60 @@
       "slots": [
         "played",
         "swing"
+      ],
+      "requiresEvidence": true
+    },
+    {
+      "id": "tactical_oversight.any.inaccuracy_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "any",
+      "severities": [
+        1
+      ],
+      "themeId": "calculation",
+      "description": "A small tactical slip happened without one single clear cause.",
+      "text": "{played} gives up a little ground here. {best_move} kept the position tighter.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.any.mistake_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "any",
+      "severities": [
+        2
+      ],
+      "themeId": "calculation",
+      "description": "A concrete tactical loss happened without one single clear reason.",
+      "text": "{played} gave up {swing}. {best_move} kept things under control; compare the two before your next move.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
+      ]
+    },
+    {
+      "id": "tactical_oversight.any.blunder_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "tactical_oversight",
+      "phase": "any",
+      "severities": [
+        3
+      ],
+      "themeId": "calculation",
+      "description": "A significant tactical loss happened without one single clear reason.",
+      "text": "{played} gave up {swing} here. {best_move} was the safer path; take a moment to compare the lines next time.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
       ]
     },
     {
@@ -516,6 +772,59 @@
       ]
     },
     {
+      "id": "positional.any.inaccuracy_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "any",
+      "severities": [
+        1
+      ],
+      "themeId": "piece_activity",
+      "description": "A small positional slip happened without one single sharp cause.",
+      "text": "{played} gives up a small amount of ground. {best_move} kept your position more comfortable.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "positional.any.mistake_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "any",
+      "severities": [
+        2
+      ],
+      "themeId": "piece_activity",
+      "description": "A positional mistake cost ground without one single sharp cause.",
+      "text": "{played} costs you {swing} in this position. {best_move} was the sturdier choice.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
+      ]
+    },
+    {
+      "id": "positional.any.blunder_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "positional",
+      "phase": "any",
+      "severities": [
+        3
+      ],
+      "themeId": "piece_activity",
+      "description": "A serious positional loss happened without one single sharp cause.",
+      "text": "{played} costs you {swing} here. {best_move} kept your position together; worth comparing the two moves.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
+      ]
+    },
+    {
       "id": "endgame_technique.endgame.inaccuracy_king_activity_endgame",
       "game": "chess",
       "kind": "error",
@@ -616,6 +925,59 @@
       ]
     },
     {
+      "id": "endgame_technique.any.inaccuracy_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "any",
+      "severities": [
+        1
+      ],
+      "themeId": "conversion",
+      "description": "A small technical slip in the ending cost a little ground.",
+      "text": "{played} gives up a little in this ending. {best_move} was the more precise choice.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "endgame_technique.any.mistake_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "any",
+      "severities": [
+        2
+      ],
+      "themeId": "conversion",
+      "description": "A technical error in the ending cost real ground.",
+      "text": "{played} costs you {swing} in this ending. {best_move} kept your technique on track.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
+      ]
+    },
+    {
+      "id": "endgame_technique.any.blunder_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "endgame_technique",
+      "phase": "any",
+      "severities": [
+        3
+      ],
+      "themeId": "conversion",
+      "description": "A serious technical error in the ending cost real ground.",
+      "text": "{played} costs you {swing} in this ending. {best_move} was the move that kept everything under control.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
+      ]
+    },
+    {
       "id": "opening_prep.opening.inaccuracy_slow_move",
       "game": "chess",
       "kind": "error",
@@ -697,6 +1059,59 @@
       "slots": [
         "played",
         "swing"
+      ]
+    },
+    {
+      "id": "opening_prep.any.inaccuracy_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "any",
+      "severities": [
+        1
+      ],
+      "themeId": "opening_principles",
+      "description": "A small opening slip cost a little ground early on.",
+      "text": "{played} gives up a small amount of ground this early. {best_move} kept you closer to known theory.",
+      "slots": [
+        "played",
+        "best_move"
+      ]
+    },
+    {
+      "id": "opening_prep.any.mistake_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "any",
+      "severities": [
+        2
+      ],
+      "themeId": "opening_principles",
+      "description": "An opening error cost real ground early in the game.",
+      "text": "{played} costs you {swing} this early in the game. {best_move} was the steadier choice.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
+      ]
+    },
+    {
+      "id": "opening_prep.any.blunder_generic",
+      "game": "chess",
+      "kind": "error",
+      "errorClass": "opening_prep",
+      "phase": "any",
+      "severities": [
+        3
+      ],
+      "themeId": "opening_principles",
+      "description": "A serious opening error cost real ground early in the game.",
+      "text": "{played} costs you {swing} this early. {best_move} was the move that kept your position solid.",
+      "slots": [
+        "played",
+        "swing",
+        "best_move"
       ]
     },
     {
