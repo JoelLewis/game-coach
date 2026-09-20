@@ -115,6 +115,37 @@ Dispatch in batches of ≤ 5 concurrent agents (first batch: A1, B, C, D1, E1, K
 - Sender address (e.g. `coach@chess.terminal-games.com`) and enabling Email Sending on the zone.
 - ~1–2 h to label 200 moves (I3).
 
+## Jev in shadow mode (2026-09-19)
+Measurements from `docs/m0-result.md` ("M1 preview" onward, plus the open-ground-truth Lichess
+puzzle pool) showed everything the live coach needs per move is an engine-facts computation, and
+Jev adds nothing on top of it: interrupt fires identically with and without Jev at every useful
+threshold; severity from lost winning chances alone matches labels 86% exactly vs Jev's 19%; good
+move is 100%/100% by code rule vs 99%/87% for Jev; missed tactic as Jev answers it is a different
+question from "did the player miss a tactic". Decision (Joel, 2026-09-19): the live path is
+**code-only**.
+
+- **Code-only, what ships to the player.** `packages/coaching-core/src/judge-facts.ts`
+  (`judgeFromFacts`) computes severity, good move, missed tactic, error class, the interrupt/
+  praise gate and the spoken template synchronously from `MoveFacts` alone - no budget
+  reservation, no model call. `apps/session`'s live path (`judge-facts-live.ts`) is the only thing
+  `game-session.ts` awaits before sending `judgment`/`coach` frames; `decidedBy: "engine_facts"`
+  on the stored `Decision` marks this.
+- **Jev, shadow only.** `JEV_MODE` (`off` default, `shadow`) controls a second pipeline
+  (`judge-jev-shadow.ts`, the pre-2026-09-19 Jev pipeline unchanged) that runs in a
+  `ctx.waitUntil` strictly after the player's frames are sent: the same production request, the
+  same `BudgetGate` reservation and per-ply rate limit as before, `decide()` on the answers. The
+  result is logged against the same `judgments` row (`shadow_status`, `shadow_answers_json`,
+  `shadow_decision_json`, `shadow_latency_ms`, `shadow_input_tokens` -
+  `db/migrations/0003_shadow_judgments.sql`) and never reaches the player: a shadow failure or
+  budget denial only ever changes `shadow_status`.
+- **Promotion rule.** A Jev question moves from shadow to the live path only if, on held-out
+  human-labeled data (not the label proposals used above), it beats the code baseline on that
+  specific question - not "Jev looks reasonable," a measured win against `judge-facts.ts`'s
+  answer for that same question.
+- **Kill rule.** After one redesign of the question set plus a fresh round of human labels, if no
+  question shows a win on error class or teachability (the two things engine facts alone cannot
+  answer), remove Jev, `judge-jev-shadow.ts`, `BudgetGate` and the shadow columns entirely.
+
 ## Verification
 - Per package: cargo tests + `wasm-pack test --node`; vitest (schema round-trips, `decide()` tables, replay determinism, metrics with known answers); vitest-pool-workers for session (rehydrate after simulated eviction, budget denial, bad-ply rejection, D1 batch contents); svelte-check + Playwright for web.
 - **M0**: `pnpm spike:bench` prints p50/p95, tokens, $/call; cross-check dashboard.

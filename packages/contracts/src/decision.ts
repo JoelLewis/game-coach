@@ -32,6 +32,17 @@ export const ThresholdConfigSchema = v.object({
   // weaker than this. Applied to probability mass / choice confidence, never to the raw
   // `confidence` of a score answer (see jev.ts).
   lowConfidenceFloor: Probability,
+  // --- Code-only judge (judge-facts.ts) thresholds. Engine facts only, no model involved. ---
+  // A played move is only "good" when it beats the second-best line by at least this many
+  // centipawns (chess) / score points x100 (Go). Principled default, not tuned on labeled data.
+  goodMoveGapCp: v.pipe(v.number(), v.minValue(0)),
+  // A missed tactic requires the engine's best line to beat what the played move achieved by at
+  // least this much. Principled default, not tuned on labeled data.
+  missedTacticGapCp: v.pipe(v.number(), v.minValue(0)),
+  // Below this much clock time left for the move, the simple baseline error class calls the
+  // error "time_pressure" rather than trying to guess anything more specific. Principled
+  // default, not tuned on labeled data.
+  rushedMoveMs: v.pipe(v.number(), v.integer(), v.minValue(0)),
 });
 export type ThresholdConfig = v.InferOutput<typeof ThresholdConfigSchema>;
 
@@ -48,6 +59,9 @@ export const DEFAULT_THRESHOLDS: ThresholdConfig = {
   missedTacticNoul: 0.8,
   repeatPatternNoul: 0.7,
   lowConfidenceFloor: 0.4,
+  goodMoveGapCp: 100,
+  missedTacticGapCp: 200,
+  rushedMoveMs: 2000,
 };
 
 // Slider position 0 (quiet) .. 1 (talkative) maps linearly onto interruptNoul in this range.
@@ -72,10 +86,20 @@ export type DecisionContext = {
   writerCallsThisGame: number;
 };
 
+// Which decision layer produced a Decision: the code-only judge (packages/coaching-core's
+// `judgeFromFacts`, engine facts only, no model call) or Jev (`decide()`). The live coach path
+// only ever uses "engine_facts" (2026-09-19: see docs/build-plan.md, "Jev in shadow mode");
+// "jev" is logged only for shadow-mode rows, never shown to the player.
+export const DECIDED_BY_VALUES = ["engine_facts", "jev"] as const;
+export const DecidedBySchema = v.picklist(DECIDED_BY_VALUES);
+export type DecidedBy = v.InferOutput<typeof DecidedBySchema>;
+
 export const DecisionSchema = v.object({
   action: ActionTakenSchema,
   severity: SeverityLevelSchema,
-  // P(severity >= mistake); what rule 1 actually gated on.
+  // P(severity >= mistake); what rule 1 actually gated on. For "engine_facts" decisions this is
+  // not a real probability: it is 1 when severity >= mistake (2), else 0, since the code-only
+  // judge has no model distribution to report a mass over.
   severityMass: Probability,
   errorClass: ErrorClassSchema,
   templateId: v.string(),
@@ -86,5 +110,6 @@ export const DecisionSchema = v.object({
   lowConfidence: v.boolean(),
   // Short machine-readable trail, e.g. ["interrupt_now=0.81>=0.7", "cooldown"]. For the audit log.
   reasons: v.array(v.string()),
+  decidedBy: DecidedBySchema,
 });
 export type Decision = v.InferOutput<typeof DecisionSchema>;

@@ -39,6 +39,13 @@ describe("flushToD1", () => {
           latencyMs: 5,
           inputTokens: 100,
           createdAt: 1000,
+          decidedBy: "jev",
+          practicalLoss: 0.4,
+          shadowStatus: null,
+          shadowAnswersJson: null,
+          shadowDecisionJson: null,
+          shadowLatencyMs: null,
+          shadowInputTokens: null,
         },
       ],
       events: [
@@ -71,6 +78,9 @@ describe("flushToD1", () => {
 
     const judgment = await env.DB.prepare("SELECT * FROM judgments WHERE game_id = ? AND ply = 1").bind("flush-game-1").first();
     expect(judgment?.action_taken).toBe("queued");
+    expect(judgment?.decided_by).toBe("jev");
+    expect(judgment?.practical_loss).toBe(0.4);
+    expect(judgment?.shadow_status).toBeNull();
 
     const event = await env.DB.prepare("SELECT * FROM coaching_events WHERE id = ?").bind("evt-flush-1").first();
     expect(event?.text).toBe("x");
@@ -184,5 +194,150 @@ describe("flushToD1", () => {
     }
     const rows = await env.DB.prepare("SELECT COUNT(*) as count FROM moves WHERE game_id = ?").bind("flush-game-5").first<{ count: number }>();
     expect(rows?.count).toBe(1);
+  });
+
+  it("writes an engine_facts judgment row with the documented Jev-column sentinels", async () => {
+    await seedPlayer(env.DB, "flush-player-6");
+    await seedGame(env.DB, "flush-game-6", "flush-player-6");
+
+    const batch: UnflushedBatch = {
+      moves: [],
+      judgments: [
+        {
+          ply: 1,
+          jevModel: "none",
+          transport: "none",
+          stateHash: "",
+          answersJson: "{}",
+          decisionJson: "{}",
+          actionTaken: "interrupt",
+          latencyMs: 0,
+          inputTokens: 0,
+          createdAt: 1000,
+          decidedBy: "engine_facts",
+          practicalLoss: 0.3,
+          shadowStatus: "off",
+          shadowAnswersJson: null,
+          shadowDecisionJson: null,
+          shadowLatencyMs: null,
+          shadowInputTokens: null,
+        },
+      ],
+      events: [],
+    };
+
+    await flushToD1(env.DB, {
+      gameId: "flush-game-6",
+      playerId: "flush-player-6",
+      batch,
+      lastPly: 1,
+      day: "2026-09-18",
+      pendingJevCalls: 0,
+      pendingJevInputTokens: 0,
+    });
+
+    const judgment = await env.DB
+      .prepare("SELECT * FROM judgments WHERE game_id = ? AND ply = 1")
+      .bind("flush-game-6")
+      .first<{
+        jev_model: string;
+        transport: string;
+        answers_json: string;
+        latency_ms: number;
+        input_tokens: number;
+        decided_by: string;
+        practical_loss: number;
+        shadow_status: string;
+      }>();
+    expect(judgment).toMatchObject({
+      jev_model: "none",
+      transport: "none",
+      answers_json: "{}",
+      latency_ms: 0,
+      input_tokens: 0,
+      decided_by: "engine_facts",
+      practical_loss: 0.3,
+      shadow_status: "off",
+    });
+  });
+
+  it("a later flush can populate the shadow columns of an already-flushed engine_facts row", async () => {
+    await seedPlayer(env.DB, "flush-player-7");
+    await seedGame(env.DB, "flush-game-7", "flush-player-7");
+
+    const engineFactsRow: UnflushedBatch["judgments"][number] = {
+      ply: 1,
+      jevModel: "none",
+      transport: "none",
+      stateHash: "",
+      answersJson: "{}",
+      decisionJson: "{}",
+      actionTaken: "queued",
+      latencyMs: 0,
+      inputTokens: 0,
+      createdAt: 1000,
+      decidedBy: "engine_facts",
+      practicalLoss: 0.02,
+      shadowStatus: null,
+      shadowAnswersJson: null,
+      shadowDecisionJson: null,
+      shadowLatencyMs: null,
+      shadowInputTokens: null,
+    };
+
+    await flushToD1(env.DB, {
+      gameId: "flush-game-7",
+      playerId: "flush-player-7",
+      batch: { moves: [], judgments: [engineFactsRow], events: [] },
+      lastPly: 1,
+      day: "2026-09-18",
+      pendingJevCalls: 0,
+      pendingJevInputTokens: 0,
+    });
+
+    // The shadow call finished after the first flush: the next flush carries its columns while
+    // decided_by / action_taken (what the player actually saw) are untouched.
+    await flushToD1(env.DB, {
+      gameId: "flush-game-7",
+      playerId: "flush-player-7",
+      batch: {
+        moves: [],
+        judgments: [
+          {
+            ...engineFactsRow,
+            shadowStatus: "ok",
+            shadowAnswersJson: '{"severity":1}',
+            shadowDecisionJson: '{"action":"queued"}',
+            shadowLatencyMs: 240,
+            shadowInputTokens: 3100,
+          },
+        ],
+        events: [],
+      },
+      lastPly: 1,
+      day: "2026-09-18",
+      pendingJevCalls: 1,
+      pendingJevInputTokens: 3100,
+    });
+
+    const judgment = await env.DB
+      .prepare("SELECT * FROM judgments WHERE game_id = ? AND ply = 1")
+      .bind("flush-game-7")
+      .first<{
+        decided_by: string;
+        action_taken: string;
+        shadow_status: string;
+        shadow_answers_json: string;
+        shadow_latency_ms: number;
+        shadow_input_tokens: number;
+      }>();
+    expect(judgment).toMatchObject({
+      decided_by: "engine_facts",
+      action_taken: "queued",
+      shadow_status: "ok",
+      shadow_answers_json: '{"severity":1}',
+      shadow_latency_ms: 240,
+      shadow_input_tokens: 3100,
+    });
   });
 });

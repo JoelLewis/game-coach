@@ -13,6 +13,7 @@ import {
   type ServerMessage,
 } from "@game-coach/contracts/ws-protocol";
 import type { GameConfig, GameStateJudgment, GameStateMove } from "@game-coach/contracts/session-rpc";
+import type { MoveFacts } from "@game-coach/contracts/engine";
 import type { ThresholdConfig, DecisionContext } from "@game-coach/contracts/decision";
 import { SEVERITY } from "@game-coach/contracts/taxonomy";
 import type { RatingBand } from "@game-coach/contracts/taxonomy";
@@ -22,7 +23,8 @@ import { thresholdsForTalkativeness } from "@game-coach/coaching-core/thresholds
 import { createTransport } from "./jev-transport.ts";
 import * as store from "./session-store.ts";
 import type { PlayerKind } from "./session-store.ts";
-import { judgeMove } from "./judge-move.ts";
+import { judgeFactsLive } from "./judge-facts-live.ts";
+import { judgeJevShadow, type JudgeJevShadowInput } from "./judge-jev-shadow.ts";
 import { createTemplatesSource, type TemplatesSource } from "./templates-source.ts";
 import { flushToD1, type FlushFinish } from "./d1-flush.ts";
 
@@ -263,6 +265,10 @@ export class GameSession extends DurableObject<Env> {
     store.recordOpponentMove(sql, { ply: message.ply, moveId: message.moveId, moveText: message.moveText }, now);
   }
 
+  // Live path (2026-09-19, see docs/build-plan.md "Jev in shadow mode"): judged synchronously in
+  // code from engine facts alone (judge-facts-live.ts), no budget reservation, no model call, so
+  // the player's move is judged and the frames below are sent with no Jev latency at all. Jev
+  // only runs afterwards, in the shadow, when JEV_MODE is "shadow" - see #runShadowJudgment.
   async #handleMove(
     ws: WebSocket,
     sql: SqlStorage,
@@ -284,38 +290,8 @@ export class GameSession extends DurableObject<Env> {
       return;
     }
 
-    if (now - meta.lastJevCallAt < meta.minMsBetweenJevCalls) {
-      send(ws, { type: "error", code: "rate_limited", message: "Jev calls are rate limited for this game" });
-      return;
-    }
-
-    let reserved = meta.reservedJevCalls;
-    if (reserved <= 0) {
-      const budgetGate = this.env.BUDGET_GATE.get(this.env.BUDGET_GATE.idFromName("global"));
-      const { granted } = await budgetGate.reserveJevCalls(
-        meta.playerId,
-        meta.playerKind,
-        meta.gameId,
-        meta.reservationChunkSize,
-      );
-      if (granted <= 0) {
-        console.info("budget_denied", { gameId: meta.gameId, ply: facts.ply });
-        send(ws, { type: "unjudged", ply: facts.ply, reason: "budget" });
-        return;
-      }
-      reserved = granted;
-    }
-
-    // Charged whether or not the call below succeeds: a timed-out Jev call can still finish
-    // (and incur cost) even though its result is discarded (see JevTransport docs).
-    store.setReservedJevCalls(sql, reserved - 1);
-    store.setLastJevCallAt(sql, now);
-
-    const templatesSource = this.#getTemplatesSource();
-    const [templateLibrary, themes] = await Promise.all([
-      templatesSource.getLibrary(meta.game),
-      templatesSource.getThemes(meta.game),
-    ]);
+    const jevMode = this.#getJevMode();
+    const templateLibrary = await this.#getTemplatesSource().getLibrary(meta.game);
     const effectiveThresholds = thresholdsForTalkativeness(meta.baseThresholds, meta.talkativeness);
     const context: Omit<DecisionContext, "practicalLoss"> = {
       mode: meta.mode,
@@ -323,72 +299,167 @@ export class GameSession extends DurableObject<Env> {
       writerCallsThisGame: meta.writerCallsThisGame,
     };
 
-    const result = await judgeMove(
-      {
+    const startedAt = Date.now();
+    const { decision, practicalLoss, coachEvent } = judgeFactsLive({
+      facts,
+      game: meta.game,
+      thresholds: effectiveThresholds,
+      context,
+      templateLibrary,
+      idFactory: () => crypto.randomUUID(),
+    });
+    // No model call is on this path at all, so this is purely the code-only judge's own compute
+    // time (plus, on the very first move, the KV read that fetches and caches templateLibrary).
+    const latencyMs = Date.now() - startedAt;
+
+    store.recordJudgment(sql, {
+      ply: facts.ply,
+      jevModel: "none",
+      transport: "none",
+      stateHash: "",
+      answers: {},
+      decision,
+      actionTaken: decision.action,
+      latencyMs,
+      inputTokens: 0,
+      createdAt: now,
+      decidedBy: "engine_facts",
+      practicalLoss,
+      shadowStatus: jevMode === "shadow" ? null : "off",
+    });
+
+    store.setInterruptCooldown(sql, decision.action === "interrupt" ? 0 : meta.pliesSinceLastInterrupt + 1);
+
+    const noted = decision.severity !== SEVERITY.fine || decision.action === "praise";
+    send(ws, { type: "judgment", ply: facts.ply, severity: decision.severity, noted, latencyMs });
+
+    if (coachEvent !== undefined) {
+      store.recordCoachEvent(sql, { event: coachEvent, createdAt: now });
+      send(ws, { type: "coach", event: coachEvent });
+    }
+
+    if (jevMode === "shadow") {
+      // Scheduled strictly after the frames above are sent: nothing here may affect what the
+      // player just saw. Never throws (see #runShadowJudgment's own top-level catch).
+      this.ctx.waitUntil(this.#runShadowJudgment(meta, facts, effectiveThresholds, context, now));
+    }
+  }
+
+  // Runs Jev's full pipeline (judge-jev-shadow.ts, unchanged since before this DO started
+  // deciding in code) against the same move, under the exact same BudgetGate rules the live path
+  // used to run under, and logs the result against the judgment row #handleMove already wrote.
+  // Called only from a waitUntil after the player's frames are sent - a failure or budget denial
+  // here is recorded as a shadow status and must never surface to the player or throw.
+  async #runShadowJudgment(
+    meta: store.MetaRow,
+    facts: MoveFacts,
+    thresholds: ThresholdConfig,
+    context: Omit<DecisionContext, "practicalLoss">,
+    now: number,
+  ): Promise<void> {
+    try {
+      const sql = this.ctx.storage.sql;
+      const current = store.getMeta(sql);
+      if (current === undefined) return;
+
+      if (now - current.lastJevCallAt < current.minMsBetweenJevCalls) {
+        this.#recordShadowStatus(sql, facts.ply, "budget");
+        return;
+      }
+
+      let reserved = current.reservedJevCalls;
+      if (reserved <= 0) {
+        const budgetGate = this.env.BUDGET_GATE.get(this.env.BUDGET_GATE.idFromName("global"));
+        const { granted } = await budgetGate.reserveJevCalls(
+          current.playerId,
+          current.playerKind,
+          current.gameId,
+          current.reservationChunkSize,
+        );
+        if (granted <= 0) {
+          console.info("shadow_budget_denied", { gameId: current.gameId, ply: facts.ply });
+          this.#recordShadowStatus(sql, facts.ply, "budget");
+          return;
+        }
+        reserved = granted;
+      }
+
+      // Charged whether or not the call below succeeds: a timed-out Jev call can still finish
+      // (and incur cost) even though its result is discarded (see JevTransport docs).
+      store.setReservedJevCalls(sql, reserved - 1);
+      store.setLastJevCallAt(sql, now);
+
+      const templatesSource = this.#getTemplatesSource();
+      const [templateLibrary, themes] = await Promise.all([
+        templatesSource.getLibrary(current.game),
+        templatesSource.getThemes(current.game),
+      ]);
+
+      const shadowInput: JudgeJevShadowInput = {
         facts,
-        game: meta.game,
-        timeControl: meta.config.timeControl,
+        game: current.game,
+        timeControl: current.config.timeControl,
         boardSize: null,
-        thresholds: effectiveThresholds,
+        thresholds,
         player: {
-          ratingBand: meta.ratingBand,
+          ratingBand: current.ratingBand,
           errorClassRates: {},
           gamesInProfile: 0,
-          interruptThreshold: effectiveThresholds.interruptNoul,
-          movesSinceLastCoachingEvent: meta.pliesSinceLastInterrupt,
+          interruptThreshold: thresholds.interruptNoul,
+          movesSinceLastCoachingEvent: context.pliesSinceLastInterrupt,
         },
         clock: { medianMoveTimeMs: null, remainingMs: null },
         context,
         templateLibrary,
         themes,
         idFactory: () => crypto.randomUUID(),
-      },
-      this.#getTransport(),
-    );
+      };
 
-    if (result.kind === "unavailable") {
-      console.error("jev_unavailable", { gameId: meta.gameId, ply: facts.ply, code: result.error.code });
-      send(ws, { type: "unjudged", ply: facts.ply, reason: "jev_unavailable" });
-      return;
+      const result = await judgeJevShadow(shadowInput, this.#getTransport());
+
+      if (result.kind === "unavailable") {
+        console.error("shadow_jev_unavailable", { gameId: current.gameId, ply: facts.ply, code: result.error.code });
+        this.#recordShadowStatus(sql, facts.ply, "unavailable");
+        return;
+      }
+
+      store.recordJevUsage(sql, result.inputTokens);
+      store.recordShadowResult(sql, {
+        ply: facts.ply,
+        status: "ok",
+        answers: result.answers,
+        decision: result.decision,
+        latencyMs: result.latencyMs,
+        inputTokens: result.inputTokens,
+      });
+
+      // Audit artifact for calibration tooling, not on any response path (shadow already runs
+      // entirely after the player's frames were sent). A failure here must only be logged.
+      await this.#archiveStateBlock(result.stateHash, JSON.stringify(result.stateBlock)).catch((error: unknown) => {
+        console.error("shadow_state_block_archive_failed", { gameId: current.gameId, ply: facts.ply, error: String(error) });
+      });
+
+      await this.#reportUsage(result.inputTokens).catch((error: unknown) => {
+        console.error("shadow_report_usage_failed", { gameId: current.gameId, ply: facts.ply, error: String(error) });
+      });
+    } catch (error) {
+      console.error("shadow_judgment_failed", { gameId: meta.gameId, ply: facts.ply, error: String(error) });
+      try {
+        this.#recordShadowStatus(this.ctx.storage.sql, facts.ply, "unavailable");
+      } catch (innerError) {
+        console.error("shadow_status_write_failed", { gameId: meta.gameId, ply: facts.ply, error: String(innerError) });
+      }
     }
+  }
 
-    store.recordJevUsage(sql, result.inputTokens);
-    store.recordJudgment(sql, {
-      ply: facts.ply,
-      jevModel: result.jevModel,
-      transport: result.transport,
-      stateHash: result.stateHash,
-      answers: result.answers,
-      decision: result.decision,
-      actionTaken: result.decision.action,
-      latencyMs: result.latencyMs,
-      inputTokens: result.inputTokens,
-      createdAt: now,
-    });
-
-    store.setInterruptCooldown(sql, result.decision.action === "interrupt" ? 0 : meta.pliesSinceLastInterrupt + 1);
-
-    const noted = result.decision.severity !== SEVERITY.fine || result.decision.action === "praise";
-    send(ws, { type: "judgment", ply: facts.ply, severity: result.decision.severity, noted, latencyMs: result.latencyMs });
-
-    if (result.coachEvent !== undefined) {
-      store.recordCoachEvent(sql, { event: result.coachEvent, createdAt: now });
-      send(ws, { type: "coach", event: result.coachEvent });
-    }
-
-    // Fire-and-forget, per the brief: the state block is an audit artifact, not on the response
-    // path. A failure here must never break the game, only be logged.
-    this.ctx.waitUntil(
-      this.#archiveStateBlock(result.stateHash, JSON.stringify(result.stateBlock)).catch((error: unknown) => {
-        console.error("state_block_archive_failed", { gameId: meta.gameId, ply: facts.ply, error: String(error) });
-      }),
-    );
-
-    // Awaited rather than backgrounded: this reports real AI spend to the global budget ledger,
-    // and money-accounting should not be best-effort. A failure is logged but never blocks or
-    // fails the move - the player has already had their turn judged.
-    await this.#reportUsage(result.inputTokens).catch((error: unknown) => {
-      console.error("report_usage_failed", { gameId: meta.gameId, ply: facts.ply, error: String(error) });
+  #recordShadowStatus(sql: SqlStorage, ply: number, status: "budget" | "unavailable"): void {
+    store.recordShadowResult(sql, {
+      ply,
+      status,
+      answers: undefined,
+      decision: undefined,
+      latencyMs: undefined,
+      inputTokens: undefined,
     });
   }
 
@@ -485,5 +556,13 @@ export class GameSession extends DurableObject<Env> {
     const jevTransportVar: string = this.env.JEV_TRANSPORT;
     this.#transport ??= createTransport(jevTransportVar, this.env.AI);
     return this.#transport;
+  }
+
+  // `JEV_MODE` is declared in wrangler.jsonc with the literal value "off"; widen before
+  // comparing so a deployment that sets it to "shadow" is handled correctly (same trick as
+  // `#getTransport`'s `JEV_TRANSPORT`).
+  #getJevMode(): "off" | "shadow" {
+    const jevModeVar: string = this.env.JEV_MODE;
+    return jevModeVar === "shadow" ? "shadow" : "off";
   }
 }

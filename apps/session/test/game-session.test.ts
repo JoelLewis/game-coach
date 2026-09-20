@@ -121,6 +121,18 @@ describe("GameSession over a real WebSocket", () => {
 
     const eventCount = await env.DB.prepare("SELECT COUNT(*) as count FROM coaching_events WHERE game_id = ?").bind(gameId).first<{ count: number }>();
     expect(eventCount?.count).toBe(interruptCount);
+
+    // JEV_MODE=off (this config's default): the live judge is code-only and no shadow task is
+    // ever scheduled, so #runShadowJudgment - the only caller of the Jev transport - never runs
+    // for any of these rounds. Every row's Jev-only columns hold their documented sentinels.
+    const judgmentRows = await env.DB
+      .prepare("SELECT jev_model, transport, decided_by, shadow_status FROM judgments WHERE game_id = ?")
+      .bind(gameId)
+      .all<{ jev_model: string; transport: string; decided_by: string; shadow_status: string | null }>();
+    expect(judgmentRows.results.length).toBe(rounds);
+    for (const row of judgmentRows.results) {
+      expect(row).toEqual({ jev_model: "none", transport: "none", decided_by: "engine_facts", shadow_status: "off" });
+    }
   });
 
   it("hello resumes from DO SQLite after a reconnect, with nothing lost", async () => {
@@ -207,11 +219,13 @@ describe("GameSession over a real WebSocket", () => {
     expect(await queue.next()).toMatchObject({ type: "error", code: "bad_message" });
   });
 
-  it("denies a move when the per-game Jev budget is already exhausted", async () => {
+  it("an exhausted Jev budget no longer affects the live path (2026-09-19: live judging is code-only)", async () => {
+    // Before Jev was demoted to shadow mode, this pre-exhausted the game's BudgetGate allocation
+    // and the move came back `unjudged: budget`. The live path (JEV_MODE=off in this config) no
+    // longer reserves any budget at all, so the same setup now judges normally.
     const gameId = `budget-${crypto.randomUUID()}`;
     const cookie = await setupGame(gameId, "budget-player", "budget-session", { reservationChunkSize: 5 });
 
-    // Pre-exhaust this game's BudgetGate allocation (DEFAULT_BUDGET.perGame.jevCalls = 150).
     const budgetStub = env.BUDGET_GATE.get(env.BUDGET_GATE.idFromName("global"));
     await runInDurableObject(budgetStub, async (_instance, state) => {
       state.storage.sql.exec(
@@ -223,7 +237,7 @@ describe("GameSession over a real WebSocket", () => {
 
     const { ws, queue } = await connectAndHello(gameId, cookie);
     send(ws, { type: "move", facts: moveFacts({ ply: 1 }) });
-    expect(await queue.next()).toEqual({ type: "unjudged", ply: 1, reason: "budget" });
+    expect((await queue.next()).type).toBe("judgment");
   });
 
   it("supersedes an existing connection when a second one opens for the same game", async () => {
@@ -288,21 +302,22 @@ describe("GameSession over a real WebSocket", () => {
     expect(meta).toEqual({ status: "abandoned", result: "abandoned" });
   });
 
-  it("sends unjudged: jev_unavailable when the request cannot be built, and the game continues", async () => {
+  it("a state block too large for Jev's token budget no longer affects the live path (no state block is built at all)", async () => {
     const gameId = `jev-down-${crypto.randomUUID()}`;
     const cookie = await setupGame(gameId, "jevdown-player", "jevdown-session");
     const { ws, queue } = await connectAndHello(gameId, cookie);
 
-    // Feature keys the truncation order never targets, sized to blow the combined state +
-    // question token budget while staying under MAX_FRAME_BYTES for the inbound frame itself.
+    // Before Jev was demoted to shadow mode, feature keys like these (sized to blow the combined
+    // state + question token budget) made the live path come back `unjudged: jev_unavailable`.
+    // judge-facts-live.ts never builds a state block or a Jev request at all, so the same
+    // features now judge normally.
     const filler = "y".repeat(160);
     const features: Record<string, string[]> = {};
     for (let i = 0; i < 5; i++) features[`custom_bulk_feature_${i}`] = Array.from({ length: 8 }, () => filler);
 
     send(ws, { type: "move", facts: moveFacts({ ply: 1, features }) });
-    expect(await queue.next()).toEqual({ type: "unjudged", ply: 1, reason: "jev_unavailable" });
+    expect((await queue.next()).type).toBe("judgment");
 
-    // The game continues: a normal move right after still gets judged.
     send(ws, { type: "move", facts: moveFacts({ ply: 2 }) });
     expect((await queue.next()).type).toBe("judgment");
   });

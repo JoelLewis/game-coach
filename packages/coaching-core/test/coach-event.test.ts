@@ -37,6 +37,7 @@ const baseDecision = (overrides: Partial<Decision> = {}): Decision => ({
   missedTactic: false,
   lowConfidence: false,
   reasons: [],
+  decidedBy: "jev",
   ...overrides,
 });
 

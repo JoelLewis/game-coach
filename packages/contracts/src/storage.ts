@@ -1,8 +1,15 @@
-// D1 row types (mirror db/migrations/0001_init.sql exactly) and R2 / KV key builders.
-// JSON columns are TEXT in D1; the `...Json` suffix marks a serialized column.
-import type { ActionTaken } from "./decision.ts";
+// D1 row types (mirror db/migrations/0001_init.sql, extended by 0003_shadow_judgments.sql, exactly)
+// and R2 / KV key builders. JSON columns are TEXT in D1; the `...Json` suffix marks a
+// serialized column.
+import type { ActionTaken, DecidedBy } from "./decision.ts";
 import type { GameKind } from "./engine.ts";
 import type { GameResult } from "./ws-protocol.ts";
+
+// 0003_shadow_judgments.sql: how the shadow Jev call for a row turned out. `null` means the
+// shadow call hasn't finished (or wasn't scheduled) yet; `off` means JEV_MODE was "off" for
+// this row, so no shadow was ever attempted.
+export const SHADOW_STATUSES = ["ok", "budget", "unavailable", "off"] as const;
+export type ShadowStatus = (typeof SHADOW_STATUSES)[number];
 
 export type PlayerRow = {
   id: string;
@@ -52,6 +59,10 @@ export type MoveRow = {
 export type JudgmentRow = {
   game_id: string;
   ply: number;
+  // "none" for an "engine_facts" row: the live coach path never calls Jev, so these Jev-specific
+  // NOT NULL columns hold sentinels (jev_model = "none", transport = "none", answers_json = "{}",
+  // latency_ms = 0, input_tokens = 0). decision_json / action_taken are always what the player
+  // actually experienced, regardless of decided_by.
   jev_model: string;
   transport: string;
   state_hash: string;
@@ -61,6 +72,14 @@ export type JudgmentRow = {
   latency_ms: number;
   input_tokens: number;
   created_at: number;
+  // 0003_shadow_judgments.sql. See judge-facts.ts / judge-jev-shadow.ts (apps/session).
+  decided_by: DecidedBy;
+  practical_loss: number | null;
+  shadow_status: ShadowStatus | null;
+  shadow_answers_json: string | null;
+  shadow_decision_json: string | null;
+  shadow_latency_ms: number | null;
+  shadow_input_tokens: number | null;
 };
 
 export type CoachingEventRow = {
