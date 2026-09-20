@@ -132,6 +132,7 @@ const runBuild = async (argv: readonly string[]): Promise<void> => {
   await writeJsonl(join(args.outDir, "to-label.jsonl"), result.toLabel);
   await writeJsonl(join(args.outDir, "consensus.jsonl"), result.consensus);
   await writeJsonl(join(args.outDir, "audit-manifest.jsonl"), result.auditManifest);
+  await writeJsonl(join(args.outDir, "dissent.jsonl"), result.dissentManifest);
   await writeFile(join(args.outDir, "report.md"), renderConsensusReport(result.report));
 
   process.stdout.write(
@@ -142,7 +143,7 @@ const runBuild = async (argv: readonly string[]): Promise<void> => {
   if (result.report.unknownProposalIds.length) {
     process.stdout.write(`Ignored ${result.report.unknownProposalIds.length} proposal id(s) not in the set.\n`);
   }
-  process.stdout.write(`Wrote ${args.outDir}/to-label.jsonl, consensus.jsonl, audit-manifest.jsonl, report.md\n`);
+  process.stdout.write(`Wrote ${args.outDir}/to-label.jsonl, consensus.jsonl, audit-manifest.jsonl, dissent.jsonl, report.md\n`);
 };
 
 const runMerge = async (argv: readonly string[]): Promise<void> => {

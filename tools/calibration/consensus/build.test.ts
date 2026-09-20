@@ -73,6 +73,19 @@ describe("buildConsensus", () => {
     }
   });
 
+  // The audit only means something if the labeler cannot tell an audit item from a disputed one.
+  // A dissent note on disputed items (and none on unanimous audit items) would give it away.
+  it("never lets a note reveal which to-label items are audit items", () => {
+    const result = buildConsensus(items, passes, { auditCount: 2, seed: "s" });
+    for (const toLabelItem of result.toLabel) {
+      expect(toLabelItem.proposed?.note).toBeUndefined();
+    }
+    const auditedIds = new Set(result.auditManifest.map((a) => a.id));
+    const disputedIds = result.toLabel.map((i) => i.id).filter((id) => !auditedIds.has(id));
+    expect(result.dissentManifest.map((d) => d.id).sort()).toEqual([...disputedIds].sort());
+    expect(result.dissentManifest.every((d) => d.dissent.length > 0)).toBe(true);
+  });
+
   it("gives every to-label item a fresh, unlabeled shape ready for the labeler tool", () => {
     const result = buildConsensus(items, passes, { auditCount: 2, seed: "s" });
     for (const toLabelItem of result.toLabel) {
@@ -81,18 +94,6 @@ describe("buildConsensus", () => {
       expect(toLabelItem.labeledAt).toBeNull();
       expect(toLabelItem.acceptedProposal).toBeNull();
       expect(toLabelItem.proposed).not.toBeNull();
-    }
-  });
-
-  it("puts a dissent note on non-unanimous items but not on audited (unanimous) items", () => {
-    const result = buildConsensus(items, passes, { auditCount: 2, seed: "s" });
-    const auditedIds = new Set(result.auditManifest.map((a) => a.id));
-    for (const toLabelItem of result.toLabel) {
-      if (auditedIds.has(toLabelItem.id)) {
-        expect(toLabelItem.proposed?.note).toBeUndefined();
-      } else {
-        expect(toLabelItem.proposed?.note).toMatch(/Dissent/);
-      }
     }
   });
 

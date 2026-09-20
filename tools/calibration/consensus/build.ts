@@ -36,16 +36,19 @@ export type ConsensusBuildResult = {
   toLabel: CalibrationItem[];
   consensus: CalibrationItem[];
   auditManifest: { id: string; label: CalibrationLabel }[];
+  // Who disagreed about what, per disputed item. Tooling only: never shown to the labeler.
+  dissentManifest: { id: string; dissent: string[] }[];
   report: ConsensusReportData;
 };
 
 export const consensusLabeler = (passCount: number): string => `consensus-${passCount}-of-${passCount}`;
 
-const dissentNote = (dissent: readonly string[]): string | undefined =>
-  dissent.length ? `Dissent — ${dissent.join("; ")}` : undefined;
-
-const withLabel = (proposed: CalibrationLabel, note: string | undefined): CalibrationLabel =>
-  note === undefined ? proposed : { ...proposed, note };
+// Notes are stripped from everything the human labels: a dissent note on disputed items and none
+// on unanimous audit items would reveal which is which and unblind the audit.
+const withoutNote = (proposed: CalibrationLabel): CalibrationLabel => {
+  const { note: _note, ...rest } = proposed;
+  return rest;
+};
 
 export const buildConsensus = (
   items: readonly CalibrationItem[],
@@ -104,7 +107,7 @@ export const buildConsensus = (
       auditManifest.push({ id: item.id, label });
       auditToLabelItems.push({
         ...item,
-        proposed: withLabel(label, undefined),
+        proposed: withoutNote(label),
         label: null,
         labeler: null,
         labeledAt: null,
@@ -122,9 +125,9 @@ export const buildConsensus = (
     }
   }
 
-  const nonUnanimousToLabelItems = nonUnanimousItems.map(({ item, majority, dissent }) => ({
+  const nonUnanimousToLabelItems = nonUnanimousItems.map(({ item, majority }) => ({
     ...item,
-    proposed: withLabel(majority, dissentNote(dissent)),
+    proposed: withoutNote(majority),
     label: null,
     labeler: null,
     labeledAt: null,
@@ -142,6 +145,9 @@ export const buildConsensus = (
     toLabel,
     consensus: consensus.sort((a, b) => a.id.localeCompare(b.id)),
     auditManifest: auditManifest.sort((a, b) => a.id.localeCompare(b.id)),
+    dissentManifest: nonUnanimousItems
+      .map(({ item, dissent }) => ({ id: item.id, dissent }))
+      .sort((a, b) => a.id.localeCompare(b.id)),
     report: {
       passCount: proposalPasses.length,
       totalItems: items.length,

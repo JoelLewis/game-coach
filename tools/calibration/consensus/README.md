@@ -20,9 +20,10 @@ Writes, into `--out-dir`:
 
 - `to-label.jsonl` -- every non-unanimous item, plus a seeded random sample of `--audit`
   unanimous items, shuffled together so the labeler cannot tell which is which. Each item's
-  `proposed` is the majority label (ties broken toward the less severe / `false` value); a
-  non-unanimous item's `proposed.note` lists the dissenting values, an audited item's does not
-  (there is nothing to list). This is the file a human labels, e.g. with the existing labeler
+  `proposed` is the majority label (ties broken toward the less severe / `false` value), with
+  **no note on any item**: a dissent note on disputed items and none on unanimous audit items
+  would reveal which is which and unblind the audit. This is the file a human labels, e.g. with
+  the existing labeler
   tool (`pnpm --filter @game-coach/calibration label -- --set data/consensus/to-label.jsonl`).
 - `consensus.jsonl` -- the unanimous, non-audited items, `label` = the agreed label,
   `labeler: "consensus-N-of-N"`. **Never a human label**; every downstream report must keep
@@ -54,12 +55,10 @@ the output) and exits 1. It prints the accuracy table either way and writes it t
 
 ## Contract notes
 
-- `CalibrationLabel.note` (optional) is reused to carry the dissent list for non-unanimous
-  items; there was no dedicated field for it, and adding one would be an unrequested contract
-  change for this task.
-- "Indistinguishability" is enforced structurally (no `isAudit`-style field, and audit items are
-  shuffled in with non-unanimous ones by a seeded permutation, never appended after). It is not,
-  and cannot be, enforced at the content level: a genuinely unanimous item naturally has no
-  dissent to list, so a careful reader could in principle infer likely-audit status from a
-  missing dissent note. Removing the dissent note entirely would satisfy that stricter reading
-  but would drop information the brief explicitly asks `to-label.jsonl` to carry.
+- Who disagreed about what is written to `dissent.jsonl` (`{ id, dissent[] }`), for tooling and
+  later analysis only. It is deliberately NOT shown to the labeler.
+- Indistinguishability of audit items is enforced structurally (no `isAudit`-style field, a
+  seeded shuffle mixes audit and disputed items) AND at the content level: every to-label item
+  has the same shape, with no note. The original design put the dissent list in the note, which
+  let a careful labeler infer audit membership from a missing note; a test now guards against
+  that.
