@@ -1,8 +1,8 @@
 // GameSession: one hibernatable Durable Object per live game. Every move is persisted to DO
 // SQLite before anything else happens, so hibernation (which clears all in-memory state) can
 // never lose a move. Nothing in this class keeps game-critical state in an instance field -
-// only the template-library/theme cache and the transport, both of which are safe to lose and
-// cheaply rebuilt.
+// only the template-library/theme cache, the transport and the flush serialization chain, all of
+// which are safe to lose and cheaply rebuilt (the flush chain just becomes empty again).
 import { DurableObject } from "cloudflare:workers";
 import * as v from "valibot";
 import {
@@ -29,8 +29,9 @@ import { createTemplatesSource, type TemplatesSource } from "./templates-source.
 import { flushToD1, type FlushFinish } from "./d1-flush.ts";
 
 // Trusted only because Durable Object bindings are not reachable except through code holding
-// the `GAME_SESSION` binding, i.e. only this Worker's own `fetch()` handler can set it.
+// the `GAME_SESSION` binding, i.e. only this Worker's own `fetch()` handler can set these.
 export const TRUSTED_PLAYER_HEADER = "X-Gc-Player-Id";
+export const TRUSTED_PLAYER_KIND_HEADER = "X-Gc-Player-Kind";
 
 const ACTIVE_SOCKET_TAG = "active";
 const FLUSH_EVERY_PLIES = 10;
@@ -41,6 +42,19 @@ const GAME_STATE_RECENT_EVENTS_LIMIT = 20;
 
 const send = (ws: WebSocket, message: ServerMessage): void => {
   ws.send(JSON.stringify(message));
+};
+
+const isPlayerKind = (value: string | null): value is PlayerKind => value === "guest" || value === "account";
+
+// A03/A05: attached to every accepted socket (hibernation-safe: `serializeAttachment` survives a
+// hibernate/wake cycle, unlike an instance field) so a frame or an async continuation started
+// under an old connection/identity can be told apart from the current one.
+type SocketAttachment = { generation: number };
+
+const readSocketAttachment = (ws: WebSocket): SocketAttachment | undefined => {
+  const raw = ws.deserializeAttachment() as SocketAttachment | null | undefined;
+  if (raw === null || raw === undefined || typeof raw.generation !== "number") return undefined;
+  return raw;
 };
 
 export type InitInput = {
@@ -68,10 +82,31 @@ export type GameSessionStateSnapshot = {
 export class GameSession extends DurableObject<Env> {
   #templatesSource: TemplatesSource | undefined;
   #transport: JevTransport | undefined;
+  // A06: serializes flush execution so at most one D1 batch for this game is ever in flight;
+  // concurrent triggers queue behind it and each re-reads storage when its turn comes, so nothing
+  // queued is ever stale by the time it actually runs.
+  #flushChain: Promise<void> = Promise.resolve();
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     store.ensureSchema(ctx.storage.sql);
+
+    // Interlock for A01/A02/A09 (see docs/build-plan.md, "Jev in shadow mode"): budget
+    // reservations do not enforce the advertised spend limits and shadow audit rows do not yet
+    // carry their archived-state hash, so real spend under shadow mode must be impossible by
+    // construction until that accounting is rebuilt - not papered over with a partial fix here.
+    // Logged once per DO start (the constructor runs on every wake, per the Durable Objects
+    // gotcha that memory does not survive hibernation/eviction).
+    if (this.#realSpendInterlockTriggered()) {
+      console.error("jev_shadow_workers_ai_interlock", {
+        message:
+          "JEV_MODE=shadow with JEV_TRANSPORT=workers_ai is blocked by construction: budget " +
+          "reservations do not cover retries/input tokens or dated caps (A01, A02), and shadow " +
+          "rows have no archived-state linkage (A09). Behaving as JEV_MODE=off until that " +
+          "accounting is rebuilt. Shadow mode with the fixture transport is unaffected.",
+        findings: ["A01", "A02", "A09"],
+      });
+    }
   }
 
   // Called once by SessionEntrypoint right after the D1 `games` row is inserted. Idempotent so
@@ -79,6 +114,7 @@ export class GameSession extends DurableObject<Env> {
   async init(input: InitInput): Promise<void> {
     const sql = this.ctx.storage.sql;
     if (store.getMeta(sql) !== undefined) return;
+    const now = Date.now();
     store.initGame(sql, {
       gameId: input.gameId,
       playerId: input.playerId,
@@ -89,8 +125,12 @@ export class GameSession extends DurableObject<Env> {
       ratingBand: input.ratingBand,
       reservationChunkSize: input.reservationChunkSize,
       minMsBetweenJevCalls: input.minMsBetweenJevCalls,
-      now: Date.now(),
+      now,
     });
+    // A07: armed at creation, not at first connect - a created-but-never-opened game must still
+    // be reclaimed by the idle alarm instead of staying live (and its reservation credits
+    // reusable) forever.
+    await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
   }
 
   // Called directly by `SessionEntrypoint.getGameState` over the DO RPC surface (a plain method
@@ -110,27 +150,59 @@ export class GameSession extends DurableObject<Env> {
   }
 
   override async fetch(request: Request): Promise<Response> {
-    const meta = store.getMeta(this.ctx.storage.sql);
+    const sql = this.ctx.storage.sql;
+    const meta = store.getMeta(sql);
     if (meta === undefined) return new Response("game not initialised", { status: 404 });
 
     const trustedPlayerId = request.headers.get(TRUSTED_PLAYER_HEADER);
-    if (trustedPlayerId === null || trustedPlayerId !== meta.playerId) {
-      return new Response("forbidden", { status: 403 });
+    const trustedPlayerKind = request.headers.get(TRUSTED_PLAYER_KIND_HEADER);
+    if (trustedPlayerId === null || !isPlayerKind(trustedPlayerKind)) {
+      // Unreachable in production (only this Worker's own `fetch()` sets these headers), but per
+      // A05 an authorization failure inside the DO must still complete the handshake and close
+      // with an application code, exactly like the outer Worker does for its own auth failures -
+      // never a bare HTTP error to what is supposed to be a WebSocket upgrade.
+      return this.#rejectHandshake(WS_CLOSE.unauthorized, "missing trusted identity");
+    }
+
+    // A05: adopt the resolved identity the outer Worker already verified for this upgrade
+    // (cookie, merge resolution, D1 ownership) instead of comparing it against a possibly-stale
+    // stored one - a guest who has since signed into an existing account must not be locked out
+    // of their own game. Budget keys and usage flush always read the identity fresh from
+    // storage from here on (see `#runShadowJudgment`/`#runFlush`), so this is the only place the
+    // switch needs to happen.
+    if (trustedPlayerId !== meta.playerId || trustedPlayerKind !== meta.playerKind) {
+      store.updateIdentity(sql, trustedPlayerId, trustedPlayerKind);
     }
 
     const { 0: client, 1: server } = new WebSocketPair();
     // Exactly one connection is ever "active" for a game. Superseding happens at accept time
     // (rather than waiting for the new socket's `hello`) so there is never a moment with two
-    // live sockets for the same game.
+    // live sockets for the same game - this also covers A05's "close every other open socket
+    // when the stored identity changes", since that closes unconditionally on every new upgrade.
     for (const old of this.ctx.getWebSockets(ACTIVE_SOCKET_TAG)) {
       old.close(WS_CLOSE.superseded, "superseded by a new connection");
     }
+
+    // A03: a fresh generation for this socket, persisted in a hibernation-safe attachment. Any
+    // frame or async continuation still tagged with an older generation is fenced out below. The
+    // rate-limit bucket is "per-connection" too, so a brand new socket is never penalized by
+    // whatever a previous connection (or a flood against it) left behind.
+    const generation = store.nextSocketGeneration(sql);
+    server.serializeAttachment({ generation } satisfies SocketAttachment);
     this.ctx.acceptWebSocket(server, [ACTIVE_SOCKET_TAG]);
 
     const now = Date.now();
-    store.touchFrame(this.ctx.storage.sql, now);
+    store.touchFrame(sql, now);
+    store.resetRateLimitBucket(sql, now);
     await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
 
+    return new Response(null, { status: 101, webSocket: client });
+  }
+
+  #rejectHandshake(code: number, reason: string): Response {
+    const { 0: client, 1: server } = new WebSocketPair();
+    server.accept();
+    server.close(code, reason);
     return new Response(null, { status: 101, webSocket: client });
   }
 
@@ -139,6 +211,26 @@ export class GameSession extends DurableObject<Env> {
     const meta = store.getMeta(sql);
     if (meta === undefined) {
       send(ws, { type: "error", code: "internal", message: "game not initialised" });
+      return;
+    }
+
+    // A03/A05: drop frames from a socket generation that is no longer current (superseded by a
+    // reconnect or an identity change) before doing anything else, including rate-limit
+    // bookkeeping - a stale socket's frames must not perturb the current connection's bucket.
+    const attachment = readSocketAttachment(ws);
+    if (attachment === undefined || attachment.generation !== meta.socketGeneration) return;
+
+    const now = Date.now();
+
+    // A03: token bucket applied before any other storage work, and before we even know whether
+    // the frame is well-formed - an attacker cannot bypass it by sending garbage.
+    const rate = store.checkRateLimit(sql, now);
+    if (!rate.allowed) {
+      if (rate.shouldClose) {
+        ws.close(WS_CLOSE.protocol_error, "sustained rate limit violation");
+        return;
+      }
+      send(ws, { type: "error", code: "rate_limited", message: "too many messages" });
       return;
     }
 
@@ -165,28 +257,49 @@ export class GameSession extends DurableObject<Env> {
       return;
     }
 
-    const now = Date.now();
-    store.touchFrame(sql, now);
-    await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
+    if (message.type === "hello") {
+      // A03: `hello` gets its own 1/s cap on top of the general bucket above - do not touch the
+      // idle alarm on a rejected one.
+      if (!store.checkHelloThrottle(sql, now)) {
+        send(ws, { type: "error", code: "rate_limited", message: "hello too frequent" });
+        return;
+      }
+      store.touchFrame(sql, now);
+      await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
+      this.#handleHello(ws, sql);
+      return;
+    }
+
+    // A04: reject every mutating frame once the durable game state is terminal, before recording
+    // or scheduling anything. `game_end` is handled in its own idempotent branch below (a resend
+    // of an already-processed end must be acknowledged, not treated as an error).
+    if (meta.status !== "live" && (message.type === "move" || message.type === "opponent_move" || message.type === "set_mode")) {
+      send(ws, { type: "error", code: "game_over", message: "game already ended" });
+      for (const socket of this.ctx.getWebSockets(ACTIVE_SOCKET_TAG)) {
+        socket.close(WS_CLOSE.game_over, "game already ended");
+      }
+      return;
+    }
 
     switch (message.type) {
-      case "hello":
-        this.#handleHello(ws, sql);
-        return;
       case "move":
         // Flushed on a ply cadence regardless of outcome (judged, unjudged or rate-limited):
         // the move itself is already persisted above and must not wait indefinitely for D1.
-        await this.#handleMove(ws, sql, meta, message, now);
+        await this.#handleMove(ws, sql, meta, message, now, attachment.generation);
         await this.#maybeFlush(sql, meta);
         return;
       case "opponent_move":
-        this.#handleOpponentMove(ws, sql, meta, message, now);
+        await this.#handleOpponentMove(ws, sql, meta, message, now);
         await this.#maybeFlush(sql, meta);
         return;
       case "set_mode":
+        store.touchFrame(sql, now);
+        await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
         store.setMode(sql, message.mode, message.talkativeness);
         return;
       case "feedback":
+        store.touchFrame(sql, now);
+        await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
         store.setFeedback(sql, message.eventId, message.helpful);
         return;
       case "game_end":
@@ -220,22 +333,23 @@ export class GameSession extends DurableObject<Env> {
 
   async alarm(): Promise<void> {
     const sql = this.ctx.storage.sql;
-    const meta = store.getMeta(sql);
-    if (meta === undefined || meta.status !== "live") return;
+    let meta = store.getMeta(sql);
+    if (meta === undefined) return;
 
     const now = Date.now();
-    const idleFor = now - meta.lastFrameAt;
-    if (idleFor < IDLE_TIMEOUT_MS) {
-      await this.ctx.storage.setAlarm(meta.lastFrameAt + IDLE_TIMEOUT_MS);
-      return;
+    if (meta.status === "live" && now - meta.lastFrameAt >= IDLE_TIMEOUT_MS) {
+      store.finishGame(sql, { status: "abandoned", result: "abandoned", endedAt: now });
+      meta = store.getMeta(sql) ?? meta;
+      for (const socket of this.ctx.getWebSockets(ACTIVE_SOCKET_TAG)) {
+        socket.close(WS_CLOSE.game_over, "idle timeout");
+      }
     }
 
-    const finish: FlushFinish = { status: "abandoned", result: "abandoned", endedAt: now };
-    store.finishGame(sql, finish);
-    await this.#flush(sql, meta, finish);
-    for (const socket of this.ctx.getWebSockets(ACTIVE_SOCKET_TAG)) {
-      socket.close(WS_CLOSE.game_over, "idle timeout");
-    }
+    // A06/A07: this alarm is also the bounded-backoff retry driver for a pending flush, for live
+    // and terminal games alike; `#flush` re-arms it (for the real idle deadline, a retry
+    // deadline, or neither) once it is done, so an alarm that fired "early" for a retry that
+    // turned out to already be resolved still ends with the correct next wake-up scheduled.
+    await this.#flush(sql, meta);
   }
 
   #handleHello(ws: WebSocket, sql: SqlStorage): void {
@@ -251,17 +365,19 @@ export class GameSession extends DurableObject<Env> {
     });
   }
 
-  #handleOpponentMove(
+  async #handleOpponentMove(
     ws: WebSocket,
     sql: SqlStorage,
     meta: store.MetaRow,
     message: Extract<ClientMessage, { type: "opponent_move" }>,
     now: number,
-  ): void {
+  ): Promise<void> {
     if (message.ply <= meta.lastPly) {
       send(ws, { type: "error", code: "ply_out_of_order", message: `ply ${message.ply} is not after ${meta.lastPly}` });
       return;
     }
+    store.touchFrame(sql, now);
+    await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
     store.recordOpponentMove(sql, { ply: message.ply, moveId: message.moveId, moveText: message.moveText }, now);
   }
 
@@ -275,12 +391,16 @@ export class GameSession extends DurableObject<Env> {
     meta: store.MetaRow,
     message: Extract<ClientMessage, { type: "move" }>,
     now: number,
+    generation: number,
   ): Promise<void> {
     const { facts } = message;
     if (facts.ply <= meta.lastPly) {
       send(ws, { type: "error", code: "ply_out_of_order", message: `ply ${facts.ply} is not after ${meta.lastPly}` });
       return;
     }
+
+    store.touchFrame(sql, now);
+    await this.ctx.storage.setAlarm(now + IDLE_TIMEOUT_MS);
 
     // Persisted before any judgment work: hibernation cannot lose a move that reached here.
     store.recordPlayerMove(sql, facts, now);
@@ -292,17 +412,28 @@ export class GameSession extends DurableObject<Env> {
 
     const jevMode = this.#getJevMode();
     const templateLibrary = await this.#getTemplatesSource().getLibrary(meta.game);
-    const effectiveThresholds = thresholdsForTalkativeness(meta.baseThresholds, meta.talkativeness);
+
+    // A03/A04: this handler just awaited external I/O (the template lookup); a supersede or the
+    // game ending during that await must not let this now-stale continuation write a judgment or
+    // talk to a socket that no longer owns this game. The move itself is already durably
+    // recorded above regardless.
+    const after = store.getMeta(sql);
+    if (after === undefined || after.socketGeneration !== generation || after.status !== "live") {
+      console.info("move_judgment_stale_after_await", { gameId: meta.gameId, ply: facts.ply });
+      return;
+    }
+
+    const effectiveThresholds = thresholdsForTalkativeness(after.baseThresholds, after.talkativeness);
     const context: Omit<DecisionContext, "practicalLoss"> = {
-      mode: meta.mode,
-      pliesSinceLastInterrupt: meta.pliesSinceLastInterrupt,
-      writerCallsThisGame: meta.writerCallsThisGame,
+      mode: after.mode,
+      pliesSinceLastInterrupt: after.pliesSinceLastInterrupt,
+      writerCallsThisGame: after.writerCallsThisGame,
     };
 
     const startedAt = Date.now();
     const { decision, practicalLoss, coachEvent } = judgeFactsLive({
       facts,
-      game: meta.game,
+      game: after.game,
       thresholds: effectiveThresholds,
       context,
       templateLibrary,
@@ -328,7 +459,7 @@ export class GameSession extends DurableObject<Env> {
       shadowStatus: jevMode === "shadow" ? null : "off",
     });
 
-    store.setInterruptCooldown(sql, decision.action === "interrupt" ? 0 : meta.pliesSinceLastInterrupt + 1);
+    store.setInterruptCooldown(sql, decision.action === "interrupt" ? 0 : after.pliesSinceLastInterrupt + 1);
 
     const noted = decision.severity !== SEVERITY.fine || decision.action === "praise";
     send(ws, { type: "judgment", ply: facts.ply, severity: decision.severity, noted, latencyMs });
@@ -341,7 +472,7 @@ export class GameSession extends DurableObject<Env> {
     if (jevMode === "shadow") {
       // Scheduled strictly after the frames above are sent: nothing here may affect what the
       // player just saw. Never throws (see #runShadowJudgment's own top-level catch).
-      this.ctx.waitUntil(this.#runShadowJudgment(meta, facts, effectiveThresholds, context, now));
+      this.ctx.waitUntil(this.#runShadowJudgment(after, facts, effectiveThresholds, context, now));
     }
   }
 
@@ -357,13 +488,18 @@ export class GameSession extends DurableObject<Env> {
     context: Omit<DecisionContext, "practicalLoss">,
     now: number,
   ): Promise<void> {
+    const sql = this.ctx.storage.sql;
+    const recordStatus = async (status: "budget" | "unavailable"): Promise<void> => {
+      this.#recordShadowStatus(sql, facts.ply, status);
+      await this.#afterShadowWrite(sql);
+    };
+
     try {
-      const sql = this.ctx.storage.sql;
       const current = store.getMeta(sql);
       if (current === undefined) return;
 
       if (now - current.lastJevCallAt < current.minMsBetweenJevCalls) {
-        this.#recordShadowStatus(sql, facts.ply, "budget");
+        await recordStatus("budget");
         return;
       }
 
@@ -378,7 +514,7 @@ export class GameSession extends DurableObject<Env> {
         );
         if (granted <= 0) {
           console.info("shadow_budget_denied", { gameId: current.gameId, ply: facts.ply });
-          this.#recordShadowStatus(sql, facts.ply, "budget");
+          await recordStatus("budget");
           return;
         }
         reserved = granted;
@@ -419,11 +555,15 @@ export class GameSession extends DurableObject<Env> {
 
       if (result.kind === "unavailable") {
         console.error("shadow_jev_unavailable", { gameId: current.gameId, ply: facts.ply, code: result.error.code });
-        this.#recordShadowStatus(sql, facts.ply, "unavailable");
+        await recordStatus("unavailable");
         return;
       }
 
-      store.recordJevUsage(sql, result.inputTokens);
+      // A08: persisted as an outbox row (unique id, the UTC day this call happened) before
+      // anything is sent to D1 - see d1-flush.ts for how that is applied idempotently.
+      store.recordJevUsage(sql, crypto.randomUUID(), utcDay(now), result.inputTokens, now);
+      // A09: the shadow call's own archived-state hash and the actual model/transport, alongside
+      // (never replacing) the live decision's columns.
       store.recordShadowResult(sql, {
         ply: facts.ply,
         status: "ok",
@@ -431,7 +571,11 @@ export class GameSession extends DurableObject<Env> {
         decision: result.decision,
         latencyMs: result.latencyMs,
         inputTokens: result.inputTokens,
+        stateHash: result.stateHash,
+        model: result.jevModel,
+        transport: result.transport,
       });
+      await this.#afterShadowWrite(sql);
 
       // Audit artifact for calibration tooling, not on any response path (shadow already runs
       // entirely after the player's frames were sent). A failure here must only be logged.
@@ -445,7 +589,7 @@ export class GameSession extends DurableObject<Env> {
     } catch (error) {
       console.error("shadow_judgment_failed", { gameId: meta.gameId, ply: facts.ply, error: String(error) });
       try {
-        this.#recordShadowStatus(this.ctx.storage.sql, facts.ply, "unavailable");
+        await recordStatus("unavailable");
       } catch (innerError) {
         console.error("shadow_status_write_failed", { gameId: meta.gameId, ply: facts.ply, error: String(innerError) });
       }
@@ -461,6 +605,17 @@ export class GameSession extends DurableObject<Env> {
       latencyMs: undefined,
       inputTokens: undefined,
     });
+  }
+
+  // A07: a shadow call can finish well after the player's frames were sent, including after the
+  // game has already ended and been flushed once. Nothing else will trigger another flush for a
+  // terminal game (no more player frames are coming), so this schedules one directly whenever the
+  // write it just made was for a game that is no longer live.
+  async #afterShadowWrite(sql: SqlStorage): Promise<void> {
+    const latest = store.getMeta(sql);
+    if (latest !== undefined && latest.status !== "live") {
+      await this.#flush(sql, latest);
+    }
   }
 
   async #handleGameEnd(
@@ -481,9 +636,11 @@ export class GameSession extends DurableObject<Env> {
       return;
     }
 
-    const finish: FlushFinish = { status: "finished", result: message.result, endedAt: now };
-    store.finishGame(sql, finish);
-    await this.#flush(sql, meta, finish);
+    store.finishGame(sql, { status: "finished", result: message.result, endedAt: now });
+    // A07: only acknowledge (close with game_over) once the flush attempt has either durably
+    // succeeded or durably recorded a bounded-backoff retry - `#flush` never returns without one
+    // of those being true, so recovery is guaranteed either way.
+    await this.#flush(sql, meta);
     for (const socket of this.ctx.getWebSockets(ACTIVE_SOCKET_TAG)) {
       socket.close(WS_CLOSE.game_over, "game ended");
     }
@@ -496,17 +653,38 @@ export class GameSession extends DurableObject<Env> {
     await this.#flush(sql, meta);
   }
 
-  async #flush(sql: SqlStorage, meta: store.MetaRow, finish?: FlushFinish): Promise<void> {
-    const current = store.getMeta(sql) ?? meta;
-    const batch = store.getUnflushed(sql);
-    const usage = store.snapshotAndResetPendingUsage(sql);
+  // A06: the public flush entry point. Chains onto `#flushChain` so at most one D1 batch for
+  // this game is ever in flight; a concurrent caller queues behind it rather than racing it with
+  // its own snapshot, and its turn re-reads storage fresh, so nothing is lost by "coalescing"
+  // this way. Always finishes by re-arming (or clearing) the alarm for whatever remains pending.
+  async #flush(sql: SqlStorage, meta: store.MetaRow): Promise<void> {
+    const run = this.#flushChain.then(() => this.#runFlush(sql, meta));
+    this.#flushChain = run.catch(() => {});
+    await run;
+    await this.#armAlarm(sql);
+  }
 
-    if (batch.moves.length === 0 && batch.judgments.length === 0 && batch.events.length === 0 && finish === undefined) {
-      // Nothing to send; still safe even if `usage` had a nonzero snapshot (restored below is
-      // unreachable in that case since flushToD1 is skipped entirely).
-      if (usage.jevCalls > 0 || usage.jevInputTokens > 0) {
-        store.addBackPendingUsage(sql, usage);
-      }
+  async #runFlush(sql: SqlStorage, fallbackMeta: store.MetaRow): Promise<void> {
+    const current = store.getMeta(sql) ?? fallbackMeta;
+    const batch = store.getUnflushed(sql);
+    const usageOutbox = store.getUnflushedUsageOutbox(sql);
+
+    // A06/A07: D1 learns a game is terminal exactly once, durably; every flush after that one
+    // succeeds carries only newly dirtied rows (e.g. a late shadow write), never `finish` again.
+    let finish: FlushFinish | undefined;
+    if (current.status !== "live" && !current.terminalFlushDone) {
+      finish = { status: current.status, result: current.result, endedAt: current.endedAt ?? Date.now() };
+    }
+
+    const nothingToDo =
+      batch.moves.length === 0 &&
+      batch.judgments.length === 0 &&
+      batch.events.length === 0 &&
+      usageOutbox.length === 0 &&
+      finish === undefined;
+
+    if (nothingToDo) {
+      if (current.status !== "live") store.clearFlushRetry(sql);
       return;
     }
 
@@ -516,20 +694,47 @@ export class GameSession extends DurableObject<Env> {
         playerId: current.playerId,
         batch,
         lastPly: current.lastPly,
-        day: utcDay(Date.now()),
-        pendingJevCalls: usage.jevCalls,
-        pendingJevInputTokens: usage.jevInputTokens,
+        usageOutbox,
         ...(finish !== undefined ? { finish } : {}),
       });
       store.markFlushed(sql, batch, current.lastPly);
+      store.markUsageOutboxFlushed(
+        sql,
+        usageOutbox.map((row) => row.id),
+      );
+      if (finish !== undefined) store.setTerminalFlushDone(sql);
+      store.clearFlushRetry(sql);
     } catch (error) {
-      store.addBackPendingUsage(sql, usage);
       console.error("d1_flush_failed", {
         gameId: current.gameId,
         error: error instanceof Error ? error.message : String(error),
       });
-      // Rows stay `flushed = 0`; the next 10-ply boundary, `game_end`, or idle alarm retries.
+      // Rows/usage stay unflushed in DO storage; `recordFlushFailure` durably persists a
+      // bounded-backoff retry deadline that `#armAlarm` (called by every caller of `#flush`)
+      // schedules the alarm against, for live and terminal games alike.
+      const outcome = store.recordFlushFailure(sql, Date.now());
+      if (outcome.gaveUp) {
+        console.error("d1_flush_giving_up", { gameId: current.gameId, retryCount: outcome.retryCount });
+      }
     }
+  }
+
+  // A07: schedules the DO's single alarm for whichever comes first - the idle-abandonment
+  // deadline for a still-live game, or a pending flush's bounded-backoff retry deadline - and
+  // clears it entirely once neither applies, so a fully-flushed terminal game stops waking up.
+  async #armAlarm(sql: SqlStorage): Promise<void> {
+    const meta = store.getMeta(sql);
+    if (meta === undefined) return;
+
+    const deadlines: number[] = [];
+    if (meta.status === "live") deadlines.push(meta.lastFrameAt + IDLE_TIMEOUT_MS);
+    if (meta.nextFlushRetryAt !== null) deadlines.push(meta.nextFlushRetryAt);
+
+    if (deadlines.length === 0) {
+      await this.ctx.storage.deleteAlarm();
+      return;
+    }
+    await this.ctx.storage.setAlarm(Math.min(...deadlines));
   }
 
   async #archiveStateBlock(hash: string, stateBlockJson: string): Promise<void> {
@@ -558,10 +763,20 @@ export class GameSession extends DurableObject<Env> {
     return this.#transport;
   }
 
+  // Interlock for A01/A02/A09 - see the constructor's comment. `workers_ai` + `shadow` is the
+  // only combination that can spend real money; `fixture` + `shadow` (used throughout this
+  // app's own tests) is unaffected.
+  #realSpendInterlockTriggered(): boolean {
+    const jevModeVar: string = this.env.JEV_MODE;
+    const jevTransportVar: string = this.env.JEV_TRANSPORT;
+    return jevModeVar === "shadow" && jevTransportVar === "workers_ai";
+  }
+
   // `JEV_MODE` is declared in wrangler.jsonc with the literal value "off"; widen before
   // comparing so a deployment that sets it to "shadow" is handled correctly (same trick as
   // `#getTransport`'s `JEV_TRANSPORT`).
   #getJevMode(): "off" | "shadow" {
+    if (this.#realSpendInterlockTriggered()) return "off";
     const jevModeVar: string = this.env.JEV_MODE;
     return jevModeVar === "shadow" ? "shadow" : "off";
   }

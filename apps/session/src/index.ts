@@ -3,7 +3,7 @@
 // `/ws/game/:id` upgrade (Origin + cookie auth, then hand off to the Durable Object).
 import { WS_PATH_PREFIX } from "@game-coach/contracts/ws-protocol";
 import { authenticateWsRequest } from "./auth.ts";
-import { TRUSTED_PLAYER_HEADER } from "./game-session.ts";
+import { TRUSTED_PLAYER_HEADER, TRUSTED_PLAYER_KIND_HEADER } from "./game-session.ts";
 
 export { GameSession } from "./game-session.ts";
 export { BudgetGate } from "./budget-gate.ts";
@@ -23,10 +23,13 @@ const handleWebSocketUpgrade = async (request: Request, env: Env, gameId: string
   const auth = await authenticateWsRequest(request, env, gameId);
   if (!auth.ok) return rejectUpgrade(auth.closeCode, auth.message);
 
-  // The Durable Object only trusts this header because nothing outside this Worker's own code
-  // can reach it: Durable Object bindings are not independently network-addressable.
+  // The Durable Object only trusts these headers because nothing outside this Worker's own code
+  // can reach them: Durable Object bindings are not independently network-addressable. A05: the
+  // DO adopts this resolved identity (id and kind) on every accepted upgrade instead of trusting
+  // its own possibly-stale stored one.
   const headers = new Headers(request.headers);
   headers.set(TRUSTED_PLAYER_HEADER, auth.playerId);
+  headers.set(TRUSTED_PLAYER_KIND_HEADER, auth.playerKind);
   const forwarded = new Request(request.url, { method: request.method, headers });
 
   const id = env.GAME_SESSION.idFromName(gameId);

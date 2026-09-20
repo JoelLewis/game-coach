@@ -8,11 +8,17 @@ export default defineWorkersConfig(async () => {
 
   return {
     test: {
-      // test/game-session-shadow.test.ts needs JEV_MODE="shadow" (wrangler.jsonc's default is
-      // "off"), which a wrangler var can't differ by test file within one pool-workers config -
-      // it runs under vitest.shadow.config.ts instead (see that file and package.json's `test`
-      // script, which runs both).
-      exclude: [...configDefaults.exclude, "test/game-session-shadow.test.ts"],
+      // test/game-session-shadow.test.ts needs JEV_MODE="shadow" and
+      // test/game-session-shadow-workers-ai-interlock.test.ts needs JEV_MODE="shadow" +
+      // JEV_TRANSPORT="workers_ai" (wrangler.jsonc's defaults are "off"/"fixture"), which a
+      // wrangler var can't differ by test file within one pool-workers config - they run under
+      // vitest.shadow.config.ts / vitest.shadow-workers-ai.config.ts instead (see those files and
+      // package.json's `test` script, which runs all three).
+      exclude: [
+        ...configDefaults.exclude,
+        "test/game-session-shadow.test.ts",
+        "test/game-session-shadow-workers-ai-interlock.test.ts",
+      ],
       setupFiles: ["./test/apply-migrations.ts"],
       poolOptions: {
         workers: {

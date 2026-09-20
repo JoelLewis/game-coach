@@ -2,6 +2,7 @@
 // and D1 session / player-merge / game-ownership lookups. Nothing here trusts client input
 // beyond what's cryptographically or relationally verified.
 import { SESSION_COOKIE, WS_CLOSE } from "@game-coach/contracts/ws-protocol";
+import type { PlayerKind } from "./session-store.ts";
 
 export const isAllowedOrigin = (origin: string | null, appOrigin: string): boolean => {
   if (origin === null) return false;
@@ -111,7 +112,17 @@ export const checkGameOwnership = async (db: D1Database, gameId: string, playerI
   return { ok: true };
 };
 
-export type WsAuthResult = { ok: true; playerId: string } | { ok: false; closeCode: number; message: string };
+// A05: the resolved player's kind, looked up once ownership is confirmed, so the trusted header
+// this Worker forwards to the Durable Object carries kind as well as id - the DO must never guess
+// or keep a stale kind (guest vs account) for budget purposes.
+export const resolvePlayerKind = async (db: D1Database, playerId: string): Promise<PlayerKind | undefined> => {
+  const row = await db.prepare("SELECT kind FROM players WHERE id = ?").bind(playerId).first<{ kind: PlayerKind }>();
+  return row?.kind;
+};
+
+export type WsAuthResult =
+  | { ok: true; playerId: string; playerKind: PlayerKind }
+  | { ok: false; closeCode: number; message: string };
 
 export const authenticateWsRequest = async (
   request: Request,
@@ -133,5 +144,12 @@ export const authenticateWsRequest = async (
     return { ok: false, closeCode, message: ownership.reason };
   }
 
-  return { ok: true, playerId };
+  const playerKind = await resolvePlayerKind(env.DB, playerId);
+  if (playerKind === undefined) {
+    // Should be unreachable (ownership just resolved through this same row), but fail closed
+    // rather than forward an unverified kind to the Durable Object.
+    return { ok: false, closeCode: WS_CLOSE.unauthorized, message: "player kind not found" };
+  }
+
+  return { ok: true, playerId, playerKind };
 };

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_THRESHOLDS } from "@game-coach/contracts/decision";
 import { WS_CLOSE, WS_PROTOCOL_VERSION } from "@game-coach/contracts/ws-protocol";
 import type { InitInput } from "../src/game-session.ts";
+import { RATE_LIMIT } from "../src/session-store.ts";
 import { defaultGameConfig, moveFacts, seedGame, seedPlayer, seedSession, signSessionCookie } from "./fixtures.ts";
 import { MessageQueue, openSocket, send, waitForClose } from "./ws-helpers.ts";
 
@@ -47,6 +48,17 @@ const connectAndHello = async (gameId: string, cookie: string, lastPly = 0) => {
   return { ws, queue, ready };
 };
 
+// A03's per-connection token bucket (burst 20, refill 5/s) is deliberately strict enough that a
+// synthetic test hammering many frames back to back would trip it long before a real game ever
+// could. Tests whose purpose is gameplay logic rather than rate limiting itself top the bucket
+// back off directly, exactly like the existing idle-alarm test manipulates `last_frame_at`.
+const replenishRateLimitBucket = async (gameId: string): Promise<void> => {
+  const stub = env.GAME_SESSION.get(env.GAME_SESSION.idFromName(gameId));
+  await runInDurableObject(stub, async (_instance, state) => {
+    state.storage.sql.exec("UPDATE meta SET bucket_tokens = 20, bucket_updated_at = ? WHERE id = 1", Date.now());
+  });
+};
+
 describe("GameSession over a real WebSocket", () => {
   it("plays a scripted 40-round (80-ply) game: every player move is judged, some blunders interrupt (cooldown respected), and D1 has the expected rows after flush", { timeout: 30_000 }, async () => {
     const gameId = `scripted-${crypto.randomUUID()}`;
@@ -62,6 +74,7 @@ describe("GameSession over a real WebSocket", () => {
     let interruptCount = 0;
 
     for (let round = 1; round <= rounds; round++) {
+      await replenishRateLimitBucket(gameId);
       const playerPly = round * 2 - 1;
       const isBlunder = blunderRounds.has(round);
       const facts = isBlunder
@@ -384,6 +397,194 @@ describe("GameSession over a real WebSocket", () => {
       state.storage.sql.exec("SELECT COUNT(*) as count FROM judgments").one().count,
     );
     expect(judgmentCount).toBe(0);
+  });
+
+  describe("A03: per-connection rate limiting", () => {
+    it("rejects a frame beyond the token-bucket burst with rate_limited, without resetting the idle alarm", async () => {
+      const gameId = `ratelimit-reject-${crypto.randomUUID()}`;
+      const cookie = await setupGame(gameId, "ratelimit-reject-player", "ratelimit-reject-session");
+      const { ws, queue } = await connectAndHello(gameId, cookie); // hello already spent one token
+
+      let ply = 1;
+      for (let i = 0; i < RATE_LIMIT.burst - 1; i++) {
+        send(ws, { type: "move", facts: moveFacts({ ply }) });
+        expect((await queue.next()).type).toBe("judgment");
+        ply += 2;
+      }
+
+      const stub = env.GAME_SESSION.get(env.GAME_SESSION.idFromName(gameId));
+      const lastFrameAtBefore = await runInDurableObject(stub, async (_i, state) =>
+        state.storage.sql.exec("SELECT last_frame_at FROM meta WHERE id = 1").one().last_frame_at,
+      );
+
+      // The bucket is now empty: this frame must be rejected, not judged.
+      send(ws, { type: "move", facts: moveFacts({ ply }) });
+      expect(await queue.next()).toMatchObject({ type: "error", code: "rate_limited" });
+
+      const lastFrameAtAfter = await runInDurableObject(stub, async (_i, state) =>
+        state.storage.sql.exec("SELECT last_frame_at FROM meta WHERE id = 1").one().last_frame_at,
+      );
+      expect(lastFrameAtAfter).toBe(lastFrameAtBefore);
+
+      const lastPly = await runInDurableObject(stub, async (_i, state) =>
+        state.storage.sql.exec("SELECT last_ply FROM meta WHERE id = 1").one().last_ply,
+      );
+      expect(lastPly).toBeLessThan(ply); // the rejected move was never recorded
+    });
+
+    it("closes a sustained rate-limit offender with protocol_error", async () => {
+      const gameId = `ratelimit-close-${crypto.randomUUID()}`;
+      const cookie = await setupGame(gameId, "ratelimit-close-player", "ratelimit-close-session");
+      const { ws, queue } = await connectAndHello(gameId, cookie);
+
+      let ply = 1;
+      for (let i = 0; i < RATE_LIMIT.burst - 1; i++) {
+        send(ws, { type: "move", facts: moveFacts({ ply }) });
+        expect((await queue.next()).type).toBe("judgment");
+        ply += 2;
+      }
+
+      const closePromise = waitForClose(ws);
+      for (let i = 0; i < RATE_LIMIT.violationsBeforeClose; i++) {
+        try {
+          send(ws, { type: "move", facts: moveFacts({ ply }) });
+        } catch {
+          break;
+        }
+        ply += 2;
+      }
+      const closed = await closePromise;
+      expect(closed.code).toBe(WS_CLOSE.protocol_error);
+    });
+
+    it("caps hello independently at 1/s even with bucket tokens available", async () => {
+      const gameId = `ratelimit-hello-${crypto.randomUUID()}`;
+      const cookie = await setupGame(gameId, "ratelimit-hello-player", "ratelimit-hello-session");
+      const { ws } = await openSocket(SELF, gameId, { Cookie: `gc_session=${cookie}` });
+      const queue = new MessageQueue(ws);
+
+      send(ws, { type: "hello", version: WS_PROTOCOL_VERSION, lastPly: 0 });
+      expect((await queue.next()).type).toBe("ready");
+      send(ws, { type: "hello", version: WS_PROTOCOL_VERSION, lastPly: 0 });
+      expect(await queue.next()).toMatchObject({ type: "error", code: "rate_limited" });
+    });
+  });
+
+  describe("A04: finished/abandoned games reject mutating frames", () => {
+    it("rejects move, opponent_move and set_mode on a finished game with error game_over then WS_CLOSE.game_over, while hello/feedback stay allowed", async () => {
+      const gameId = `terminal-${crypto.randomUUID()}`;
+      const cookie = await setupGame(gameId, "terminal-player", "terminal-session");
+      const { ws: liveWs, queue: liveQueue } = await connectAndHello(gameId, cookie, 0);
+      send(liveWs, { type: "move", facts: moveFacts({ ply: 1 }) });
+      expect((await liveQueue.next()).type).toBe("judgment");
+      send(liveWs, { type: "game_end", result: "player_win", finalPosition: "final" });
+      await waitForClose(liveWs);
+
+      // hello stays allowed and reports the game as over.
+      const { ready: readyAfterEnd } = await connectAndHello(gameId, cookie, 1);
+      expect(readyAfterEnd).toMatchObject({ gameOver: true });
+
+      const { ws: moveWs, queue: moveQueue } = await connectAndHello(gameId, cookie, 1);
+      const moveClose = waitForClose(moveWs);
+      send(moveWs, { type: "move", facts: moveFacts({ ply: 3 }) });
+      expect(await moveQueue.next()).toMatchObject({ type: "error", code: "game_over" });
+      expect((await moveClose).code).toBe(WS_CLOSE.game_over);
+
+      const { ws: oppWs, queue: oppQueue } = await connectAndHello(gameId, cookie, 1);
+      const oppClose = waitForClose(oppWs);
+      send(oppWs, { type: "opponent_move", ply: 5, moveId: "e7e5", moveText: "e5", positionAfter: "pos" });
+      expect(await oppQueue.next()).toMatchObject({ type: "error", code: "game_over" });
+      expect((await oppClose).code).toBe(WS_CLOSE.game_over);
+
+      const { ws: modeWs, queue: modeQueue } = await connectAndHello(gameId, cookie, 1);
+      const modeClose = waitForClose(modeWs);
+      send(modeWs, { type: "set_mode", mode: "off", talkativeness: 0 });
+      expect(await modeQueue.next()).toMatchObject({ type: "error", code: "game_over" });
+      expect((await modeClose).code).toBe(WS_CLOSE.game_over);
+
+      // feedback on an existing event is still allowed (it never throws/errors here either way).
+      const { ws: fbWs } = await connectAndHello(gameId, cookie, 1);
+      send(fbWs, { type: "feedback", eventId: "no-such-event-id", helpful: true });
+
+      const stub = env.GAME_SESSION.get(env.GAME_SESSION.idFromName(gameId));
+      const lastPly = await runInDurableObject(stub, async (_i, state) => state.storage.sql.exec("SELECT last_ply FROM meta WHERE id = 1").one().last_ply);
+      expect(lastPly).toBe(1); // none of the rejected mutating frames advanced state
+    });
+  });
+
+  describe("A05: identity adoption on merge", () => {
+    it("lets a guest who has since signed into an account reconnect to their own game under the new identity", async () => {
+      const gameId = `merge-${crypto.randomUUID()}`;
+      const guestId = "merge-guest-player";
+      const accountId = "merge-target-account";
+      const cookie = await setupGame(gameId, guestId, "merge-guest-session");
+
+      const { ws: guestWs } = await connectAndHello(gameId, cookie);
+
+      // The guest signs into an existing account from the same browser: auth (apps/web) resolves
+      // this by pointing the guest row at the account via `merged_into`. The game's D1 owner is
+      // untouched here - `checkGameOwnership` follows the merge chain on both sides, exactly like
+      // the outer Worker already does today.
+      await seedPlayer(env.DB, accountId, "account");
+      await env.DB.prepare("UPDATE players SET merged_into = ? WHERE id = ?").bind(accountId, guestId).run();
+
+      const closePromise = waitForClose(guestWs);
+      const { ws: accountWs, ready } = await connectAndHello(gameId, cookie, 0);
+      expect(ready.type).toBe("ready");
+      void accountWs;
+
+      // The stale guest-identity socket is fenced out, not left dangling.
+      expect((await closePromise).code).toBe(WS_CLOSE.superseded);
+
+      const stub = env.GAME_SESSION.get(env.GAME_SESSION.idFromName(gameId));
+      const meta = await runInDurableObject(stub, async (_i, state) =>
+        state.storage.sql.exec("SELECT player_id, player_kind FROM meta WHERE id = 1").one(),
+      );
+      expect(meta).toEqual({ player_id: accountId, player_kind: "account" });
+    });
+  });
+
+  describe("A07: idle alarm lifecycle", () => {
+    it("arms the idle alarm at createGame, before any connection", async () => {
+      const gameId = `alarm-at-create-${crypto.randomUUID()}`;
+      await seedPlayer(env.DB, "alarm-create-player", "guest");
+      await seedGame(env.DB, gameId, "alarm-create-player");
+      const init: InitInput = {
+        gameId,
+        playerId: "alarm-create-player",
+        playerKind: "guest",
+        config: defaultGameConfig(),
+        thresholds: DEFAULT_THRESHOLDS,
+        ratingBand: "1200_1399",
+        reservationChunkSize: 1000,
+        minMsBetweenJevCalls: 0,
+      };
+      const stub = env.GAME_SESSION.get(env.GAME_SESSION.idFromName(gameId));
+      await stub.init(init);
+
+      const alarm = await runInDurableObject(stub, async (_i, state) => state.storage.getAlarm());
+      expect(alarm).not.toBeNull();
+    });
+
+    it("clears the alarm once a finished game has nothing left to flush", async () => {
+      const gameId = `alarm-clears-${crypto.randomUUID()}`;
+      const cookie = await setupGame(gameId, "alarm-clears-player", "alarm-clears-session");
+      const { ws } = await connectAndHello(gameId, cookie);
+      send(ws, { type: "game_end", result: "player_win", finalPosition: "final" });
+      await waitForClose(ws);
+
+      const stub = env.GAME_SESSION.get(env.GAME_SESSION.idFromName(gameId));
+      const alarm = await runInDurableObject(stub, async (_i, state) => state.storage.getAlarm());
+      expect(alarm).toBeNull();
+
+      const meta = await runInDurableObject(stub, async (_i, state) =>
+        state.storage.sql.exec("SELECT terminal_flush_done FROM meta WHERE id = 1").one().terminal_flush_done,
+      );
+      expect(meta).toBe(1);
+
+      const game = await env.DB.prepare("SELECT status, result FROM games WHERE id = ?").bind(gameId).first<{ status: string; result: string }>();
+      expect(game).toEqual({ status: "finished", result: "player_win" });
+    });
   });
 });
 

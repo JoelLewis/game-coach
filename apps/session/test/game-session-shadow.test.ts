@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_THRESHOLDS } from "@game-coach/contracts/decision";
 import type { InitInput } from "../src/game-session.ts";
 import { blunderFacts, defaultGameConfig, moveFacts, seedGame, seedPlayer, seedSession, signSessionCookie } from "./fixtures.ts";
-import { MessageQueue, openSocket, send } from "./ws-helpers.ts";
+import { MessageQueue, openSocket, send, waitForClose } from "./ws-helpers.ts";
 
 const SESSION_SECRET = "test-session-secret-at-least-32-bytes-long";
 
@@ -50,6 +50,9 @@ type ShadowRow = {
   shadow_decision_json: string | null;
   shadow_latency_ms: number | null;
   shadow_input_tokens: number | null;
+  shadow_state_hash: string | null;
+  shadow_model: string | null;
+  shadow_transport: string | null;
 };
 
 const readJudgmentRow = async (gameId: string, ply: number): Promise<ShadowRow> => {
@@ -57,7 +60,9 @@ const readJudgmentRow = async (gameId: string, ply: number): Promise<ShadowRow> 
   return runInDurableObject(stub, async (_instance, state) =>
     state.storage.sql
       .exec<ShadowRow>(
-        "SELECT decided_by, shadow_status, shadow_answers_json, shadow_decision_json, shadow_latency_ms, shadow_input_tokens FROM judgments WHERE ply = ?",
+        `SELECT decided_by, shadow_status, shadow_answers_json, shadow_decision_json, shadow_latency_ms, shadow_input_tokens,
+                shadow_state_hash, shadow_model, shadow_transport
+         FROM judgments WHERE ply = ?`,
         ply,
       )
       .one(),
@@ -107,6 +112,11 @@ describe("GameSession with JEV_MODE=shadow", () => {
     expect(shadowRow.shadow_decision_json).not.toBeNull();
     expect(shadowRow.shadow_latency_ms).not.toBeNull();
     expect(typeof shadowRow.shadow_input_tokens).toBe("number");
+    // A09: the shadow call's own archived-state hash and actual model/transport are persisted
+    // alongside it, distinct from the live decision's "none"/"none" sentinel columns.
+    expect(shadowRow.shadow_state_hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(shadowRow.shadow_model).not.toBeNull();
+    expect(shadowRow.shadow_transport).toBe("fixture");
   });
 
   it("a shadow budget denial changes nothing the player sees", async () => {
@@ -160,5 +170,40 @@ describe("GameSession with JEV_MODE=shadow", () => {
     const shadowRow = await waitForShadowStatus(gameId, 1);
     expect(shadowRow.shadow_status).toBe("unavailable");
     expect(shadowRow.decided_by).toBe("engine_facts");
+  });
+
+  it("A07: a shadow result that completes after the game already ended is still flushed to D1", async () => {
+    const gameId = `shadow-late-${crypto.randomUUID()}`;
+    const cookie = await setupGame(gameId, "shadow-late-player", "shadow-late-session");
+    const ws = await connectAndHello(gameId, cookie);
+    const queue = new MessageQueue(ws);
+    send(ws, { type: "hello", version: 1, lastPly: 0 });
+    expect((await queue.next()).type).toBe("ready");
+
+    send(ws, { type: "move", facts: moveFacts({ ply: 1 }) });
+    expect((await queue.next()).type).toBe("judgment");
+
+    // End the game immediately, racing the still-in-flight shadow call for ply 1: the game_end
+    // flush very likely runs (and durably marks the game terminal in D1) before the shadow call
+    // resolves.
+    send(ws, { type: "game_end", result: "player_win", finalPosition: "final" });
+    await waitForClose(ws);
+
+    const shadowRow = await waitForShadowStatus(gameId, 1);
+    expect(shadowRow.shadow_status).toBe("ok");
+
+    // Nothing else will ever trigger another flush for this terminal game - `#afterShadowWrite`
+    // must have (re)flushed it on its own once the shadow call finished.
+    const deadline = Date.now() + 2000;
+    let d1ShadowStatus: string | null = null;
+    while (Date.now() < deadline) {
+      const row = await env.DB.prepare("SELECT shadow_status FROM judgments WHERE game_id = ? AND ply = 1").bind(gameId).first<{
+        shadow_status: string | null;
+      }>();
+      d1ShadowStatus = row?.shadow_status ?? null;
+      if (d1ShadowStatus === "ok") break;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    expect(d1ShadowStatus).toBe("ok");
   });
 });

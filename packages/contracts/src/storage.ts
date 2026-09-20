@@ -80,6 +80,12 @@ export type JudgmentRow = {
   shadow_decision_json: string | null;
   shadow_latency_ms: number | null;
   shadow_input_tokens: number | null;
+  // db/migrations/0004_session_row_versions.sql (A09): the shadow call's own archived-state hash
+  // and the actual model/transport that produced it. NULL until a shadow result is recorded;
+  // distinct from jev_model/transport above, which describe the *live* decision only.
+  shadow_state_hash: string | null;
+  shadow_model: string | null;
+  shadow_transport: string | null;
 };
 
 export type CoachingEventRow = {
