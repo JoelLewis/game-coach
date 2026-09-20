@@ -39,6 +39,8 @@ const baseAnswers = (overrides: Partial<JevAnswers> = {}): JevAnswers => ({
 
 const liveContext = (overrides: Partial<DecisionContext> = {}): DecisionContext => ({
   mode: "live",
+  // A move that clearly cost something; the practical-loss gate has its own tests below.
+  practicalLoss: 0.4,
   pliesSinceLastInterrupt: 10,
   writerCallsThisGame: 0,
   ...overrides,
@@ -264,6 +266,51 @@ describe("decide", () => {
     );
     expect(decision.repeatPattern).toBe(true);
     expect(decision.missedTactic).toBe(false);
+  });
+
+  // Code-side gate from engine facts alone. The M1 preview showed Jev flags large swings in
+  // positions that were already won or lost; lost winning chances is what actually matters.
+  describe("practical-loss gate", () => {
+    // P(severity >= mistake) = mass, the rest on "inaccuracy".
+    const scoreWithMass = (mass: number): JevAnswers["severity"] => ({
+      type: "score",
+      score: 1 + mass,
+      confidence: 0.5,
+      legend: { "0": "fine", "1": "inaccuracy", "2": "mistake", "3": "blunder" },
+      probabilities: { "0": 0, "1": 1 - mass, "2": mass, "3": 0 },
+    });
+
+    const certain = baseAnswers({
+      interrupt_now: { type: "noul", noul: 0.95 },
+      teachable: { type: "noul", noul: 0.95 },
+    });
+
+    it("stays silent when the move cost almost nothing, however sure Jev is", () => {
+      const decision = decide(certain, DEFAULT_THRESHOLDS, liveContext({ practicalLoss: 0.03 }));
+      expect(decision.action).toBe("queued");
+      expect(decision.useWriter).toBe(false);
+      expect(decision.lowConfidence).toBe(false);
+      expect(decision.reasons).toContain(`practical_loss=0.03<${DEFAULT_THRESHOLDS.minPracticalLoss}`);
+    });
+
+    it("interrupts exactly at the gate", () => {
+      const decision = decide(certain, DEFAULT_THRESHOLDS, liveContext({ practicalLoss: DEFAULT_THRESHOLDS.minPracticalLoss }));
+      expect(decision.action).toBe("interrupt");
+    });
+
+    it("does not report low confidence for a move the gate would have silenced anyway", () => {
+      const ambiguous = baseAnswers({
+        interrupt_now: { type: "noul", noul: 0.95 },
+        severity: scoreWithMass(0.5),
+      });
+      expect(decide(ambiguous, DEFAULT_THRESHOLDS, liveContext({ practicalLoss: 0.4 })).action).toBe("silent_low_conf");
+      expect(decide(ambiguous, DEFAULT_THRESHOLDS, liveContext({ practicalLoss: 0.02 })).action).toBe("queued");
+    });
+
+    it("can be disabled by setting the threshold to 0", () => {
+      const decision = decide(certain, { ...DEFAULT_THRESHOLDS, minPracticalLoss: 0 }, liveContext({ practicalLoss: 0 }));
+      expect(decision.action).toBe("interrupt");
+    });
   });
 
   describe("useWriter", () => {

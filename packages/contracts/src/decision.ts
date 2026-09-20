@@ -19,6 +19,9 @@ export const ThresholdConfigSchema = v.object({
   // default only vetoes on a strong signal until M1 calibrates it.
   overrideNoul: Probability,
   minPliesBetweenInterrupts: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  // Code-side gate from engine facts alone: never interrupt (or call the writer) for a move that
+  // cost less than this in winning chances, however large the raw swing. See practical-loss.ts.
+  minPracticalLoss: Probability,
   // Rule 2. Writing model only when teachable >= teachableNoul, capped per game.
   teachableNoul: Probability,
   maxWriterCallsPerGame: v.pipe(v.number(), v.integer(), v.minValue(0)),
@@ -37,6 +40,8 @@ export const DEFAULT_THRESHOLDS: ThresholdConfig = {
   severityMass: 0.6,
   overrideNoul: 0.85,
   minPliesBetweenInterrupts: 6,
+  // Lichess's "mistake" boundary; a principled default, not yet tuned on labeled data.
+  minPracticalLoss: 0.1,
   teachableNoul: 0.8,
   maxWriterCallsPerGame: 3,
   praiseNoul: 0.8,
@@ -61,6 +66,8 @@ export type ActionTaken = v.InferOutput<typeof ActionTakenSchema>;
 
 export type DecisionContext = {
   mode: CoachMode;
+  // Lost winning chances for this move, 0..1, computed by the caller with practicalLossFor(game).
+  practicalLoss: number;
   pliesSinceLastInterrupt: number;
   writerCallsThisGame: number;
 };

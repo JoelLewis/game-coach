@@ -4,6 +4,7 @@
 // makes the coaching logic itself testable without a Durable Object.
 import type { GameKind, MoveFacts } from "@game-coach/contracts/engine";
 import type { ThresholdConfig, DecisionContext, Decision } from "@game-coach/contracts/decision";
+import { practicalLossFor } from "@game-coach/contracts/practical-loss";
 import { JevError, stateHash, type JevAnswers, type JevTransport } from "@game-coach/contracts/jev";
 import { STATE_TOKEN_BUDGET, type StateBlock } from "@game-coach/contracts/state-block";
 import type { RatingBand, ErrorClass } from "@game-coach/contracts/taxonomy";
@@ -33,7 +34,8 @@ export type JudgeMoveInput = {
   thresholds: ThresholdConfig;
   player: JudgeMovePlayer;
   clock: { medianMoveTimeMs: number | null; remainingMs: number | null };
-  context: DecisionContext;
+  // practicalLoss is computed here from the engine facts, so no caller can forget or fake it.
+  context: Omit<DecisionContext, "practicalLoss">;
   templateLibrary: TemplateLibrary;
   themes: ThemeMap;
   idFactory: () => string;
@@ -123,7 +125,8 @@ export const judgeMove = async (input: JudgeMoveInput, transport: JevTransport):
     assertRequestWithinBudget(request, input.game);
 
     const result = await transport.judge(request);
-    const decided = decide(result.response.answers, input.thresholds, input.context);
+    const practicalLoss = practicalLossFor(input.game)(input.facts.evalBefore, input.facts.evalAfter);
+    const decided = decide(result.response.answers, input.thresholds, { ...input.context, practicalLoss });
 
     let decision = decided;
     let coachEvent: CoachEvent | undefined;

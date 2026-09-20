@@ -59,7 +59,12 @@ export const decide = (answers: JevAnswers, thresholds: ThresholdConfig, context
   const cooldownOk = context.pliesSinceLastInterrupt >= thresholds.minPliesBetweenInterrupts;
   reasons.push(`cooldown:${context.pliesSinceLastInterrupt}${cooldownOk ? ">=" : "<"}${thresholds.minPliesBetweenInterrupts}`);
 
-  const wouldInterrupt = interruptNowOk && severityMassOk && overrideOk && cooldownOk;
+  // Engine facts, not model judgment: a move that cost almost nothing in winning chances is never
+  // worth breaking the player's concentration for, however large the raw swing looked.
+  const practicalLossOk = context.practicalLoss >= thresholds.minPracticalLoss;
+  reasons.push(`practical_loss=${fmt(context.practicalLoss)}${practicalLossOk ? ">=" : "<"}${thresholds.minPracticalLoss}`);
+
+  const wouldInterrupt = interruptNowOk && severityMassOk && overrideOk && cooldownOk && practicalLossOk;
 
   let action: ActionTaken;
   let lowConfidence = false;
@@ -70,6 +75,7 @@ export const decide = (answers: JevAnswers, thresholds: ThresholdConfig, context
     reasons.push(`error_class_confidence=${fmt(answers.error_class.confidence)}<${thresholds.lowConfidenceFloor}`);
   } else if (
     interruptNowOk &&
+    practicalLossOk &&
     severityMass >= thresholds.lowConfidenceFloor &&
     severityMass < thresholds.severityMass
   ) {
@@ -96,6 +102,7 @@ export const decide = (answers: JevAnswers, thresholds: ThresholdConfig, context
   const useWriter =
     answers.teachable.noul >= thresholds.teachableNoul &&
     severityMass >= thresholds.severityMass &&
+    practicalLossOk &&
     context.writerCallsThisGame < thresholds.maxWriterCallsPerGame &&
     (action === "interrupt" || action === "queued");
 

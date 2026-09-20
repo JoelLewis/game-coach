@@ -317,7 +317,7 @@ export class GameSession extends DurableObject<Env> {
       templatesSource.getThemes(meta.game),
     ]);
     const effectiveThresholds = thresholdsForTalkativeness(meta.baseThresholds, meta.talkativeness);
-    const context: DecisionContext = {
+    const context: Omit<DecisionContext, "practicalLoss"> = {
       mode: meta.mode,
       pliesSinceLastInterrupt: meta.pliesSinceLastInterrupt,
       writerCallsThisGame: meta.writerCallsThisGame,

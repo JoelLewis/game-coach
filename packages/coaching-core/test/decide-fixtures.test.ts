@@ -19,7 +19,8 @@ const recorded = JSON.parse(readFileSync(FIXTURE_PATH, "utf8")) as Recorded[];
 const answersFor = (caseId: string): JevAnswers[] =>
   recorded.filter((run) => run.caseId === caseId).map((run) => v.parse(JevResponseSchema, run.response).answers);
 
-const liveContext: DecisionContext = { mode: "live", pliesSinceLastInterrupt: 10, writerCallsThisGame: 0 };
+// Every recorded case is a clear error or a clearly fine move; the gate is tested in decide.test.ts.
+const liveContext: DecisionContext = { mode: "live", practicalLoss: 0.4, pliesSinceLastInterrupt: 10, writerCallsThisGame: 0 };
 
 // Every recorded entry for these 9 cases clears interrupt_now, severity mass, the override
 // veto and the cooldown under DEFAULT_THRESHOLDS.

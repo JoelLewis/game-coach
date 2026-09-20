@@ -69,3 +69,8 @@ What is going on:
 - `teachable` and `good_move` never reach their thresholds, so as configured the writing model and praise would never trigger.
 
 Caveats: the pool is sampled 75% engine-errors by design, so fire rates here are not game rates; proposals are not ground truth; thresholds tuned on this pool must be validated on held-out labels.
+
+### Follow-up: practical-loss gate shipped (2026-09-19)
+`decide()` now refuses to interrupt, report low confidence, or call the writer for a move that lost less than `minPracticalLoss` in winning chances (Lichess's curve, `packages/contracts/src/practical-loss.ts`). The default is 0.10, Lichess's own "mistake" boundary, chosen on principle and not tuned on this pool. On the preview it takes the rule from 170 fires at 24% precision to 50 fires at 76% precision with 90% recall; 0.12 would give 86% / 86%. The session computes the loss from engine facts itself, so a caller cannot omit it.
+
+The same number **alone**, with no model, matched the proposals' severity 85.6% exactly and 99.7% within one level (Jev: 19.1% / 51.2%). Open question for after labeling: compute severity in code and keep Jev for what engines cannot do (error class, theme, teachability, template fit).

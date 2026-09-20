@@ -13,7 +13,8 @@ const heuristicTransport: JevTransport = {
   },
 };
 
-const context = (overrides: Partial<DecisionContext> = {}): DecisionContext => ({
+type JudgeContext = Omit<DecisionContext, "practicalLoss">;
+const context = (overrides: Partial<JudgeContext> = {}): JudgeContext => ({
   mode: "live",
   pliesSinceLastInterrupt: 10,
   writerCallsThisGame: 0,
@@ -68,6 +69,17 @@ describe("judgeMove", () => {
     expect(result.coachEvent).toBeDefined();
     expect(result.coachEvent?.text.length).toBeGreaterThan(0);
     expect(result.coachEvent?.ply).toBe(20);
+  });
+
+  it("does not interrupt a large swing in a position that stays completely winning", async () => {
+    // -320 cp looks like a blunder to the model (and to the stand-in), but +11 -> +7.8 costs about
+    // 3% in winning chances. Engine facts veto the interrupt; the moment is left for review.
+    const facts = blunderFacts({ ply: 40, swing: -320, evalBefore: { kind: "cp", cp: 1100 }, evalAfter: { kind: "cp", cp: 780 } });
+    const result = await judgeMove(baseInput({ facts, context: context({ pliesSinceLastInterrupt: 30 }) }), heuristicTransport);
+    if (result.kind !== "judged") throw new Error("expected judged");
+    expect(result.decision.action).toBe("queued");
+    expect(result.coachEvent).toBeUndefined();
+    expect(result.decision.reasons.some((reason) => reason.startsWith("practical_loss=") && reason.includes("<"))).toBe(true);
   });
 
   it("respects the interrupt cooldown: no coach event immediately after another interrupt", async () => {
