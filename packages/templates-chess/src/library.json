@@ -32,7 +32,7 @@
       ],
       "themeId": "pin",
       "description": "A developing piece walked into a pin worth real tempo.",
-      "text": "{played} let your opponent pin {piece} to something more valuable. Break the pin quickly or you will keep losing tempo.",
+      "text": "{played} let your opponent pin your {piece} to something more valuable. Break the pin quickly or you will keep losing tempo.",
       "slots": [
         "played",
         "piece"
@@ -70,7 +70,7 @@
       "themeId": "hanging_piece",
       "requiresEvidence": true,
       "description": "A piece hangs in the opening for a real material loss.",
-      "text": "{played} leaves {piece} hanging for real material. {best_move} kept it defended and kept your development on track.",
+      "text": "{played} leaves your {piece} hanging for real material. {best_move} kept it defended and kept your development on track.",
       "slots": [
         "played",
         "piece",
@@ -89,7 +89,7 @@
       "themeId": "hanging_piece",
       "requiresEvidence": true,
       "description": "A piece hangs outright in the opening for a costly blunder.",
-      "text": "{played} hangs {piece} outright this early. You gave up {swing} for a piece that had a safe square available.",
+      "text": "{played} hangs your {piece} outright this early. That cost you {swing}.",
       "slots": [
         "played",
         "piece",
@@ -126,7 +126,7 @@
       "themeId": "pin",
       "requiresEvidence": true,
       "description": "A pin in the opening costs a piece outright.",
-      "text": "{played} lets your opponent pin {piece} and win it outright. That single pin cost you {swing} before move fifteen.",
+      "text": "{played} lets your opponent pin your {piece} and win it outright. That single pin cost you {swing} before move fifteen.",
       "slots": [
         "played",
         "piece",
@@ -163,7 +163,7 @@
       ],
       "themeId": "discovered_attack",
       "description": "A piece shift opened a discovered attack worth a small edge.",
-      "text": "Moving {piece} opened a discovered attack you did not need to allow. Watch what lines open up before you move a piece off its file or diagonal.",
+      "text": "Moving your {piece} opened a discovered attack you did not need to allow. Watch what lines open up before you move a piece off its file or diagonal.",
       "slots": [
         "piece"
       ],
@@ -292,7 +292,7 @@
       "themeId": "hanging_piece",
       "requiresEvidence": true,
       "description": "A piece hangs in the middlegame for a real material loss.",
-      "text": "{played} leaves {piece} on {square} hanging in the middle of the game. {best_move} kept it defended.",
+      "text": "{played} leaves your {piece} on {square} hanging in the middle of the game. {best_move} kept it defended.",
       "slots": [
         "played",
         "piece",
@@ -312,7 +312,7 @@
       "themeId": "hanging_piece",
       "requiresEvidence": true,
       "description": "A piece hangs outright in the middlegame for a costly blunder.",
-      "text": "{played} hangs {piece} outright in the middlegame. You gave up {swing} for a piece that had a safe square.",
+      "text": "{played} hangs your {piece} outright in the middlegame. That cost you {swing}.",
       "slots": [
         "played",
         "piece",
@@ -367,7 +367,7 @@
       "themeId": "pin",
       "requiresEvidence": true,
       "description": "A pin in the middlegame costs real material or tempo.",
-      "text": "{played} lets your opponent pin {piece} to something more valuable. {best_move} kept the pin from ever landing.",
+      "text": "{played} lets your opponent pin your {piece} to something more valuable. {best_move} kept the pin from ever landing.",
       "slots": [
         "played",
         "piece",
@@ -386,7 +386,7 @@
       "themeId": "pin",
       "requiresEvidence": true,
       "description": "A pin in the middlegame costs a piece outright.",
-      "text": "{played} lets your opponent pin {piece} and win it outright in the middlegame. That cost you {swing} in a few moves.",
+      "text": "{played} lets your opponent pin your {piece} and win it outright in the middlegame. That cost you {swing} in a few moves.",
       "slots": [
         "played",
         "piece",
@@ -563,7 +563,7 @@
       ],
       "themeId": "piece_activity",
       "description": "A piece was misplaced badly enough to cost real activity.",
-      "text": "{played} sent {piece} somewhere it will need several moves to escape from. That kind of lost tempo is worth {swing} against a player who develops normally.",
+      "text": "{played} sent your {piece} somewhere it will need several moves to escape from. That kind of lost tempo is worth {swing} against a player who develops normally.",
       "slots": [
         "played",
         "piece",
@@ -1339,7 +1339,7 @@
       ],
       "themeId": "piece_activity",
       "description": "A piece was rerouted to a clearly better square.",
-      "text": "{played} sends {piece} to a square where it finally has something to do. Small improvements like that add up over a game.",
+      "text": "{played} sends your {piece} to a square where it finally has something to do. Small improvements like that add up over a game.",
       "slots": [
         "played",
         "piece"
