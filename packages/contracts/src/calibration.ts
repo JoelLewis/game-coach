@@ -3,7 +3,7 @@
 import * as v from "valibot";
 import { MoveFactsSchema } from "./engine.ts";
 import { StateBlockSchema } from "./state-block.ts";
-import { ErrorClassSchema, RatingBandSchema, SeverityLevelSchema } from "./taxonomy.ts";
+import { ErrorClassSchema, RatingBandSchema, SeverityLevelSchema, ThemeIdSchema } from "./taxonomy.ts";
 
 export const CalibrationLabelSchema = v.object({
   severity: SeverityLevelSchema,
@@ -12,6 +12,9 @@ export const CalibrationLabelSchema = v.object({
   teachable: v.boolean(),
   goodMove: v.boolean(),
   missedTactic: v.boolean(),
+  // Ground truth for the `theme` question when a source provides one (e.g. Lichess puzzle
+  // themes mapped onto ours). Absent for human-labeled items unless the labeler sets it.
+  themeId: v.optional(ThemeIdSchema),
   note: v.optional(v.pipe(v.string(), v.maxLength(500))),
 });
 export type CalibrationLabel = v.InferOutput<typeof CalibrationLabelSchema>;
@@ -19,7 +22,7 @@ export type CalibrationLabel = v.InferOutput<typeof CalibrationLabelSchema>;
 export const CalibrationItemSchema = v.object({
   id: v.string(),
   source: v.object({
-    kind: v.picklist(["lichess", "chesscom", "study", "fixture"]),
+    kind: v.picklist(["lichess", "chesscom", "study", "puzzle", "fixture"]),
     gameUrl: v.nullable(v.string()),
     ply: v.number(),
   }),
