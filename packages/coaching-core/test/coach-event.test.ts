@@ -49,6 +49,7 @@ const baseTemplate = (overrides: Partial<Template> = {}): Template => ({
   phase: "middlegame",
   severities: [2, 3],
   themeId: "hanging_piece",
+  requiresEvidence: false,
   description: "A hanging piece was missed in the middlegame.",
   text: "You left {piece} hanging on {square}.",
   slots: ["piece", "square"],

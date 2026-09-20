@@ -19,6 +19,13 @@ export type JudgeFromFactsInput = {
   thresholds: ThresholdConfig;
   context: DecisionContext;
   templateLibrary: TemplateLibrary;
+  // Opaque theme ids the caller's engine facts actually support (a chess- or Go-specific
+  // evidence function; this package stays game-agnostic and never looks inside them). Defaults
+  // to none, so a caller that has not been updated to supply evidence keeps every
+  // `requiresEvidence` template simply unselectable, same as before this field existed.
+  // `| undefined` is explicit (not just optional) so callers may pass it through verbatim under
+  // `exactOptionalPropertyTypes`.
+  evidenceThemes?: readonly string[] | undefined;
 };
 
 const fmt = (value: number): string => value.toFixed(2);
@@ -72,6 +79,7 @@ const baselineErrorClass = (
 
 export const judgeFromFacts = (input: JudgeFromFactsInput): Decision => {
   const { facts, practicalLoss, thresholds, context, templateLibrary } = input;
+  const evidenceThemes = input.evidenceThemes ?? [];
   const reasons: string[] = [];
 
   const severity = severityFromPracticalLoss(practicalLoss);
@@ -112,7 +120,7 @@ export const judgeFromFacts = (input: JudgeFromFactsInput): Decision => {
   const spoken =
     kind === undefined
       ? undefined
-      : selectSpokenTemplate(templateLibrary, { kind, errorClass, severity, phase: facts.phase }, slotValues);
+      : selectSpokenTemplate(templateLibrary, { kind, errorClass, severity, phase: facts.phase }, slotValues, evidenceThemes);
 
   let action: ActionTaken;
   if (context.mode === "off") {
@@ -144,7 +152,10 @@ export const judgeFromFacts = (input: JudgeFromFactsInput): Decision => {
       .sort(byId)[0] ?? templateLibrary.templates.slice().sort(byId)[0];
 
   const templateId = spoken?.template.id ?? neutralOrFirst?.id ?? "";
-  const themeId = spoken?.template.themeId ?? neutralOrFirst?.themeId ?? "unclear";
+  // Prefer the theme actually spoken; failing that, an evidence theme the facts support even
+  // though nothing fitting could be said about it (still useful for audit); failing that, the
+  // neutral fallback's theme.
+  const themeId = spoken?.template.themeId ?? evidenceThemes[0] ?? neutralOrFirst?.themeId ?? "unclear";
 
   return {
     action,

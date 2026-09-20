@@ -18,6 +18,7 @@ const library: TemplateLibrary = {
       phase: "any",
       severities: [0],
       themeId: "piece_activity",
+      requiresEvidence: false,
       description: "A strong or best move worth praising.",
       text: "Great move! {played} was one of the best options here.",
       slots: ["played"],
@@ -30,6 +31,7 @@ const library: TemplateLibrary = {
       phase: "any",
       severities: [0, 1, 2, 3],
       themeId: "calculation",
+      requiresEvidence: false,
       description: "Nothing urgent yet.",
       text: "Noted, the coach keeps watching.",
       slots: [],
@@ -42,6 +44,7 @@ const library: TemplateLibrary = {
       phase: "any",
       severities: [2, 3],
       themeId: "hanging_piece",
+      requiresEvidence: false,
       description: "Missed or allowed a hung piece.",
       text: "After {played}, {best_move} was clearly stronger.",
       slots: ["played", "best_move"],
@@ -54,6 +57,7 @@ const library: TemplateLibrary = {
       phase: "any",
       severities: [1, 2, 3],
       themeId: "piece_activity",
+      requiresEvidence: false,
       description: "A positional slip.",
       text: "{played} loosens your position a little.",
       slots: ["played"],
@@ -66,6 +70,7 @@ const library: TemplateLibrary = {
       phase: "any",
       severities: [1, 2, 3],
       themeId: "time_management",
+      requiresEvidence: false,
       description: "Rushed under a low clock.",
       text: "{played} came very fast on the clock.",
       slots: ["played"],
@@ -111,6 +116,7 @@ const judge = (overrides: Partial<JudgeFromFactsInput> = {}) => {
     thresholds,
     context: { ...context, practicalLoss },
     templateLibrary: overrides.templateLibrary ?? library,
+    evidenceThemes: overrides.evidenceThemes,
   });
 };
 
@@ -161,6 +167,136 @@ describe("judgeFromFacts: the hanging-queen blunder interrupts", () => {
     expect(decision.action).toBe("interrupt");
     expect(decision.errorClass).toBe("tactical_oversight");
     expect(decision.templateId).toBe("tactical_oversight.any.hanging_piece");
+  });
+});
+
+// T1 regression: the exact live bug. A hanging-queen blunder in the middlegame, where the only
+// candidate error templates all name a specific (and here, wrong) motif - back rank, a mate
+// threat, a trapped piece - must never speak the back-rank line just because it happened to be
+// first. It must speak a motif template only when the evidence backs that exact motif, and fall
+// to the generic line otherwise.
+describe("judgeFromFacts: T1 evidence gating (the live hanging-queen/back-rank bug)", () => {
+  const motifLibrary: TemplateLibrary = {
+    version: 1,
+    game: "chess",
+    templates: [
+      {
+        id: "tactical_oversight.middlegame.blunder_back_rank",
+        game: "chess",
+        kind: "error",
+        errorClass: "tactical_oversight",
+        phase: "middlegame",
+        severities: [3],
+        themeId: "back_rank",
+        requiresEvidence: true,
+        description: "The back rank was undefended.",
+        text: "{played} left your back rank open with no escape square for the king.",
+        slots: ["played"],
+      },
+      {
+        id: "tactical_oversight.middlegame.blunder_mate_threat",
+        game: "chess",
+        kind: "error",
+        errorClass: "tactical_oversight",
+        phase: "middlegame",
+        severities: [3],
+        themeId: "mate_threat",
+        requiresEvidence: true,
+        description: "A short mating attack was missed.",
+        text: "{played} missed a forced mating idea sitting on the board.",
+        slots: ["played"],
+      },
+      {
+        id: "tactical_oversight.middlegame.blunder_trapped_piece",
+        game: "chess",
+        kind: "error",
+        errorClass: "tactical_oversight",
+        phase: "middlegame",
+        severities: [3],
+        themeId: "trapped_piece",
+        requiresEvidence: true,
+        description: "A piece was already trapped.",
+        text: "Your piece had no safe square left after {played}.",
+        slots: ["played"],
+      },
+      {
+        id: "tactical_oversight.middlegame.blunder_hanging_piece",
+        game: "chess",
+        kind: "error",
+        errorClass: "tactical_oversight",
+        phase: "middlegame",
+        severities: [3],
+        themeId: "hanging_piece",
+        requiresEvidence: true,
+        description: "A piece hung outright.",
+        text: "{played} hangs your queen outright.",
+        slots: ["played"],
+      },
+      {
+        id: "tactical_oversight.any.blunder_generic",
+        game: "chess",
+        kind: "error",
+        errorClass: "tactical_oversight",
+        phase: "any",
+        severities: [3],
+        themeId: "calculation",
+        requiresEvidence: false,
+        description: "A tactical loss happened without one clear reason.",
+        text: "{played} gave up {swing}. {best_move} kept things under control.",
+        slots: ["played", "swing", "best_move"],
+      },
+      {
+        id: "neutral.any.keep_watching",
+        game: "chess",
+        kind: "neutral",
+        errorClass: null,
+        phase: "any",
+        severities: [0, 1, 2, 3],
+        themeId: "calculation",
+        requiresEvidence: false,
+        description: "Nothing urgent yet.",
+        text: "Noted, the coach keeps watching.",
+        slots: [],
+      },
+    ],
+  };
+
+  const hangingQueenFacts = baseFacts({
+    moveText: "Qh5",
+    evalBefore: { kind: "cp", cp: 71 },
+    evalAfter: { kind: "cp", cp: -730 },
+    phase: "middlegame",
+  });
+
+  it("with no evidence at all, never speaks a motif line - falls to the generic one", () => {
+    const decision = judge({ facts: hangingQueenFacts, practicalLoss: 0.4, templateLibrary: motifLibrary });
+    expect(decision.action).toBe("interrupt");
+    expect(decision.templateId).toBe("tactical_oversight.any.blunder_generic");
+    expect(decision.themeId).toBe("calculation");
+  });
+
+  it("with hanging_piece evidence, speaks the hanging-piece template, never back-rank", () => {
+    const decision = judge({
+      facts: hangingQueenFacts,
+      practicalLoss: 0.4,
+      templateLibrary: motifLibrary,
+      evidenceThemes: ["hanging_piece"],
+    });
+    expect(decision.templateId).toBe("tactical_oversight.middlegame.blunder_hanging_piece");
+    expect(decision.themeId).toBe("hanging_piece");
+  });
+
+  it("with evidence for a motif that has no template, still never falls back to an unsupported motif template", () => {
+    const decision = judge({
+      facts: hangingQueenFacts,
+      practicalLoss: 0.4,
+      templateLibrary: motifLibrary,
+      evidenceThemes: ["fork"],
+    });
+    expect(decision.templateId).toBe("tactical_oversight.any.blunder_generic");
+    // The unmatched evidence theme is still reported for audit purposes on the decision... but
+    // only when nothing was spoken; here something was spoken, so its own theme wins.
+    expect(decision.themeId).toBe("calculation");
   });
 });
 

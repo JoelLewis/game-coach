@@ -11,6 +11,7 @@ import type { CoachEvent } from "@game-coach/contracts/ws-protocol";
 import { judgeFromFacts } from "@game-coach/coaching-core/judge-facts";
 import { fillTemplate, slotValuesFromFacts, MissingSlotError } from "@game-coach/coaching-core/template-fill";
 import { buildCoachEvent } from "@game-coach/coaching-core/coach-event";
+import { chessEvidenceThemes } from "./chess-evidence.ts";
 
 export type JudgeFactsLiveInput = {
   facts: MoveFacts;
@@ -28,6 +29,13 @@ export type JudgeFactsLiveResult = {
   coachEvent: CoachEvent | undefined;
 };
 
+// Only chess has an evidence function today (chess-evidence.ts derives themes from
+// crates/chess-core's features); a future Go evidence function belongs in its own package's
+// wiring, same as this one, and until then Go simply supplies no evidence, which keeps every
+// `requiresEvidence` template unselectable for it rather than wrongly evidenced.
+const evidenceThemesFor = (game: GameKind, facts: MoveFacts): readonly string[] =>
+  game === "chess" ? chessEvidenceThemes(facts) : [];
+
 export const judgeFactsLive = (input: JudgeFactsLiveInput): JudgeFactsLiveResult => {
   const practicalLoss = practicalLossFor(input.game)(input.facts.evalBefore, input.facts.evalAfter);
   const decision = judgeFromFacts({
@@ -36,6 +44,7 @@ export const judgeFactsLive = (input: JudgeFactsLiveInput): JudgeFactsLiveResult
     thresholds: input.thresholds,
     context: { ...input.context, practicalLoss },
     templateLibrary: input.templateLibrary,
+    evidenceThemes: evidenceThemesFor(input.game, input.facts),
   });
 
   let coachEvent: CoachEvent | undefined;

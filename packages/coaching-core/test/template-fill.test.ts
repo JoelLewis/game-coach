@@ -81,6 +81,7 @@ describe("fillTemplate", () => {
     phase: "middlegame",
     severities: [2, 3],
     themeId: "hanging_piece",
+    requiresEvidence: false,
     description: "A hanging piece was missed in the middlegame.",
     text: "Before {played}, check what {best_move} does. You gave up {swing} here.",
     slots: ["played", "best_move", "swing"],

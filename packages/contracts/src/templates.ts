@@ -35,6 +35,11 @@ export const TemplateSchema = v.object({
   // Severity levels this template suits; the pre-filter matches on engine cp-loss bucket.
   severities: v.array(SeverityLevelSchema),
   themeId: ThemeIdSchema,
+  // True when `text` names a specific motif (a pin, a fork, a hung piece, ...) rather than only
+  // the engine numbers and the move played. A template with this set may only be spoken when the
+  // caller's evidence themes include `themeId` (coaching-core's selectSpokenTemplate); additive
+  // and optional so every existing template keeps behaving exactly as before.
+  requiresEvidence: v.optional(v.boolean(), false),
   // What Jev reads as the choice criterion. Keep under ~15 words: it is paid for on every move.
   description: v.pipe(v.string(), v.minLength(8), v.maxLength(120)),
   // Player-facing, with {slot} placeholders. Max 2 sentences.

@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import { TemplateLibrarySchema, SLOT_PATTERN, SLOT_NAMES, type Template } from "@game-coach/contracts/templates";
 import { PHASES, type Phase } from "@game-coach/contracts/engine";
-import { CHESS_THEME_IDS, SEVERITY, type SeverityLevel } from "@game-coach/contracts/taxonomy";
+import { CHESS_THEME_IDS, ERROR_CLASS_IDS, SEVERITY, type SeverityLevel } from "@game-coach/contracts/taxonomy";
 import { estimateTokens } from "@game-coach/contracts/state-block";
 import { CHESS_TEMPLATE_LIBRARY } from "../src/library.ts";
 
@@ -36,6 +36,47 @@ const REQUIRED_ERROR_CELLS: ReadonlyArray<{ errorClass: string; phase: Phase | "
 ];
 
 const REQUIRED_SEVERITIES: readonly SeverityLevel[] = [SEVERITY.inaccuracy, SEVERITY.mistake, SEVERITY.blunder];
+
+// T1: "engine owns truth" - a template whose text names a specific motif rather than only the
+// engine numbers and the move played may only be spoken when the caller's evidence backs its
+// theme (coaching-core's selectSpokenTemplate). Motif words a *generic* (non-`requiresEvidence`)
+// template's text must never use.
+const MOTIF_WORD_PATTERNS: ReadonlyArray<{ label: string; pattern: RegExp }> = [
+  { label: "pin", pattern: /\bpin(s|ned|ning)?\b/i },
+  { label: "fork", pattern: /\bfork(s|ed|ing)?\b/i },
+  { label: "skewer", pattern: /\bskewer(s|ed|ing)?\b/i },
+  { label: "back rank", pattern: /back[- ]rank/i },
+  { label: "hanging", pattern: /\bhang(s|ing|ed)?\b/i },
+  { label: "trapped", pattern: /\btrap(s|ped|ping)?\b/i },
+  { label: "discovered", pattern: /\bdiscover(s|ed|y|ies)?\b/i },
+  { label: "mate", pattern: /\bmate(s|d)?\b/i },
+];
+
+// Mirrors the theme ids apps/session/src/chess-evidence.ts's pure derivation can actually
+// produce from crates/chess-core's features (tactics_against_player descriptions, the
+// snake_case `themes` list and a mate-against-player eval) - templates-chess cannot import that
+// package (apps depend on packages, never the reverse), so this list is kept in sync by hand.
+// chess-evidence.test.ts pins the real derivation against quoted Rust phrases.
+const EVIDENCEABLE_THEMES = new Set([
+  "hanging_piece",
+  "fork",
+  "pin",
+  "skewer",
+  "discovered_attack",
+  "back_rank",
+  "mate_threat",
+  "king_safety",
+  "opening_principles",
+  "piece_activity",
+  "passed_pawns",
+]);
+
+// Motif-specific themes with no Rust signal to evidence them yet: crates/chess-core has no
+// detection at all for an overloaded defender, a removed defender or a piece with no safe
+// square (see the T1 report's Contract notes). Their `requiresEvidence` templates are correctly
+// unreachable today; kept here explicitly so a *newly* unreachable theme still fails the test
+// below instead of silently going unnoticed.
+const KNOWN_UNREACHABLE_MOTIF_THEMES = new Set(["trapped_piece", "overloaded_piece", "removing_defender"]);
 
 const wordCount = (text: string): number => text.trim().split(/\s+/).filter(Boolean).length;
 
@@ -82,9 +123,12 @@ describe("CHESS_TEMPLATE_LIBRARY", () => {
     expect(CHESS_TEMPLATE_LIBRARY.game).toBe("chess");
   });
 
-  it("has between 70 and 90 templates", () => {
+  // T1 added a generic "any" template for every (error class x severity) cell that lacked one,
+  // plus obviously-missing hanging piece/fork/pin motif variants, growing the library past the
+  // old 90 ceiling; the floor is unchanged.
+  it("has between 70 and 105 templates", () => {
     expect(CHESS_TEMPLATE_LIBRARY.templates.length).toBeGreaterThanOrEqual(70);
-    expect(CHESS_TEMPLATE_LIBRARY.templates.length).toBeLessThanOrEqual(90);
+    expect(CHESS_TEMPLATE_LIBRARY.templates.length).toBeLessThanOrEqual(105);
   });
 
   it("has unique ids", () => {
@@ -211,5 +255,86 @@ describe("CHESS_TEMPLATE_LIBRARY", () => {
         expect(tokens, `phase=${phase} bucket=${bucket}`).toBeLessThan(700);
       }
     }
+  });
+
+  // T1: "a template that names a specific motif may be spoken only when the facts support that
+  // motif; otherwise the coach uses a generic line for the cell that claims nothing beyond the
+  // engine numbers and the move played." (see docs on the live hanging-queen/back-rank bug.)
+  describe("T1: requiresEvidence gating", () => {
+    it("marks every tactical-motif error template requiresEvidence: true", () => {
+      const motifThemeIds = new Set([...EVIDENCEABLE_THEMES, ...KNOWN_UNREACHABLE_MOTIF_THEMES]);
+      for (const template of CHESS_TEMPLATE_LIBRARY.templates) {
+        if (template.kind !== "error") continue;
+        if (!motifThemeIds.has(template.themeId)) continue;
+        // A theme id happening to be evidenceable doesn't by itself make a template
+        // motif-specific (e.g. a generic "any" template can legitimately carry a broad,
+        // non-motif theme like "piece_activity" for Jev's theme question). What must always be
+        // gated is any template whose *text* actually names one of the tactical motif words.
+        const namesAMotif = MOTIF_WORD_PATTERNS.some(({ pattern }) => pattern.test(template.text));
+        if (!namesAMotif) continue;
+        expect(template.requiresEvidence, `id ${template.id} names a motif but is not gated`).toBe(true);
+      }
+    });
+
+    it("never lets a generic (non-requiresEvidence) error template claim a specific motif in its text", () => {
+      for (const template of CHESS_TEMPLATE_LIBRARY.templates) {
+        if (template.kind !== "error" || template.requiresEvidence) continue;
+        for (const { label, pattern } of MOTIF_WORD_PATTERNS) {
+          expect(pattern.test(template.text), `id ${template.id} text names motif "${label}": "${template.text}"`).toBe(
+            false,
+          );
+        }
+      }
+    });
+
+    it("gives every (error class x severity 1-3) pair a generic, always-selectable 'any' template", () => {
+      for (const errorClass of ERROR_CLASS_IDS) {
+        for (const severity of REQUIRED_SEVERITIES) {
+          const hasGeneric = CHESS_TEMPLATE_LIBRARY.templates.some(
+            (t) =>
+              t.kind === "error" &&
+              t.errorClass === errorClass &&
+              t.phase === "any" &&
+              t.severities.includes(severity) &&
+              !t.requiresEvidence,
+          );
+          expect(hasGeneric, `no generic 'any' template for errorClass=${errorClass} severity=${severity}`).toBe(true);
+        }
+      }
+    });
+
+    it("every requiresEvidence template's theme is one the evidence function can actually produce", () => {
+      const unreachable = new Set<string>();
+      for (const template of CHESS_TEMPLATE_LIBRARY.templates) {
+        if (!template.requiresEvidence) continue;
+        if (EVIDENCEABLE_THEMES.has(template.themeId)) continue;
+        unreachable.add(template.themeId);
+      }
+      // Every unreachable theme found must be one we've explicitly accepted as currently
+      // unreachable (see KNOWN_UNREACHABLE_MOTIF_THEMES's comment and the T1 report's Contract
+      // notes) - anything else means a requiresEvidence template can never be spoken by accident.
+      expect([...unreachable].sort()).toEqual([...KNOWN_UNREACHABLE_MOTIF_THEMES].sort());
+    });
+
+    it("has obviously-missing hanging piece / fork / pin variants at mistake and blunder severity in opening and middlegame", () => {
+      const motifs = ["hanging_piece", "fork", "pin"] as const;
+      const phases: readonly Phase[] = ["opening", "middlegame"];
+      const severities: readonly SeverityLevel[] = [SEVERITY.mistake, SEVERITY.blunder];
+      for (const themeId of motifs) {
+        for (const phase of phases) {
+          for (const severity of severities) {
+            const hasOne = CHESS_TEMPLATE_LIBRARY.templates.some(
+              (t) =>
+                t.kind === "error" &&
+                t.errorClass === "tactical_oversight" &&
+                t.phase === phase &&
+                t.themeId === themeId &&
+                t.severities.includes(severity),
+            );
+            expect(hasOne, `no ${themeId} template for phase=${phase} severity=${severity}`).toBe(true);
+          }
+        }
+      }
+    });
   });
 });
