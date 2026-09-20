@@ -19,6 +19,7 @@ export const EvalSchema = v.variant("kind", [
 export type Eval = v.InferOutput<typeof EvalSchema>;
 
 export const MATE_CP = 10_000;
+export const MAX_ENGINE_DEPTH = 256;
 
 export const evalToCp = (score: Eval): number =>
   score.kind === "cp"
@@ -65,7 +66,9 @@ export const MoveFactsSchema = v.object({
   swing: v.pipe(v.number(), v.integer()),
   bestLines: v.pipe(v.array(BestLineSchema), v.minLength(1), v.maxLength(3)),
   playedLine: LineSchema,
-  depth: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(99)),
+  // Stockfish's own ceiling is 246 plies, and it really reaches 200+ on forcing positions even
+  // at a short movetime (seen: 245). A lower cap here made the server reject real moves.
+  depth: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(MAX_ENGINE_DEPTH)),
   phase: PhaseSchema,
   features: FeaturesSchema,
   clockMs: v.pipe(v.number(), v.integer(), v.minValue(0)),
