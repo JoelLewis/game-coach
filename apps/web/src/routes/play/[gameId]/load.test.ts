@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "@game-coach/contracts/session-rpc";
-import { load } from "./+page.ts";
+import { load, ssr } from "./+page.ts";
 
 const STATE: GameState = {
 	summary: { gameId: "g1", playerId: "p1", status: "live", result: null, lastPly: 2, startedAt: 1000, endedAt: null },
@@ -58,5 +58,13 @@ describe("play page load", () => {
 		}) as typeof fetch;
 		const data = await load(fakeEvent(fetchImpl));
 		expect(data).toEqual({ gameId: "g1", gameState: null });
+	});
+});
+
+describe("play page rendering", () => {
+	// The page opens its WebSocket and Stockfish worker during component setup; rendered on the
+	// server there is no `location`, and every hard load of a game URL returned a 500.
+	it("is client-only", () => {
+		expect(ssr).toBe(false);
 	});
 });

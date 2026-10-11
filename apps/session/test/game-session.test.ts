@@ -59,6 +59,18 @@ const replenishRateLimitBucket = async (gameId: string): Promise<void> => {
   });
 };
 
+// The opposite seam for the A03 tests themselves: the bucket refills from the real clock, so
+// "the 21st frame is rejected" races wall time - under a loaded run the burst takes over 200 ms and
+// a token refills. A deep deficit (1,000 tokens = 200 s of refill) keeps the bucket empty for the
+// rest of the test. The refill arithmetic itself is covered with a fixed clock in
+// session-store.test.ts; these tests cover only the socket wiring.
+const drainRateLimitBucket = async (gameId: string): Promise<void> => {
+  const stub = env.GAME_SESSION.get(env.GAME_SESSION.idFromName(gameId));
+  await runInDurableObject(stub, async (_instance, state) => {
+    state.storage.sql.exec("UPDATE meta SET bucket_tokens = -1000, bucket_updated_at = ? WHERE id = 1", Date.now());
+  });
+};
+
 describe("GameSession over a real WebSocket", () => {
   it("plays a scripted 40-round (80-ply) game: every player move is judged, some blunders interrupt (cooldown respected), and D1 has the expected rows after flush", { timeout: 30_000 }, async () => {
     const gameId = `scripted-${crypto.randomUUID()}`;
@@ -417,7 +429,8 @@ describe("GameSession over a real WebSocket", () => {
         state.storage.sql.exec("SELECT last_frame_at FROM meta WHERE id = 1").one().last_frame_at,
       );
 
-      // The bucket is now empty: this frame must be rejected, not judged.
+      // The burst is spent; drain explicitly so a refill during a slow run cannot let this through.
+      await drainRateLimitBucket(gameId);
       send(ws, { type: "move", facts: moveFacts({ ply }) });
       expect(await queue.next()).toMatchObject({ type: "error", code: "rate_limited" });
 
@@ -444,6 +457,8 @@ describe("GameSession over a real WebSocket", () => {
         ply += 2;
       }
 
+      // An allowed frame resets the violation streak, so a mid-streak refill would also defeat this.
+      await drainRateLimitBucket(gameId);
       const closePromise = waitForClose(ws);
       for (let i = 0; i < RATE_LIMIT.violationsBeforeClose; i++) {
         try {

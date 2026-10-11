@@ -8,6 +8,10 @@ import * as v from "valibot";
 import { GameStateSchema, type GameState } from "@game-coach/contracts/session-rpc";
 import type { PageLoad } from "./$types";
 
+// The game screen is browser-only: it opens its WebSocket and Stockfish worker during component
+// setup, and there is no `location` to build the socket URL from on the server.
+export const ssr = false;
+
 export type PlayPageData = {
 	gameId: string;
 	gameState: GameState | null;
