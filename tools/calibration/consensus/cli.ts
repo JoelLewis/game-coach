@@ -59,6 +59,10 @@ const MERGE_USAGE =
   "Usage: consensus merge --set <items.jsonl> --labeled <to-label.jsonl> --consensus <consensus.jsonl> " +
   "--audit-manifest <audit-manifest.jsonl> --out <merged.jsonl> [--report-out <path>]";
 
+// Output sinks, injected so tests can run the CLI in-process instead of paying subprocess
+// startup (Node boot + type stripping) per call.
+export type CliIo = { stdout: (text: string) => void; stderr: (text: string) => void };
+
 type BuildArgs = { setPath: string; proposalPaths: string[]; audit: number; seed: string; outDir: string };
 type MergeArgs = {
   setPath: string;
@@ -122,7 +126,7 @@ const parseItem = (value: unknown): CalibrationItem => v.parse(CalibrationItemSc
 const parseProposalRow = (value: unknown): ProposalRow => v.parse(ProposalRowSchema, value);
 const parseAuditManifestEntry = (value: unknown): AuditManifestEntry => v.parse(AuditManifestEntrySchema, value);
 
-const runBuild = async (argv: readonly string[]): Promise<void> => {
+const runBuild = async (argv: readonly string[], io: CliIo): Promise<void> => {
   const args = parseBuildArgs(argv);
   const items = await readJsonl(args.setPath, parseItem);
   const proposalPasses = await Promise.all(args.proposalPaths.map((path) => readJsonl(path, parseProposalRow)));
@@ -135,18 +139,18 @@ const runBuild = async (argv: readonly string[]): Promise<void> => {
   await writeJsonl(join(args.outDir, "dissent.jsonl"), result.dissentManifest);
   await writeFile(join(args.outDir, "report.md"), renderConsensusReport(result.report));
 
-  process.stdout.write(
+  io.stdout(
     `Consensus: ${result.report.unanimousCount}/${result.report.totalItems} unanimous, ` +
       `${result.report.auditedCount} audited, ${result.report.toLabelCount} to label ` +
       `(${((result.report.toLabelCount / Math.max(1, result.report.totalItems)) * 100).toFixed(1)}% of the set).\n`,
   );
   if (result.report.unknownProposalIds.length) {
-    process.stdout.write(`Ignored ${result.report.unknownProposalIds.length} proposal id(s) not in the set.\n`);
+    io.stdout(`Ignored ${result.report.unknownProposalIds.length} proposal id(s) not in the set.\n`);
   }
-  process.stdout.write(`Wrote ${args.outDir}/to-label.jsonl, consensus.jsonl, audit-manifest.jsonl, dissent.jsonl, report.md\n`);
+  io.stdout(`Wrote ${args.outDir}/to-label.jsonl, consensus.jsonl, audit-manifest.jsonl, dissent.jsonl, report.md\n`);
 };
 
-const runMerge = async (argv: readonly string[]): Promise<void> => {
+const runMerge = async (argv: readonly string[], io: CliIo): Promise<number> => {
   const args = parseMergeArgs(argv);
   const [set, labeledToLabel, consensus, auditManifest] = await Promise.all([
     readJsonl(args.setPath, parseItem),
@@ -174,15 +178,15 @@ const runMerge = async (argv: readonly string[]): Promise<void> => {
   ];
   await writeFile(args.reportOutPath, lines.join("\n"));
 
-  process.stdout.write(`Consensus subset usable: ${result.consensusUsable ? "YES" : "NO"}\n`);
+  io.stdout(`Consensus subset usable: ${result.consensusUsable ? "YES" : "NO"}\n`);
   if (!result.consensusUsable) {
-    process.stdout.write(`Refused: ${result.refusalReasons.join("; ")}\n`);
+    io.stdout(`Refused: ${result.refusalReasons.join("; ")}\n`);
   }
-  process.stdout.write(
+  io.stdout(
     `Merged ${result.items.length} item(s): ${result.humanLabeledCount} human, ${result.consensusLabeledCount} consensus -> ${args.outPath}\n`,
   );
-  process.stdout.write(`Wrote audit accuracy report -> ${args.reportOutPath}\n`);
-  process.exitCode = result.consensusUsable ? 0 : 1;
+  io.stdout(`Wrote audit accuracy report -> ${args.reportOutPath}\n`);
+  return result.consensusUsable ? 0 : 1;
 };
 
 const isMainModule = (): boolean => {
@@ -190,19 +194,22 @@ const isMainModule = (): boolean => {
   return !!invoked && import.meta.url === new URL(invoked, "file://").href;
 };
 
-const main = async (): Promise<void> => {
-  const argv = process.argv.slice(2);
+// Returns the process exit code. Errors are reported on stderr, never thrown.
+export const runConsensusCli = async (argv: readonly string[], io: CliIo): Promise<number> => {
   const cleaned = argv[0] === "--" ? argv.slice(1) : argv;
-  if (cleaned[0] === "merge") {
-    await runMerge(cleaned.slice(1));
-  } else {
-    await runBuild(cleaned);
+  try {
+    if (cleaned[0] === "merge") return await runMerge(cleaned.slice(1), io);
+    await runBuild(cleaned, io);
+    return 0;
+  } catch (error: unknown) {
+    io.stderr(`${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}\n`);
+    return 1;
   }
 };
 
 if (isMainModule()) {
-  await main().catch((error: unknown) => {
-    process.stderr.write(`${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}\n`);
-    process.exitCode = 1;
+  process.exitCode = await runConsensusCli(process.argv.slice(2), {
+    stdout: (text) => process.stdout.write(text),
+    stderr: (text) => process.stderr.write(text),
   });
 }
