@@ -16,6 +16,8 @@ export default defineWorkersConfig(async () => {
       poolOptions: {
         workers: {
           wrangler: { configPath: "./wrangler.jsonc" },
+          // See vitest.config.ts: keep every binding local (no Cloudflare login in CI).
+          remoteBindings: false,
           miniflare: {
             bindings: {
               TEST_MIGRATIONS: migrations,

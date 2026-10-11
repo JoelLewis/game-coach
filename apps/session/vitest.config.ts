@@ -23,6 +23,10 @@ export default defineWorkersConfig(async () => {
       poolOptions: {
         workers: {
           wrangler: { configPath: "./wrangler.jsonc" },
+          // The AI binding in wrangler.jsonc is remote-only, so by default the pool opens a remote
+          // proxy session, which needs a Cloudflare login (CI has none). Tests use the fixture
+          // transport and never call Workers AI, so keep every binding local.
+          remoteBindings: false,
           miniflare: {
             bindings: {
               // Test-only binding so the setup file can apply `db/migrations` to the test D1.
