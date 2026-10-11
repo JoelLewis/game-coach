@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { CalibrationItem, CalibrationLabel } from "@game-coach/contracts/calibration";
 import { label } from "../score/test-data.ts";
 import { testItem } from "./test-helpers.ts";
+import { runConsensusCli } from "./cli.ts";
 
 const directories: string[] = [];
 afterEach(async () => { await Promise.all(directories.splice(0).map((dir) => rm(dir, { recursive: true, force: true }))); });
@@ -21,12 +22,18 @@ const writeJsonl = async (path: string, rows: readonly unknown[]): Promise<void>
   await writeFile(path, rows.length ? rows.map((r) => JSON.stringify(r)).join("\n") + "\n" : "");
 };
 
-const run = (cwd: string, args: readonly string[]) =>
-  spawnSync(
-    process.execPath,
-    ["--experimental-strip-types", "--disable-warning=ExperimentalWarning", fileURLToPath(new URL("./cli.ts", import.meta.url)), ...args],
-    { cwd, encoding: "utf8", timeout: 15000 },
-  );
+// Runs the CLI in-process. A subprocess per call costs ~0.2 s on a quiet machine and ~2 s under
+// load (Node boot plus type stripping the CLI's import graph), which pushed multi-call tests
+// past Vitest's 5 s timeout. The script entry point keeps one subprocess test below.
+const run = async (args: readonly string[]) => {
+  let stdout = "";
+  let stderr = "";
+  const status = await runConsensusCli(args, {
+    stdout: (text) => { stdout += text; },
+    stderr: (text) => { stderr += text; },
+  });
+  return { status, stdout, stderr };
+};
 
 const unanimous = label({ severity: 1, interruptWorthy: false, goodMove: false, missedTactic: false });
 const items: CalibrationItem[] = [
@@ -46,9 +53,9 @@ describe("consensus CLI: build", () => {
     await writeJsonl(join(dir, "b.jsonl"), passOf(1));
     await writeJsonl(join(dir, "c.jsonl"), passOf(2));
 
-    const result = run(dir, [
-      "--set", "set.jsonl", "--proposals", "a.jsonl", "b.jsonl", "c.jsonl",
-      "--audit", "2", "--seed", "20260919", "--out-dir", "out",
+    const result = await run([
+      "--set", join(dir, "set.jsonl"), "--proposals", join(dir, "a.jsonl"), join(dir, "b.jsonl"), join(dir, "c.jsonl"),
+      "--audit", "2", "--seed", "20260919", "--out-dir", join(dir, "out"),
     ]);
     expect(result.stderr).toBe("");
     expect(result.status).toBe(0);
@@ -69,7 +76,7 @@ describe("consensus CLI: build", () => {
 
   it("rejects missing arguments with usage text", async () => {
     const dir = await mkTmp();
-    const result = run(dir, ["--set", "set.jsonl"]);
+    const result = await run(["--set", join(dir, "set.jsonl")]);
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("Usage:");
   });
@@ -79,9 +86,9 @@ describe("consensus CLI: build", () => {
     await writeJsonl(join(dir, "set.jsonl"), items);
     await writeJsonl(join(dir, "a.jsonl"), passOf(1));
     await writeJsonl(join(dir, "b.jsonl"), passOf(1).filter((r) => r.id !== "u1"));
-    const result = run(dir, [
-      "--set", "set.jsonl", "--proposals", "a.jsonl", "b.jsonl",
-      "--audit", "0", "--seed", "s", "--out-dir", "out",
+    const result = await run([
+      "--set", join(dir, "set.jsonl"), "--proposals", join(dir, "a.jsonl"), join(dir, "b.jsonl"),
+      "--audit", "0", "--seed", "s", "--out-dir", join(dir, "out"),
     ]);
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("missing a proposal");
@@ -94,9 +101,9 @@ describe("consensus CLI: merge", () => {
     await writeJsonl(join(dir, "a.jsonl"), passOf(1));
     await writeJsonl(join(dir, "b.jsonl"), passOf(1));
     await writeJsonl(join(dir, "c.jsonl"), passOf(1));
-    run(dir, [
-      "--set", "set.jsonl", "--proposals", "a.jsonl", "b.jsonl", "c.jsonl",
-      "--audit", "2", "--seed", "20260919", "--out-dir", "out",
+    await run([
+      "--set", join(dir, "set.jsonl"), "--proposals", join(dir, "a.jsonl"), join(dir, "b.jsonl"), join(dir, "c.jsonl"),
+      "--audit", "2", "--seed", "20260919", "--out-dir", join(dir, "out"),
     ]);
     const toLabel: CalibrationItem[] = (await readFile(join(dir, "out/to-label.jsonl"), "utf8"))
       .trim().split("\n").map((line) => JSON.parse(line));
@@ -115,9 +122,9 @@ describe("consensus CLI: merge", () => {
   it("merges human labels over consensus and reports usable=YES on strong audit agreement", async () => {
     const dir = await mkTmp();
     await buildScenario(dir, true);
-    const result = run(dir, [
-      "merge", "--set", "set.jsonl", "--labeled", "out/to-label.jsonl", "--consensus", "out/consensus.jsonl",
-      "--audit-manifest", "out/audit-manifest.jsonl", "--out", "out/merged.jsonl",
+    const result = await run([
+      "merge", "--set", join(dir, "set.jsonl"), "--labeled", join(dir, "out/to-label.jsonl"), "--consensus", join(dir, "out/consensus.jsonl"),
+      "--audit-manifest", join(dir, "out/audit-manifest.jsonl"), "--out", join(dir, "out/merged.jsonl"),
     ]);
     expect(result.stderr).toBe("");
     expect(result.status).toBe(0);
@@ -132,9 +139,9 @@ describe("consensus CLI: merge", () => {
   it("exits 1 and refuses consensus labels when the human disagrees with the audit sample", async () => {
     const dir = await mkTmp();
     await buildScenario(dir, false);
-    const result = run(dir, [
-      "merge", "--set", "set.jsonl", "--labeled", "out/to-label.jsonl", "--consensus", "out/consensus.jsonl",
-      "--audit-manifest", "out/audit-manifest.jsonl", "--out", "out/merged.jsonl",
+    const result = await run([
+      "merge", "--set", join(dir, "set.jsonl"), "--labeled", join(dir, "out/to-label.jsonl"), "--consensus", join(dir, "out/consensus.jsonl"),
+      "--audit-manifest", join(dir, "out/audit-manifest.jsonl"), "--out", join(dir, "out/merged.jsonl"),
     ]);
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("usable: NO");
@@ -145,4 +152,20 @@ describe("consensus CLI: merge", () => {
     expect(merged.some((row) => row.labeler?.startsWith("consensus-"))).toBe(false);
     expect(merged.some((row) => row.label === null)).toBe(true);
   });
+});
+
+describe("consensus CLI as a script", () => {
+  // The one test that spawns Node, to cover the entry point (main-module check, stderr, exit
+  // code). Startup is ~0.2 s quiet but several seconds on a loaded machine, so it gets its own
+  // timeout rather than raising the package default.
+  it("exits 1 with usage text on stderr when arguments are missing", async () => {
+    const dir = await mkTmp();
+    const result = spawnSync(
+      process.execPath,
+      ["--experimental-strip-types", "--disable-warning=ExperimentalWarning", fileURLToPath(new URL("./cli.ts", import.meta.url)), "--set", "set.jsonl"],
+      { cwd: dir, encoding: "utf8", timeout: 25_000 },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("Usage:");
+  }, 30_000);
 });

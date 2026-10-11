@@ -12,6 +12,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import * as v from "valibot";
 import { CalibrationItemSchema, type CalibrationItem } from "@game-coach/contracts/calibration";
+import type { CliIo } from "../consensus/cli.ts";
 import { DEFAULT_THRESHOLDS } from "@game-coach/contracts/decision";
 import { JevAnswersSchema, mostLikelyLevel, type JevAnswers } from "@game-coach/contracts/jev";
 import { evaluateThresholds, type EvalRow } from "./evaluate.ts";
@@ -99,8 +100,8 @@ const buildHeldOutReport = (heldOutRows: readonly EvalRow[], tunedThresholds: ty
   };
 };
 
-const main = async (): Promise<void> => {
-  const args = parseTuneArgs(process.argv.slice(2));
+const runTune = async (argv: readonly string[], io: CliIo): Promise<void> => {
+  const args = parseTuneArgs(argv);
   const [items, answerRows] = await Promise.all([
     readJsonl(args.setPath, (value) => v.parse(CalibrationItemSchema, value)),
     readJsonl(args.answersPath, (value) => v.parse(AnswerRowSchema, value)),
@@ -154,18 +155,18 @@ const main = async (): Promise<void> => {
   await writeFile(join(args.outDir, "tune-report.md"), renderTuneReport(reportData));
   await writeFile(join(args.outDir, "tune-report.json"), JSON.stringify(toReportJson(reportData), null, 2) + "\n");
 
-  process.stdout.write(
+  io.stdout(
     `Tuned on ${tuneRows.length} human-labeled tune-half item(s) (${humanSplit.gamesTune} games); ` +
       `chosen minPracticalLoss=${grid.chosen.point.minPracticalLoss}, interruptNoul=${grid.chosen.point.interruptNoul} ` +
       `(${grid.metPrecisionFloor ? "cleared" : "did NOT clear"} the ${(args.minPrecision * 100).toFixed(0)}% precision floor).\n`,
   );
-  process.stdout.write(
+  io.stdout(
     `Held out: ${humanSplit.heldOut.length} human-labeled, ${nonHumanSplit.heldOut.length} non-human-labeled item(s).\n`,
   );
   if (humanItems.length === 0) {
-    process.stdout.write("WARNING: no human-labeled items found; grid search and human held-out metrics are empty.\n");
+    io.stdout("WARNING: no human-labeled items found; grid search and human held-out metrics are empty.\n");
   }
-  process.stdout.write(`Wrote ${args.outDir}/tune-report.md and tune-report.json\n`);
+  io.stdout(`Wrote ${args.outDir}/tune-report.md and tune-report.json\n`);
 };
 
 const isMainModule = (): boolean => {
@@ -173,9 +174,20 @@ const isMainModule = (): boolean => {
   return !!invoked && import.meta.url === new URL(invoked, "file://").href;
 };
 
+// Returns the process exit code. Errors are reported on stderr, never thrown.
+export const runTuneCli = async (argv: readonly string[], io: CliIo): Promise<number> => {
+  try {
+    await runTune(argv, io);
+    return 0;
+  } catch (error: unknown) {
+    io.stderr(`${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}\n`);
+    return 1;
+  }
+};
+
 if (isMainModule()) {
-  await main().catch((error: unknown) => {
-    process.stderr.write(`${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}\n`);
-    process.exitCode = 1;
+  process.exitCode = await runTuneCli(process.argv.slice(2), {
+    stdout: (text) => process.stdout.write(text),
+    stderr: (text) => process.stderr.write(text),
   });
 }
