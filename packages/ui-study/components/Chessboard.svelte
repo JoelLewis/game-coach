@@ -8,6 +8,9 @@
   import type { Api } from "@lichess-org/chessground/api";
   import type { Dests, Key, Piece } from "@lichess-org/chessground/types";
   import "@lichess-org/chessground/assets/chessground.base.css";
+  // Base only lays the board out; the squares and the pieces come from these two.
+  import "@lichess-org/chessground/assets/chessground.brown.css";
+  import "@lichess-org/chessground/assets/chessground.cburnett.css";
 
   type Color = "white" | "black";
 
